@@ -51,7 +51,7 @@ const store; // a normal Redux store
 wrapStore(store, {portName: 'MY_APP'}); // make sure portName matches
 ```
 
-That's actually it. The `dispatch`es called from UI component will find there way to the background page no problem. The new state from your background page will make sure to find it's way back to the UI components just like all your other apps.
+That's actually it. The `dispatch`es called from UI component will find their way to the background page no problem. The new state from your background page will make sure to find its way back to the UI components just like all your other apps.
 
 ## Async and Complex Actions
 
