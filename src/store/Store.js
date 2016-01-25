@@ -1,3 +1,5 @@
+import Promise from 'bluebird';
+
 import {
   DISPATCH_TYPE,
   STATE_TYPE
@@ -37,9 +39,17 @@ class Store {
   }
 
   dispatch(data) {
-    return this.port.postMessage({
-      type: DISPATCH_TYPE,
-      payload: data
+    return new Promise((resolve, reject) => {
+      chrome.runtime.sendMessage({
+        type: DISPATCH_TYPE,
+        payload: data
+      }, function({error, value}) {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(value);
+        }
+      });
     });
   }
 }

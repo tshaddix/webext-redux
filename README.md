@@ -137,3 +137,78 @@ const middleware = [
 ```
 
 The nice thing about having this as a middleware is that you can run it with other packages such as `react-thunk`. Your alias can return a function to run instead of an action object, and everything will proceed as normal.
+
+## Action Responses in UI components
+
+It's a common practice to have Redux dispatches return promises with something like `redux-thunk`. This package provides a way to simulate this behavior by providing a `dispatchResponder` in the store wrapper for the background page.
+
+When an action is dispatched from a UI Component, it will return a promise that will resolve/reject with a response from the background page:
+
+```js
+// the mock action
+const getSession = () => {
+  const data = {
+    type: ACTION_GET_SESSION,
+    payload: {}
+  };
+
+  return data;
+};
+
+class App extends Component {
+  constructor(props) {}
+
+  componentDidMount() {
+    // promise returned from `dispatch()`
+    this.props.dispatch(getSession())
+      .then((data) => {
+        // the response data
+      })
+      .catch((err) => {
+        // something broke in the background store
+      });
+  }
+
+  render() {}
+}
+```
+
+As you can quickly tell, this is really nice for making UI updates for error/success messages or pending states. By default, this is done by calling a simple `Promise.resolve()` on the dispatch result in the background and responding with an object of `{error, value}` based on rejection or resolution.
+
+What if you don't return promises from your dispatches? Or what if those promises are hidden away in somewhere in the payload? You can pass in a `dispatchResponder` to your store wrapper when calling `wrapStore` to take care of that:
+
+```js
+// redux-promise-middleware returns promises under `promise` field in the payload
+
+/**
+ * Respond to action based on `redux-promise-middleware` result
+ * @param  {object} dispatchResult The resulting object from `store.dispatch()`
+ * @param  {func}   send           func to be called when sending response. Should be in form {value, error}
+ */
+const reduxPromiseResponder = (dispatchResult, send) => {
+  Promise
+    .resolve(dispatchResult.payload.promise) // pull out the promise
+    .then((res) => {
+      // if success then respond with value
+      send({
+        error: null,
+        value: res
+      });
+    })
+    .catch((err) => {
+      // if error then respond with error
+      send({
+        error: err,
+        value: null
+      });
+    });
+};
+
+// ...
+
+// Add responder to store
+wrapStore(store, {
+  portName: 'MY_APP',
+  dispatchResponder: reduxPromiseResponder
+});
+```
