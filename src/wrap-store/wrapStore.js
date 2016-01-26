@@ -37,6 +37,18 @@ export default (store, {
     dispatchResponder = promiseResponder;
   }
 
+  /**
+   * Setup action handler to respond to dispatches from UI components
+   */
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.type === DISPATCH_TYPE) {
+      dispatchResolver(store.dispatch(msg.payload), sendResponse);
+    }
+  });
+
+  /**
+   * Setup extended connection for state updates
+   */
   chrome.runtime.onConnect.addListener((port) => {
     if (port.name !== portName) {
       return;
@@ -52,15 +64,6 @@ export default (store, {
         payload: store.getState()
       });
     };
-
-    /**
-     * Setup action handler to respond to dispatches from UI components
-     */
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      if (request.type === DISPATCH_TYPE) {
-        dispatchResolver(store.dispatch(msg.payload), sendResponse);
-      }
-    });
 
     const unsubscribe = store.subscribe(sendState);
 
