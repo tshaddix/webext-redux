@@ -1,4 +1,5 @@
 import Promise from 'bluebird';
+import _ from 'lodash';
 
 import {
   DISPATCH_TYPE,
@@ -43,9 +44,9 @@ class Store {
       chrome.runtime.sendMessage({
         type: DISPATCH_TYPE,
         payload: data
-      }, function({error, value}) {
+      }, ({error, value}) => {
         if (error) {
-          reject(error);
+          reject(_.extend((new Error()), error));
         } else {
           resolve(value);
         }

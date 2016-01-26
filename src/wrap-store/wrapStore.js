@@ -42,7 +42,8 @@ export default (store, {
    */
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === DISPATCH_TYPE) {
-      dispatchResolver(store.dispatch(msg.payload), sendResponse);
+      dispatchResponder(store.dispatch(request.payload), sendResponse);
+      return true;
     }
   });
 
