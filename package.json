@@ -1,6 +1,6 @@
 {
   "name": "react-chromex-redux",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A set of utilities for building React+Redux applications in Google Chrome Extensions.",
   "main": "lib/index.js",
   "scripts": {
@@ -25,8 +25,5 @@
     "mocha": "^2.3.4",
     "should": "^8.2.0",
     "sinon": "^1.17.2"
-  },
-  "dependencies": {
-    "bluebird": "^3.1.4"
   }
 }

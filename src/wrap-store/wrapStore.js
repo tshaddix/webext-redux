@@ -1,5 +1,3 @@
-import Promise from 'bluebird';
-
 import {
   DISPATCH_TYPE,
   STATE_TYPE
@@ -8,7 +6,7 @@ import {
 /**
  * Responder for promisified results
  * @param  {object} dispatchResult The result from `store.dispatch()`
- * @param  {[type]} send           The function used to respond to original message
+ * @param  {function} send           The function used to respond to original message
  * @return {undefined}
  */
 const promiseResponder = (dispatchResult, send) => {
