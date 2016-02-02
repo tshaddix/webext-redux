@@ -1,5 +1,5 @@
 {
-  "name": "react-chromex-redux",
+  "name": "react-chrome-redux",
   "version": "0.0.4",
   "description": "A set of utilities for building React+Redux applications in Google Chrome Extensions.",
   "main": "lib/index.js",
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tshaddix/react-chromex-redux.git"
+    "url": "git+https://github.com/tshaddix/react-chrome-redux.git"
   },
   "author": "Tyler Shaddix",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tshaddix/react-chromex-redux/issues"
+    "url": "https://github.com/tshaddix/react-chrome-redux/issues"
   },
-  "homepage": "https://github.com/tshaddix/react-chromex-redux#readme",
+  "homepage": "https://github.com/tshaddix/react-chrome-redux#readme",
   "devDependencies": {
     "babel": "^6.3.26",
     "babel-cli": "^6.4.5",

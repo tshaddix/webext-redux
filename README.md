@@ -1,4 +1,4 @@
-# react-chromex-redux
+# react-chrome-redux
 A set of utilities for building React+Redux applications in Google Chrome extensions.
 
 ## The Basics
