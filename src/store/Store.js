@@ -47,7 +47,7 @@ class Store {
         if (error) {
           reject(_.extend((new Error()), error));
         } else {
-          resolve(value);
+          resolve(value.payload);
         }
       });
     });
