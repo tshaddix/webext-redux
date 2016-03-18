@@ -13,7 +13,7 @@ The purpose of this package is to build on the awesome packages of React and Red
 
 The basic idea is to have the state store (aka Redux) run in the background of the application, and have the React side of the application run in the UI components, such as a Popover.
 
-Using [Chrome Extension Messaging](https://developer.chrome.com/extensions/messaging), `react-chromex-redux` transfers actions from the UI components to the background store, and state transitions from the background store to the UI components. Check out the simple examples below.
+Using [Chrome Extension Messaging](https://developer.chrome.com/extensions/messaging), `react-chrome-redux` transfers actions from the UI components to the background store, and state transitions from the background store to the UI components. Check out the simple examples below.
 
 ## Basic Example
 
@@ -23,7 +23,7 @@ Using [Chrome Extension Messaging](https://developer.chrome.com/extensions/messa
 import React from 'react';
 import {render} from 'react-dom';
 import {Provider} from 'react-redux';
-import {Store} from 'react-chromex-redux';
+import {Store} from 'react-chrome-redux';
 
 import App from './components/app/App';
 
@@ -44,7 +44,7 @@ render(
 ```js
 // background.js
 
-import {wrapStore} from 'react-chromex-redux';
+import {wrapStore} from 'react-chrome-redux';
 
 const store; // a normal Redux store
 
@@ -123,7 +123,7 @@ export default {
 Then you just include it in your middleware for Redux:
 
 ```js
-import {alias} from 'react-chromex-redux';
+import {alias} from 'react-chrome-redux';
 
 import aliases from '../aliases';
 
