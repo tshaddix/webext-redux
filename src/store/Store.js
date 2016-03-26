@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import assignIn from 'lodash/assignIn';
 
 import {
   DISPATCH_TYPE,
@@ -45,7 +45,7 @@ class Store {
         payload: data
       }, ({error, value}) => {
         if (error) {
-          reject(_.extend((new Error()), error));
+          reject(assignIn((new Error()), error));
         } else {
           resolve(value.payload);
         }
