@@ -6,6 +6,10 @@ import {
 } from '../constants';
 
 class Store {
+  /**
+   * Creates a new Proxy store
+   * @param  {object} options An object of form {portName, state}, where `portName` is a required string and defines the name of the port for state transition changes and `state` is the initial state of this store (default `{}`)
+   */
   constructor({portName, state = {}}) {
     this.port = chrome.runtime.connect({name: portName});
     this.listeners = [];
@@ -16,10 +20,13 @@ class Store {
         this.replaceState(message.payload);
       }
     });
-
-    this.dispatch = this.dispatch.bind(this);
   }
 
+  /**
+   * Subscribes a listener function for all state changes
+   * @param  {function} listener A listener function to be called when store state changes
+   * @return {function}          An unsubscribe function which can be called to remove the listener from state updates
+   */
   subscribe(listener) {
     this.listeners.push(listener);
 
@@ -28,16 +35,29 @@ class Store {
     };
   }
 
+  /**
+   * Replace the current state with a new state. Notifies all listeners of state change.
+   * @param  {object} state The new state for the store
+   */
   replaceState(state) {
     this.state = state;
 
     this.listeners.forEach((l) => l());
   }
 
+  /**
+   * Get the current state of the store
+   * @return {object} the current store state
+   */
   getState() {
     return this.state;
   }
 
+  /**
+   * Dispatch an action to the background using messaging passing
+   * @param  {object} data The action data to dispatch
+   * @return {Promise}     Promise that will resolve/reject based on the action response from the background
+   */
   dispatch(data) {
     return new Promise((resolve, reject) => {
       chrome.runtime.sendMessage({

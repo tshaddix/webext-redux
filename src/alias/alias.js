@@ -1,3 +1,8 @@
+/**
+ * Simple middleware intercepts actions and replaces with
+ * another by calling an alias function with the original action
+ * @type {object} aliases an object that maps action types (keys) to alias functions (values) (e.g. { SOME_ACTION: newActionAliasFunc })
+ */
 export default aliases => store => next => action => {
   const alias = aliases[action.type];
 

@@ -6,7 +6,7 @@ import {
 /**
  * Responder for promisified results
  * @param  {object} dispatchResult The result from `store.dispatch()`
- * @param  {function} send           The function used to respond to original message
+ * @param  {function} send         The function used to respond to original message
  * @return {undefined}
  */
 const promiseResponder = (dispatchResult, send) => {
@@ -64,8 +64,10 @@ export default (store, {
       });
     };
 
+    // Send new state down connected port on every redux store state change
     const unsubscribe = store.subscribe(sendState);
 
+    // when the port disconnects, unsubscribe the sendState listener
     port.onDisconnect.addListener(unsubscribe);
 
     // send initial state

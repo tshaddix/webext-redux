@@ -10,7 +10,7 @@ var getSessionAction = {
   }
 };
 
-describe('#alias()',function() {
+describe('#alias()', function() {
   var getSessionAlias = sinon.stub().returns({
     type: 'GET_SESSION_ALIAS',
     payload: {
