@@ -1,5 +1,5 @@
 # React Chrome Redux
-A set of utilities for building React+Redux applications in Google Chrome extensions.
+A set of utilities for building Redux applications in Google Chrome extensions. Although [React](https://facebook.github.io/react/) is mentioned in the package name, this package's only requirement is Redux. Feel free to use this with [AngularJS](https://angularjs.org/) and other libraries.
 
 [![Build Status](https://travis-ci.org/tshaddix/react-chrome-redux.svg?branch=master)](https://travis-ci.org/tshaddix/react-chrome-redux)
 [![NPM Version][npm-image]][npm-url]
