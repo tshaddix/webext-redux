@@ -11,6 +11,10 @@ class Store {
    * @param  {object} options An object of form {portName, state}, where `portName` is a required string and defines the name of the port for state transition changes and `state` is the initial state of this store (default `{}`)
    */
   constructor({portName, state = {}}) {
+    if (!portName) {
+      throw new Error('portName is required in options');
+    }
+
     this.port = chrome.runtime.connect({name: portName});
     this.listeners = [];
     this.state = state;
