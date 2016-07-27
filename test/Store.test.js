@@ -158,7 +158,7 @@ describe('Store', function() {
     });
 
     it('should return a promise that resolves with successful action', function() {
-      var mock = global.chrome.runtime.sendMessage = function(data, cb) {
+      global.chrome.runtime.sendMessage = function(data, cb) {
         cb({value: {payload: 'hello'}});
       };
 
@@ -170,7 +170,7 @@ describe('Store', function() {
     });
 
     it('should return a promise that rejects with an action error', function() {
-      var mock = global.chrome.runtime.sendMessage = function(data, cb) {
+      global.chrome.runtime.sendMessage = function(data, cb) {
         cb({value: {payload: 'hello'}, error: {extraMsg: 'test'}});
       };
 
@@ -179,6 +179,12 @@ describe('Store', function() {
       var p = store.dispatch({a: 'a'});
 
       return p.should.be.rejectedWith(Error, {extraMsg: 'test'});
+    });
+
+    it('should throw an error if portName is not defined', function() {
+      should.throws(function() {
+        new Store();
+      }, Error);
     });
   });
 });

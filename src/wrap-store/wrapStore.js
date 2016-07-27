@@ -30,6 +30,10 @@ export default (store, {
   portName,
   dispatchResponder
 }) => {
+  if (!portName) {
+    throw new Error('portName is required in options');
+  }
+
   // set dispatch responder as promise responder
   if (!dispatchResponder) {
     dispatchResponder = promiseResponder;
