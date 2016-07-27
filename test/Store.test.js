@@ -181,7 +181,7 @@ describe('Store', function() {
       return p.should.be.rejectedWith(Error, {extraMsg: 'test'});
     });
 
-    it('should throw an error if portName is not defined', function() {
+    it('should throw an error if portName is not present', function() {
       should.throws(function() {
         new Store();
       }, Error);
