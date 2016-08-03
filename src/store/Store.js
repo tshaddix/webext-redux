@@ -71,7 +71,7 @@ class Store {
         if (error) {
           reject(assignIn((new Error()), error));
         } else {
-          resolve(value.payload);
+          resolve(value && value.payload);
         }
       });
     });

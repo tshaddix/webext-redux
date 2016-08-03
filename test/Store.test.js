@@ -186,5 +186,17 @@ describe('Store', function() {
         new Store();
       }, Error);
     });
+
+    it('should return a promise that resolves with undefined for an undefined return value', function() {
+      global.chrome.runtime.sendMessage = function(data, cb) {
+        cb({value: undefined});
+      };
+
+      var store = new Store({portName: 'test'});
+
+      var p = store.dispatch({a: 'a'});
+
+      return p.should.be.fulfilledWith(undefined);
+    });
   });
 });
