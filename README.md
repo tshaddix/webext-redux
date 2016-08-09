@@ -10,7 +10,7 @@ A set of utilities for building Redux applications in Google Chrome extensions. 
 This package is available on [npm](https://www.npmjs.com/package/react-chrome-redux):
 
 ```
-npm install --save react-chrome-redux
+npm install react-chrome-redux
 ```
 
 ## Basic Usage
@@ -66,8 +66,16 @@ That's it! The dispatches called from UI component will find their way to the ba
   * [wrapStore](https://github.com/tshaddix/react-chrome-redux/wiki/wrapStore)
   * [alias](https://github.com/tshaddix/react-chrome-redux/wiki/alias)
 
+## Who's using this?
+
+[![Opentest][opentest-image]][opentest-url]
+
+Using `react-chrome-redux` in your project? We'd love to hear about it! Just [open an issue](https://github.com/tshaddix/react-chrome-redux/issues) and let us know.
+
 
 [npm-image]: https://img.shields.io/npm/v/react-chrome-redux.svg
 [npm-url]: https://npmjs.org/package/react-chrome-redux
 [downloads-image]: https://img.shields.io/npm/dm/react-chrome-redux.svg
 [downloads-url]: https://npmjs.org/package/react-chrome-redux
+[opentest-image]: https://cloud.githubusercontent.com/assets/2173532/17526884/037a947a-5e1e-11e6-9149-d10e8c55d4ae.png
+[opentest-url]: https://www.opentest.co
