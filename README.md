@@ -68,7 +68,7 @@ That's it! The dispatches called from UI component will find their way to the ba
 
 ## Who's using this?
 
-[![Opentest][opentest-image]][opentest-url]
+[![Opentest][opentest-image]][opentest-url]    [![GoGuardian][goguardian-image]][goguardian-url]
 
 Using `react-chrome-redux` in your project? We'd love to hear about it! Just [open an issue](https://github.com/tshaddix/react-chrome-redux/issues) and let us know.
 
@@ -79,3 +79,6 @@ Using `react-chrome-redux` in your project? We'd love to hear about it! Just [op
 [downloads-url]: https://npmjs.org/package/react-chrome-redux
 [opentest-image]: https://cloud.githubusercontent.com/assets/2173532/17526884/037a947a-5e1e-11e6-9149-d10e8c55d4ae.png
 [opentest-url]: https://www.opentest.co
+[goguardian-image]: https://cloud.githubusercontent.com/assets/2173532/17540959/c6749bdc-5e6f-11e6-979c-c0e0da51fc63.png
+[goguardian-url]: https://goguardian.com
+
