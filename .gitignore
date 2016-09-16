@@ -3,6 +3,10 @@ logs
 *.log
 npm-debug.log*
 
+# text editor artifacts
+*.swp
+*.DS_Store
+
 # Runtime data
 pids
 *.pid
