@@ -13,7 +13,15 @@ This package is available on [npm](https://www.npmjs.com/package/react-chrome-re
 npm install react-chrome-redux
 ```
 
-## Basic Usage
+## Overview
+
+`react-chrome-redux` aims to do one simple thing for Chrome extensions: treat the background script as a single place to store a single source of truth redux Store.
+
+All UI Components simply pull their react component state from this store on the background and dispatch actions to a store which proxies all actions to the background and receives state updates from the background.
+
+![Architecture](https://cloud.githubusercontent.com/assets/603426/18599404/329ca9ca-7c0d-11e6-9a02-5718a0fba8db.png)
+
+## Basic Usage ([full docs here](https://github.com/tshaddix/react-chrome-redux/wiki))
 
 As described in the [introduction](https://github.com/tshaddix/react-chrome-redux/wiki/Introduction#react-chrome-redux), there are two pieces to a basic implementation of this package.
 
@@ -56,6 +64,55 @@ wrapStore(store, {portName: 'MY_APP'}); // make sure portName matches
 
 That's it! The dispatches called from UI component will find their way to the background page no problem. The new state from your background page will make sure to find its way back to the UI components.
 
+### 3. Optional: Implement actions whose logic only happens in the background script (we call them aliases)
+
+
+Sometimes you'll want to make sure the logic of your action creators happen in the background script. In this case, you will want to create an alias so that the alias is proxied from the UI component and the action creator logic executes in the background script.
+
+```js
+// background.js
+
+import { applyMiddleware, createStore } from 'redux';
+import { alias, wrapStore } from 'react-chrome-redux';
+
+const aliases = {
+  // this key is the name of the action to proxy, the value is the action
+  // creator that gets executed when the proxied action is received in the
+  // background
+  'user-clicked-alias': () => {
+    // this call can only be made in the background script
+    chrome.notifications.create(...);
+
+  };
+};
+
+const store = createStore(rootReducer,
+  applyMiddleware(
+    alias(aliases)
+  )
+);
+```
+
+```js
+// content.js
+
+import { Component } from 'react';
+
+const store = ...; // a proxy store
+
+class ContentApp extends Component {
+  render() {
+    return (
+      <input type="button" onClick={ this.dispatchClickedAlias.bind(this) } />
+    );
+  }
+
+  dispatchClickedAlias() {
+    store.dispatch({ type: 'user-clicked-alias' });
+  }
+}
+```
+
 ## Docs
 
 * [Introduction](https://github.com/tshaddix/react-chrome-redux/wiki/Introduction)
@@ -69,7 +126,7 @@ That's it! The dispatches called from UI component will find their way to the ba
 ## Who's using this?
 
 [![Opentest][opentest-image]][opentest-url]
-  
+
 [![GoGuardian][goguardian-image]][goguardian-url]
 
 Using `react-chrome-redux` in your project? We'd love to hear about it! Just [open an issue](https://github.com/tshaddix/react-chrome-redux/issues) and let us know.
@@ -83,4 +140,3 @@ Using `react-chrome-redux` in your project? We'd love to hear about it! Just [op
 [opentest-url]: https://www.opentest.co
 [goguardian-image]: https://cloud.githubusercontent.com/assets/2173532/17540959/c6749bdc-5e6f-11e6-979c-c0e0da51fc63.png
 [goguardian-url]: https://goguardian.com
-
