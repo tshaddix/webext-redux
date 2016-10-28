@@ -15,9 +15,14 @@ npm install react-chrome-redux
 
 ## Overview
 
-`react-chrome-redux` aims to do one simple thing for Chrome extensions: treat the background script as a single place to store a single source of truth redux Store.
+`react-chrome-redux` allows you to build your Chrome extension like a Redux-powered webapp. The background page holds the Redux store, while Popovers and Content-Scripts act as UI Components, passing actions and state updates between themselves and the background store. At the end of the day, you have a single source of truth (your Redux store) that describes the entire state of your extension.
 
-All UI Components simply pull their react component state from this store on the background and dispatch actions to a store which proxies all actions to the background and receives state updates from the background.
+All UI Components follow the same basic flow:
+
+1. UI Component dispatches action to a Proxy Store.
+2. Proxy Store passes action to background script.
+3. Redux Store on the background script updates its state and sends it back to UI Component.
+4. UI Component is updated with updated state.
 
 ![Architecture](https://cloud.githubusercontent.com/assets/603426/18599404/329ca9ca-7c0d-11e6-9a02-5718a0fba8db.png)
 
