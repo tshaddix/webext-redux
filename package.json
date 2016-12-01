@@ -1,7 +1,7 @@
 {
   "name": "react-chrome-redux",
   "version": "1.0.0",
-  "description": "A set of utilities for building React+Redux applications in Google Chrome Extensions.",
+  "description": "A set of utilities for building Redux applications in Google Chrome Extensions.",
   "main": "lib/index.js",
   "scripts": {
     "prepublish": "./node_modules/.bin/babel src --out-dir lib",
