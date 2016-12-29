@@ -45,7 +45,7 @@ export default (store, {
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === DISPATCH_TYPE) {
       const action = Object.assign({}, request.payload, {
-        _sender: sender,
+        _sender: sender
       });
 
       dispatchResponder(store.dispatch(action), sendResponse);
