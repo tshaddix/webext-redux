@@ -16,7 +16,7 @@ class Store {
     }
 
     chrome.runtime.onConnect.addListener(port => {
-      if (port === this.port) {
+      if (port.name === portName) {
         this.readyResolve();
       }
     });
