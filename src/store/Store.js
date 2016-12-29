@@ -21,8 +21,10 @@ class Store {
       }
     });
 
-    this.extensionId = extensionId; //keep the extensionId as an instance variable
+    this.readyResolved = false;
     this.readyPromise = new Promise(resolve => this.readyResolve = resolve);
+
+    this.extensionId = extensionId; //keep the extensionId as an instance variable
     this.port = chrome.runtime.connect(this.extensionId, {name: portName});
     this.listeners = [];
     this.state = state;
@@ -30,6 +32,11 @@ class Store {
     this.port.onMessage.addListener((message) => {
       if (message.type === STATE_TYPE) {
         this.replaceState(message.payload);
+
+        if (!this.readyResolved) {
+          this.readyResolved = true;
+          this.readyResolve();
+        }
       }
     });
 
