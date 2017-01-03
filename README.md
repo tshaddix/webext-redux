@@ -118,6 +118,42 @@ class ContentApp extends Component {
 }
 ```
 
+### 4. Optional: Retrieve information about the initiator of the action
+
+There are probably going to be times where you are going to want to know who sent you a message. For example, maybe you have a content script and you want to have it send information to a store that is managed by the background script and you want your background script to know which tab sent the information to it. You can retrieve this information by using the `_sender` property of the action. Let's look at an example of what this would look like.
+
+```js
+// actions.js
+
+export const MY_ACTION = 'MY_ACTION';
+
+export function myAction(data) {
+    return {
+        type: MY_ACTION,
+        data: data,
+    };
+}
+```
+
+```js
+// reducer.js
+
+import {MY_ACTION} from 'actions.js';
+
+export function rootReducer(state = ..., action) {
+    switch (action.type) {
+    case MY_ACTION:
+        return Object.assign({}, ...state, {
+            lastTabId: action._sender.tab.id
+        });
+    default:
+        return state;
+    }
+}
+```
+
+No changes are required to your actions, instead react-chrome-redux adds the information for you when you use a wrapped store.
+
 ## Docs
 
 * [Introduction](https://github.com/tshaddix/react-chrome-redux/wiki/Introduction)
