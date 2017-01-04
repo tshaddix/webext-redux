@@ -152,7 +152,7 @@ export function rootReducer(state = ..., action) {
 }
 ```
 
-No changes are required to your actions, instead react-chrome-redux adds the information for you when you use a wrapped store.
+No changes are required to your actions, react-chrome-redux automatically adds this information for you when you use a wrapped store.
 
 ## Docs
 
