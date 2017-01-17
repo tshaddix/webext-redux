@@ -10,7 +10,7 @@ class Store {
    * Creates a new Proxy store
    * @param  {object} options An object of form {portName, state}, where `portName` is a required string and defines the name of the port for state transition changes and `state` is the initial state of this store (default `{}`)
    */
-  constructor(extensionId, {portName, state = {}}) {
+  constructor({portName, state = {}, extensionId = ''}) {
     if (!portName) {
       throw new Error('portName is required in options');
     }
