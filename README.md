@@ -166,7 +166,7 @@ No changes are required to your actions, react-chrome-redux automatically adds t
 
 ## Who's using this?
 
-[![Opentest][opentest-image]][opentest-url]
+[![Loom][loom-image]][loom-url]
 
 [![GoGuardian][goguardian-image]][goguardian-url]
 
@@ -177,7 +177,7 @@ Using `react-chrome-redux` in your project? We'd love to hear about it! Just [op
 [npm-url]: https://npmjs.org/package/react-chrome-redux
 [downloads-image]: https://img.shields.io/npm/dm/react-chrome-redux.svg
 [downloads-url]: https://npmjs.org/package/react-chrome-redux
-[opentest-image]: https://cloud.githubusercontent.com/assets/2173532/17526884/037a947a-5e1e-11e6-9149-d10e8c55d4ae.png
-[opentest-url]: https://www.opentest.co
+[loom-image]: https://cloud.githubusercontent.com/assets/603426/22037715/28c653aa-dcad-11e6-814d-d7a418d5670f.png
+[loom-url]: https://www.useloom.com
 [goguardian-image]: https://cloud.githubusercontent.com/assets/2173532/17540959/c6749bdc-5e6f-11e6-979c-c0e0da51fc63.png
 [goguardian-url]: https://goguardian.com
