@@ -10,12 +10,12 @@ class Store {
    * Creates a new Proxy store
    * @param  {object} options An object of form {portName, state}, where `portName` is a required string and defines the name of the port for state transition changes and `state` is the initial state of this store (default `{}`)
    */
-  constructor({portName, state = {}}) {
+  constructor(extensionId, {portName, state = {}}) {
     if (!portName) {
       throw new Error('portName is required in options');
     }
-
-    this.port = chrome.runtime.connect({name: portName});
+    this.extensionId = extensionId; //keep the extensionId as an instance variable
+    this.port = chrome.runtime.connect(this.extensionId, {name: portName});
     this.listeners = [];
     this.state = state;
 
@@ -24,6 +24,8 @@ class Store {
         this.replaceState(message.payload);
       }
     });
+
+    this.dispatch = this.dispatch.bind(this); //add this context to dispatch
   }
 
   /**
@@ -64,10 +66,13 @@ class Store {
    */
   dispatch(data) {
     return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage({
+      chrome.runtime.sendMessage(
+        this.extensionId,
+      {
         type: DISPATCH_TYPE,
         payload: data
       }, ({error, value}) => {
+        //console.log('Error: ', error);
         if (error) {
           reject(assignIn((new Error()), error));
         } else {
