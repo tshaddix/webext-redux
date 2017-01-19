@@ -72,7 +72,6 @@ class Store {
         type: DISPATCH_TYPE,
         payload: data
       }, ({error, value}) => {
-        //console.log('Error: ', error);
         if (error) {
           reject(assignIn((new Error()), error));
         } else {
