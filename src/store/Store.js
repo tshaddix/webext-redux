@@ -67,7 +67,17 @@ class Store {
       chrome.runtime.sendMessage({
         type: DISPATCH_TYPE,
         payload: data
-      }, ({error, value}) => {
+      }, (resp) => {
+        if (resp === undefined) {
+          throw(
+            "Looks like there is an error in the background page. " +
+            "You might want to inspect your background page for more details."
+          );
+        }
+
+        let error = resp.error;
+        let value = resp.value;
+
         if (error) {
           reject(assignIn((new Error()), error));
         } else {
