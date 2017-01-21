@@ -68,15 +68,14 @@ class Store {
         type: DISPATCH_TYPE,
         payload: data
       }, (resp) => {
-        if (resp === undefined) {
-          throw(
+        if (typeof resp === 'undefined') {
+          throw new Error(
             "Looks like there is an error in the background page. " +
             "You might want to inspect your background page for more details."
           );
         }
 
-        let error = resp.error;
-        let value = resp.value;
+        const {error, value} = resp;
 
         if (error) {
           reject(assignIn((new Error()), error));
