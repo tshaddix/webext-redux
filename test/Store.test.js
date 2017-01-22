@@ -143,7 +143,21 @@ describe('Store', function() {
   });
 
   describe('#dispatch()', function() {
-    it('should send a message with the correct dispatch type and payload', function() {
+    it('should send a message with the correct dispatch type and payload given an extensionId', function() {
+      var spy = global.chrome.runtime.sendMessage = sinon.spy();
+
+      var store = new Store({portName: 'test', extensionId: 'xxxxxxxxxxxx'});
+
+      store.dispatch({a: 'a'});
+
+      spy.calledOnce.should.eql(true);
+      spy.alwaysCalledWith('xxxxxxxxxxxx', {
+        type: constants.DISPATCH_TYPE,
+        payload: {a: 'a'}
+      }).should.eql(true);
+    });
+
+    it('should send a message with the correct dispatch type and payload not given an extensionId', function() {
       var spy = global.chrome.runtime.sendMessage = sinon.spy();
 
       var store = new Store({portName: 'test'});
@@ -151,14 +165,14 @@ describe('Store', function() {
       store.dispatch({a: 'a'});
 
       spy.calledOnce.should.eql(true);
-      spy.alwaysCalledWith({
+      spy.alwaysCalledWith('', {
         type: constants.DISPATCH_TYPE,
         payload: {a: 'a'}
       }).should.eql(true);
     });
 
     it('should return a promise that resolves with successful action', function() {
-      global.chrome.runtime.sendMessage = function(data, cb) {
+      global.chrome.runtime.sendMessage = function(extensionId, data, cb) {
         cb({value: {payload: 'hello'}});
       };
 
@@ -170,7 +184,7 @@ describe('Store', function() {
     });
 
     it('should return a promise that rejects with an action error', function() {
-      global.chrome.runtime.sendMessage = function(data, cb) {
+      global.chrome.runtime.sendMessage = function(extensionId, data, cb) {
         cb({value: {payload: 'hello'}, error: {extraMsg: 'test'}});
       };
 
@@ -188,7 +202,7 @@ describe('Store', function() {
     });
 
     it('should return a promise that resolves with undefined for an undefined return value', function() {
-      global.chrome.runtime.sendMessage = function(data, cb) {
+      global.chrome.runtime.sendMessage = function(extensionId, data, cb) {
         cb({value: undefined});
       };
 

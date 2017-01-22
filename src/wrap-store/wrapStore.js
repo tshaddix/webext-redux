@@ -40,23 +40,22 @@ export default (store, {
   }
 
   /**
-   * Setup action handler to respond to dispatches from UI components
+   * Respond to dispatches from UI components
    */
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  const dispatchResponse = (request, sender, sendResponse) => {
     if (request.type === DISPATCH_TYPE) {
       const action = Object.assign({}, request.payload, {
         _sender: sender
       });
-
       dispatchResponder(store.dispatch(action), sendResponse);
       return true;
     }
-  });
+  };
 
   /**
-   * Setup extended connection for state updates
-   */
-  chrome.runtime.onConnect.addListener((port) => {
+  * Setup for state updates
+  */
+  const connectState = (port) => {
     if (port.name !== portName) {
       return;
     }
@@ -80,5 +79,26 @@ export default (store, {
 
     // send initial state
     sendState();
-  });
+  };
+
+  /**
+   * Setup action handler
+   */
+  chrome.runtime.onMessage.addListener(dispatchResponse);
+
+  /**
+   * Setup external action handler
+   */
+  chrome.runtime.onMessageExternal.addListener(dispatchResponse);
+
+  /**
+   * Setup extended connection
+   */
+  chrome.runtime.onConnect.addListener(connectState);
+
+  /**
+   * Setup extended external connection 
+   */
+  chrome.runtime.onConnectExternal.addListener(connectState);
+
 };
