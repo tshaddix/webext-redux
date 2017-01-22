@@ -56,7 +56,6 @@ export default (store, {
   * Setup for state updates
   */
   const connectState = (port) => {
-    console.log('connected on port: ', port);
     if (port.name !== portName) {
       return;
     }
@@ -85,29 +84,21 @@ export default (store, {
   /**
    * Setup action handler
    */
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    return dispatchResponse(request, sender, sendResponse);
-  });
+  chrome.runtime.onMessage.addListener(dispatchResponse);
 
   /**
    * Setup external action handler
    */
-  chrome.runtime.onMessageExternal.addListener((request, sender, sendResponse) => {
-    return dispatchResponse(request, sender, sendResponse);
-  });
+  chrome.runtime.onMessageExternal.addListener(dispatchResponse);
 
   /**
    * Setup extended connection
    */
-  chrome.runtime.onConnect.addListener((port) => {
-    return connectState(port);
-  });
+  chrome.runtime.onConnect.addListener(connectState);
 
   /**
    * Setup extended external connection 
    */
-  chrome.runtime.onConnectExternal.addListener((port) => {
-    return connectState(port);
-  });
+  chrome.runtime.onConnectExternal.addListener(connectState);
 
 };

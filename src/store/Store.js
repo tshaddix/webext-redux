@@ -8,7 +8,7 @@ import {
 class Store {
   /**
    * Creates a new Proxy store
-   * @param  {object} options An object of form {portName, state}, where `portName` is a required string and defines the name of the port for state transition changes and `state` is the initial state of this store (default `{}`)
+   * @param  {object} options An object of form {portName, state, extensionId}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by chrome when extension is loaded (default `''`)
    */
   constructor({portName, state = {}, extensionId = ''}) {
     if (!portName) {
