@@ -15,12 +15,6 @@ class Store {
       throw new Error('portName is required in options');
     }
 
-    chrome.runtime.onConnect.addListener(port => {
-      if (port.name === portName) {
-        this.readyResolve();
-      }
-    });
-
     this.readyResolved = false;
     this.readyPromise = new Promise(resolve => this.readyResolve = resolve);
 
