@@ -48,8 +48,17 @@ export default (store, {
         _sender: sender
       });
 
-      dispatchResponder(store.dispatch(action), sendResponse);
-      return true;
+      let dispatchResult = null;
+
+      try {
+        dispatchResult = store.dispatch(action);
+      } catch(e) {
+        dispatchResult = { error: e.message };
+        throw e;
+      } finally {
+        dispatchResponder(dispatchResult, sendResponse);
+        return true;
+      }
     }
   });
 

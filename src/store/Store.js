@@ -79,6 +79,8 @@ class Store {
 
         if (error) {
           reject(assignIn((new Error()), error));
+          console.error(error);
+          throw new Error(error);
         } else {
           resolve(value && value.payload);
         }
