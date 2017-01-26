@@ -52,9 +52,9 @@ export default (store, {
 
       try {
         dispatchResult = store.dispatch(action);
-      } catch(e) {
-        dispatchResult = { error: e.message };
-        throw e;
+      } catch (e) {
+        dispatchResult = Promise.reject(e.message);
+        console.error(e);
       } finally {
         dispatchResponder(dispatchResult, sendResponse);
         return true;
