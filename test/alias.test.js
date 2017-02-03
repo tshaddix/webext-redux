@@ -1,9 +1,9 @@
-var should = require('should');
-var sinon = require('sinon');
+import should from 'should';
+import sinon from 'sinon';
 
-var alias = require('../lib').alias;
+import { alias } from '../src';
 
-var getSessionAction = {
+const getSessionAction = {
   type: 'GET_SESSION',
   payload: {
     withUser: true
@@ -11,20 +11,19 @@ var getSessionAction = {
 };
 
 describe('#alias()', function() {
-  var getSessionAlias = sinon.stub().returns({
-    type: 'GET_SESSION_ALIAS',
-    payload: {
-      withUser: true,
-      alias: true
-    }
-  });
-
-  var aliases = alias({
-    GET_SESSION: getSessionAlias
-  });
+  const getSessionAlias = sinon.stub().returns({
+          type: 'GET_SESSION_ALIAS',
+          payload: {
+            withUser: true,
+            alias: true
+          }
+        }),
+        aliases = alias({
+          GET_SESSION: getSessionAlias
+        });
 
   it('should call an alias when matching action type', function() {
-    var next = sinon.spy();
+    const next = sinon.spy();
 
     aliases()(next)(getSessionAction);
 
@@ -37,7 +36,7 @@ describe('#alias()', function() {
   });
 
   it('should call original action if no matching alias', function() {
-    var next = sinon.spy();
+    const next = sinon.spy();
 
     aliases()(next)({
       type: 'ACTION_2',
