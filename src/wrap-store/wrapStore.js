@@ -55,10 +55,10 @@ export default (store, {
       } catch (e) {
         dispatchResult = Promise.reject(e.message);
         console.error(e);
-      } finally {
-        dispatchResponder(dispatchResult, sendResponse);
-        return true;
       }
+
+      dispatchResponder(dispatchResult, sendResponse);
+      return true;
     }
   };
 
