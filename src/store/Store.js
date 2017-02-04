@@ -5,6 +5,9 @@ import {
   STATE_TYPE
 } from '../constants';
 
+const backgroundErrPrefix = '\nLooks like there is an error in the background page. ' +
+  'You might want to inspect your background page for more details.\n';
+
 class Store {
   /**
    * Creates a new Proxy store
@@ -93,9 +96,12 @@ class Store {
       {
         type: DISPATCH_TYPE,
         payload: data
-      }, ({error, value}) => {
+      }, (resp) => {
+        const {error, value} = resp;
+
         if (error) {
-          reject(assignIn((new Error()), error));
+          const bgErr = new Error(`${backgroundErrPrefix}${error}`);
+          reject(assignIn(bgErr, error));
         } else {
           resolve(value && value.payload);
         }

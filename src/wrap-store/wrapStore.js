@@ -47,7 +47,17 @@ export default (store, {
       const action = Object.assign({}, request.payload, {
         _sender: sender
       });
-      dispatchResponder(store.dispatch(action), sendResponse);
+
+      let dispatchResult = null;
+
+      try {
+        dispatchResult = store.dispatch(action);
+      } catch (e) {
+        dispatchResult = Promise.reject(e.message);
+        console.error(e);
+      }
+
+      dispatchResponder(dispatchResult, sendResponse);
       return true;
     }
   };
