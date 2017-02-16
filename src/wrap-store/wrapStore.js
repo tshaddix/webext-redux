@@ -99,7 +99,9 @@ export default (store, {
   /**
    * Setup external action handler
    */
-  chrome.runtime.onMessageExternal.addListener(dispatchResponse);
+  if (chrome.runtime.onMessageExternal) {
+    chrome.runtime.onMessageExternal.addListener(dispatchResponse);
+  }
 
   /**
    * Setup extended connection
@@ -109,6 +111,7 @@ export default (store, {
   /**
    * Setup extended external connection 
    */
-  chrome.runtime.onConnectExternal.addListener(connectState);
-
+  if (chrome.runtime.onConnectExternal) {
+    chrome.runtime.onConnectExternal.addListener(connectState);
+  }
 };
