@@ -101,6 +101,8 @@ export default (store, {
    */
   if (chrome.runtime.onMessageExternal) {
     chrome.runtime.onMessageExternal.addListener(dispatchResponse);
+  } else {
+    console.warn('runtime.onMessageExternal is not supported');
   }
 
   /**
@@ -113,5 +115,7 @@ export default (store, {
    */
   if (chrome.runtime.onConnectExternal) {
     chrome.runtime.onConnectExternal.addListener(connectState);
+  } else {
+    console.warn('runtime.onConnectExternal is not supported');
   }
 };
