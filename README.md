@@ -1,5 +1,5 @@
 # Chrome Redux
-A set of utilities for building Redux applications in Google Chrome extensions.
+A set of utilities for building Redux applications in Google Chrome extensions. This package was originally named `react-chrome-redux`.
 
 [![Build Status](https://travis-ci.org/tshaddix/react-chrome-redux.svg?branch=master)](https://travis-ci.org/tshaddix/react-chrome-redux)
 [![NPM Version][npm-image]][npm-url]
