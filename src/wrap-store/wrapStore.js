@@ -19,8 +19,9 @@ const promiseResponder = (dispatchResult, send) => {
       });
     })
     .catch((err) => {
+      console.error(err);
       send({
-        error: err,
+        error: err.message,
         value: null
       });
     });
