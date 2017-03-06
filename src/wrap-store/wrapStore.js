@@ -19,7 +19,7 @@ const promiseResponder = (dispatchResult, send) => {
       });
     })
     .catch((err) => {
-      console.error(err);
+      console.error('error dispatching result:', err);
       send({
         error: err.message,
         value: null
