@@ -1,5 +1,5 @@
-# React Chrome Redux
-A set of utilities for building Redux applications in Google Chrome extensions. Although [React](https://facebook.github.io/react/) is mentioned in the package name, this package's only requirement is Redux. Feel free to use this with [AngularJS](https://angularjs.org/) and other libraries.
+# Chrome Redux
+A set of utilities for building Redux applications in Google Chrome extensions. This package was originally named `react-chrome-redux`.
 
 [![Build Status](https://travis-ci.org/tshaddix/react-chrome-redux.svg?branch=master)](https://travis-ci.org/tshaddix/react-chrome-redux)
 [![NPM Version][npm-image]][npm-url]
@@ -7,15 +7,15 @@ A set of utilities for building Redux applications in Google Chrome extensions. 
 
 ## Installation
 
-This package is available on [npm](https://www.npmjs.com/package/react-chrome-redux):
+This package is available on [npm](https://www.npmjs.com/package/chrome-redux):
 
 ```
-npm install react-chrome-redux
+npm install chrome-redux
 ```
 
 ## Overview
 
-`react-chrome-redux` allows you to build your Chrome extension like a Redux-powered webapp. The background page holds the Redux store, while Popovers and Content-Scripts act as UI Components, passing actions and state updates between themselves and the background store. At the end of the day, you have a single source of truth (your Redux store) that describes the entire state of your extension.
+`chrome-redux` allows you to build your Chrome extension like a Redux-powered webapp. The background page holds the Redux store, while Popovers and Content-Scripts act as UI Components, passing actions and state updates between themselves and the background store. At the end of the day, you have a single source of truth (your Redux store) that describes the entire state of your extension.
 
 All UI Components follow the same basic flow:
 
@@ -26,9 +26,9 @@ All UI Components follow the same basic flow:
 
 ![Architecture](https://cloud.githubusercontent.com/assets/603426/18599404/329ca9ca-7c0d-11e6-9a02-5718a0fba8db.png)
 
-## Basic Usage ([full docs here](https://github.com/tshaddix/react-chrome-redux/wiki))
+## Basic Usage ([full docs here](https://github.com/tshaddix/chrome-redux/wiki))
 
-As described in the [introduction](https://github.com/tshaddix/react-chrome-redux/wiki/Introduction#react-chrome-redux), there are two pieces to a basic implementation of this package.
+As described in the [introduction](https://github.com/tshaddix/chrome-redux/wiki/Introduction#chrome-redux), there are two pieces to a basic implementation of this package.
 
 ### 1. Add the *Proxy Store* to a UI Component, such as a popup
 
@@ -38,7 +38,7 @@ As described in the [introduction](https://github.com/tshaddix/react-chrome-redu
 import React from 'react';
 import {render} from 'react-dom';
 import {Provider} from 'react-redux';
-import {Store} from 'react-chrome-redux';
+import {Store} from 'chrome-redux';
 
 import App from './components/app/App';
 
@@ -63,7 +63,7 @@ store.ready().then(() => {
 ```js
 // background.js
 
-import {wrapStore} from 'react-chrome-redux';
+import {wrapStore} from 'chrome-redux';
 
 const store; // a normal Redux store
 
@@ -81,7 +81,7 @@ Sometimes you'll want to make sure the logic of your action creators happen in t
 // background.js
 
 import { applyMiddleware, createStore } from 'redux';
-import { alias, wrapStore } from 'react-chrome-redux';
+import { alias, wrapStore } from 'chrome-redux';
 
 const aliases = {
   // this key is the name of the action to proxy, the value is the action
@@ -155,7 +155,7 @@ export function rootReducer(state = ..., action) {
 }
 ```
 
-No changes are required to your actions, react-chrome-redux automatically adds this information for you when you use a wrapped store.
+No changes are required to your actions, chrome-redux automatically adds this information for you when you use a wrapped store.
 
 ## Security
 
@@ -163,13 +163,13 @@ No changes are required to your actions, react-chrome-redux automatically adds t
 
 ## Docs
 
-* [Introduction](https://github.com/tshaddix/react-chrome-redux/wiki/Introduction)
-* [Getting Started](https://github.com/tshaddix/react-chrome-redux/wiki/Getting-Started)
-* [Advanced Usage](https://github.com/tshaddix/react-chrome-redux/wiki/Advanced-Usage)
-* [API](https://github.com/tshaddix/react-chrome-redux/wiki/API)
-  * [Store](https://github.com/tshaddix/react-chrome-redux/wiki/Store)
-  * [wrapStore](https://github.com/tshaddix/react-chrome-redux/wiki/wrapStore)
-  * [alias](https://github.com/tshaddix/react-chrome-redux/wiki/alias)
+* [Introduction](https://github.com/tshaddix/chrome-redux/wiki/Introduction)
+* [Getting Started](https://github.com/tshaddix/chrome-redux/wiki/Getting-Started)
+* [Advanced Usage](https://github.com/tshaddix/chrome-redux/wiki/Advanced-Usage)
+* [API](https://github.com/tshaddix/chrome-redux/wiki/API)
+  * [Store](https://github.com/tshaddix/chrome-redux/wiki/Store)
+  * [wrapStore](https://github.com/tshaddix/chrome-redux/wiki/wrapStore)
+  * [alias](https://github.com/tshaddix/chrome-redux/wiki/alias)
 
 ## Who's using this?
 
@@ -177,13 +177,13 @@ No changes are required to your actions, react-chrome-redux automatically adds t
 
 [![GoGuardian][goguardian-image]][goguardian-url]
 
-Using `react-chrome-redux` in your project? We'd love to hear about it! Just [open an issue](https://github.com/tshaddix/react-chrome-redux/issues) and let us know.
+Using `chrome-redux` in your project? We'd love to hear about it! Just [open an issue](https://github.com/tshaddix/chrome-redux/issues) and let us know.
 
 
-[npm-image]: https://img.shields.io/npm/v/react-chrome-redux.svg
-[npm-url]: https://npmjs.org/package/react-chrome-redux
-[downloads-image]: https://img.shields.io/npm/dm/react-chrome-redux.svg
-[downloads-url]: https://npmjs.org/package/react-chrome-redux
+[npm-image]: https://img.shields.io/npm/v/chrome-redux.svg
+[npm-url]: https://npmjs.org/package/chrome-redux
+[downloads-image]: https://img.shields.io/npm/dm/chrome-redux.svg
+[downloads-url]: https://npmjs.org/package/chrome-redux
 [loom-image]: https://cloud.githubusercontent.com/assets/603426/22037715/28c653aa-dcad-11e6-814d-d7a418d5670f.png
 [loom-url]: https://www.useloom.com
 [goguardian-image]: https://cloud.githubusercontent.com/assets/2173532/17540959/c6749bdc-5e6f-11e6-979c-c0e0da51fc63.png
