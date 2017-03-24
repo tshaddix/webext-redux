@@ -7,6 +7,8 @@ import { Store } from '../src';
 import { DISPATCH_TYPE, STATE_TYPE } from '../src/constants';
 
 describe('Store', function () {
+  const portName = 'test';
+
   beforeEach(function () {
     // Mock chrome.runtime API
     global.chrome = {
@@ -42,7 +44,7 @@ describe('Store', function () {
         };
       };
 
-      const store = new Store({portName: 'test'});
+      const store = new Store({portName});
 
       // make replaceState() a spy function
       store.replaceState = sinon.spy();
@@ -72,13 +74,13 @@ describe('Store', function () {
     });
 
     it('should set the initial state to empty object by default', function () {
-      const store = new Store({portName: 'test'});
+      const store = new Store({portName});
 
       store.getState().should.eql({});
     });
 
     it('should set the initial state to opts.state if available', function () {
-      const store = new Store({portName: 'test', state: {a: 'a'}});
+      const store = new Store({portName, state: {a: 'a'}});
 
       store.getState().should.eql({a: 'a'});
     });
@@ -100,7 +102,7 @@ describe('Store', function () {
         };
       };
 
-      const store = new Store({portName: 'test'}),
+      const store = new Store({portName}),
             readyCb = sinon.spy(),
             readyPromise = store.ready().then(() => {
               readyCb();
@@ -148,7 +150,7 @@ describe('Store', function () {
 
   describe('#replaceState()', function () {
     it('should replace the state of the store', function () {
-      const store = new Store({portName: 'test'});
+      const store = new Store({portName});
 
       store.getState().should.eql({});
 
@@ -160,7 +162,7 @@ describe('Store', function () {
 
   describe('#getState()', function () {
     it('should get the current state of the Store', function () {
-      const store = new Store({portName: 'test', state: {a: 'a'}});
+      const store = new Store({portName, state: {a: 'a'}});
 
       store.getState().should.eql({a: 'a'});
 
@@ -172,7 +174,7 @@ describe('Store', function () {
 
   describe('#subscribe()', function () {
     it('should register a listener for state changes', function () {
-      const store = new Store({portName: 'test'}),
+      const store = new Store({portName}),
             newState = {b: 'b'};
 
       let callCount = 0;
@@ -188,7 +190,7 @@ describe('Store', function () {
     });
 
     it('should return a function which will unsubscribe the listener', function () {
-      const store = new Store({portName: 'test'}),
+      const store = new Store({portName}),
             listener = sinon.spy(),
             unsub = store.subscribe(listener);
 
@@ -207,26 +209,28 @@ describe('Store', function () {
   describe('#dispatch()', function () {
     it('should send a message with the correct dispatch type and payload given an extensionId', function () {
       const spy = global.chrome.runtime.sendMessage = sinon.spy(),
-            store = new Store({portName: 'test', extensionId: 'xxxxxxxxxxxx'});
+            store = new Store({portName, extensionId: 'xxxxxxxxxxxx'});
 
       store.dispatch({a: 'a'});
 
       spy.calledOnce.should.eql(true);
       spy.alwaysCalledWith('xxxxxxxxxxxx', {
         type: DISPATCH_TYPE,
+        port: portName,
         payload: {a: 'a'}
       }).should.eql(true);
     });
 
     it('should send a message with the correct dispatch type and payload not given an extensionId', function () {
       const spy = global.chrome.runtime.sendMessage = sinon.spy(),
-            store = new Store({portName: 'test'});
+            store = new Store({portName});
 
       store.dispatch({a: 'a'});
 
       spy.calledOnce.should.eql(true);
       spy.alwaysCalledWith('', {
         type: DISPATCH_TYPE,
+        port: portName,
         payload: {a: 'a'}
       }).should.eql(true);
     });
@@ -236,7 +240,7 @@ describe('Store', function () {
         cb({value: {payload: 'hello'}});
       };
 
-      const store = new Store({portName: 'test'}),
+      const store = new Store({portName}),
             p = store.dispatch({a: 'a'});
 
       return p.should.be.fulfilledWith('hello');
@@ -247,7 +251,7 @@ describe('Store', function () {
         cb({value: {payload: 'hello'}, error: {extraMsg: 'test'}});
       };
 
-      const store = new Store({portName: 'test'}),
+      const store = new Store({portName}),
             p = store.dispatch({a: 'a'});
 
       return p.should.be.rejectedWith(Error, {extraMsg: 'test'});
@@ -264,7 +268,7 @@ describe('Store', function () {
         cb({value: undefined});
       };
 
-      const store = new Store({portName: 'test'}),
+      const store = new Store({portName}),
             p = store.dispatch({a: 'a'});
 
       return p.should.be.fulfilledWith(undefined);
