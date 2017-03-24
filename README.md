@@ -157,6 +157,10 @@ export function rootReducer(state = ..., action) {
 
 No changes are required to your actions, react-chrome-redux automatically adds this information for you when you use a wrapped store.
 
+## Security
+
+`react-chrome-redux` supports `onMessageExternal` which is fired when a message is sent from another extension, app, or website. By default, if `externally_connectable` is not declared in your extension's manifest, all extensions or apps will be able to send messages to your extension, but no websites will be able to. You can follow [this](https://developer.chrome.com/extensions/manifest/externally_connectable) to address your needs appropriately.
+
 ## Docs
 
 * [Introduction](https://github.com/tshaddix/react-chrome-redux/wiki/Introduction)
