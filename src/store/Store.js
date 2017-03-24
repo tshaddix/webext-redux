@@ -21,7 +21,7 @@ class Store {
     this.readyResolved = false;
     this.readyPromise = new Promise(resolve => this.readyResolve = resolve);
 
-    this.extensionId = extensionId; //keep the extensionId as an instance variable
+    this.extensionId = extensionId; // keep the extensionId as an instance variable
     this.port = chrome.runtime.connect(this.extensionId, {name: portName});
     this.listeners = [];
     this.state = state;
@@ -37,7 +37,7 @@ class Store {
       }
     });
 
-    this.dispatch = this.dispatch.bind(this); //add this context to dispatch
+    this.dispatch = this.dispatch.bind(this); // add this context to dispatch
   }
 
   /**
@@ -93,19 +93,22 @@ class Store {
     return new Promise((resolve, reject) => {
       chrome.runtime.sendMessage(
         this.extensionId,
-      {
-        type: DISPATCH_TYPE,
-        payload: data
-      }, (resp) => {
-        const {error, value} = resp;
+        {
+          type: DISPATCH_TYPE,
+          payload: data
+        },
+        (resp) => {
+          const {error, value} = resp;
 
-        if (error) {
-          const bgErr = new Error(`${backgroundErrPrefix}${error}`);
-          reject(assignIn(bgErr, error));
-        } else {
-          resolve(value && value.payload);
+          if (error) {
+            const bgErr = new Error(`${backgroundErrPrefix}${error}`);
+
+            reject(assignIn(bgErr, error));
+          } else {
+            resolve(value && value.payload);
+          }
         }
-      });
+      );
     });
   }
 }

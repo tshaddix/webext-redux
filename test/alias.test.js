@@ -10,7 +10,7 @@ const getSessionAction = {
   }
 };
 
-describe('#alias()', function() {
+describe('#alias()', function () {
   const getSessionAlias = sinon.stub().returns({
           type: 'GET_SESSION_ALIAS',
           payload: {
@@ -22,7 +22,7 @@ describe('#alias()', function() {
           GET_SESSION: getSessionAlias
         });
 
-  it('should call an alias when matching action type', function() {
+  it('should call an alias when matching action type', function () {
     const next = sinon.spy();
 
     aliases()(next)(getSessionAction);
@@ -35,7 +35,7 @@ describe('#alias()', function() {
     });
   });
 
-  it('should call original action if no matching alias', function() {
+  it('should call original action if no matching alias', function () {
     const next = sinon.spy();
 
     aliases()(next)({

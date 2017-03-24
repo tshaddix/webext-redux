@@ -112,7 +112,7 @@ export default (store, {
   chrome.runtime.onConnect.addListener(connectState);
 
   /**
-   * Setup extended external connection 
+   * Setup extended external connection
    */
   if (chrome.runtime.onConnectExternal) {
     chrome.runtime.onConnectExternal.addListener(connectState);

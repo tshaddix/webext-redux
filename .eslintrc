@@ -1,33 +1,45 @@
 {
-  "rules": {
-    "indent": [
-      2,
-      4
-    ],
-    "quotes": [
-      2,
-      "single"
-    ],
-    "linebreak-style": [
-      2,
-      "unix"
-    ],
-    "semi": [
-      2,
-      "always"
-    ]
-  },
+  "extends": ["eslint:recommended"],
   "env": {
     "es6": true,
-    "node": true,
-    "browser": true
+    "browser": true,
+    "commonjs": true,
+    "jquery": true
   },
-  "extends": "eslint:recommended",
-  "ecmaFeatures": {
-    "jsx": true,
-    "experimentalObjectRestSpread": true
+  "globals": {
+    "chrome": true
   },
-  "plugins": [
-    "react"
-  ]
+  "parser": "babel-eslint",
+  "rules": {
+    "arrow-spacing": "error",
+    "block-spacing": "error",
+    "curly": "error",
+    "default-case": "error",
+    "indent": [2, 2, {"SwitchCase": 1, "VariableDeclarator": {"var": 2, "let": 2, "const": 3}}],
+    "newline-after-var": ["error", "always"],
+    "no-console": 0,
+    "no-debugger": "error",
+    "no-else-return": "error",
+    "no-extra-bind": "error",
+    "no-implicit-coercion": "error",
+    "no-multi-spaces": ["error", { "exceptions": { "VariableDeclarator": true, "AssignmentExpression": true } }],
+    "no-template-curly-in-string": "error",
+    "no-trailing-spaces": "warn",
+    "no-undef-init": "error",
+    "no-unused-vars": "error",
+    "no-var": 1,
+    "object-shorthand": "error",
+    "prefer-arrow-callback": "error",
+    "prefer-const": "error",
+    "prefer-reflect": "error",
+    "require-await": "error",
+    "semi": "error",
+    "space-before-function-paren": ["error", {
+      "anonymous": "always",
+      "named": "never",
+      "asyncArrow": "ignore"
+    }],
+    "spaced-comment": 1,
+    "strict": "error"
+  }
 }
