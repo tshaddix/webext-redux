@@ -4,10 +4,13 @@
   "description": "A set of utilities for building Redux applications in Google Chrome Extensions.",
   "main": "lib/index.js",
   "scripts": {
-    "lint": "./node_modules/.bin/eslint src/**/*.js && ./node_modules/.bin/eslint test/**/*.js",
+    "lint-src": "./node_modules/.bin/eslint src/**/*.js",
+    "lint-test": "./node_modules/.bin/eslint test/**/*.js",
+    "lint": "npm run lint-src && npm run lint-test",
     "prepublish": "./node_modules/.bin/babel src --out-dir lib",
     "pretest": "./node_modules/.bin/babel src --out-dir lib",
-    "test": "npm run-script lint && ./node_modules/.bin/mocha --compilers js:babel-core/register"
+    "test-run": "./node_modules/.bin/mocha --compilers js:babel-core/register",
+    "test": "npm run lint && npm run test-run"
   },
   "repository": {
     "type": "git",
