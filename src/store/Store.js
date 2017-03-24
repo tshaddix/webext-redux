@@ -18,6 +18,7 @@ class Store {
       throw new Error('portName is required in options');
     }
 
+    this.portName = portName;
     this.readyResolved = false;
     this.readyPromise = new Promise(resolve => this.readyResolve = resolve);
 
@@ -95,9 +96,9 @@ class Store {
         this.extensionId,
         {
           type: DISPATCH_TYPE,
+          port: this.portName,
           payload: data
-        },
-        (resp) => {
+        }, (resp) => {
           const {error, value} = resp;
 
           if (error) {
@@ -107,8 +108,7 @@ class Store {
           } else {
             resolve(value && value.payload);
           }
-        }
-      );
+        });
     });
   }
 }
