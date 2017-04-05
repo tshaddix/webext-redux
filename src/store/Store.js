@@ -96,7 +96,7 @@ class Store {
         this.extensionId,
         {
           type: DISPATCH_TYPE,
-          port: this.portName,
+          portName: this.portName,
           payload: data
         }, (resp) => {
           const {error, value} = resp;

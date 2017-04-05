@@ -216,7 +216,7 @@ describe('Store', function () {
       spy.calledOnce.should.eql(true);
       spy.alwaysCalledWith('xxxxxxxxxxxx', {
         type: DISPATCH_TYPE,
-        port: portName,
+        portName,
         payload: {a: 'a'}
       }).should.eql(true);
     });
@@ -230,7 +230,7 @@ describe('Store', function () {
       spy.calledOnce.should.eql(true);
       spy.alwaysCalledWith('', {
         type: DISPATCH_TYPE,
-        port: portName,
+        portName,
         payload: {a: 'a'}
       }).should.eql(true);
     });

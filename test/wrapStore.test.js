@@ -69,7 +69,7 @@ describe('wrapStore', function () {
     };
     const message = {
       type: DISPATCH_TYPE,
-      port: portName,
+      portName,
       payload,
     };
     const sender = {};
@@ -101,7 +101,7 @@ describe('wrapStore', function () {
       };
       const message = {
         type: DISPATCH_TYPE,
-        port: portName + '2',
+        portName: portName + '2',
         payload,
       };
       const sender = {};
