@@ -44,7 +44,7 @@ export default (store, {
    * Respond to dispatches from UI components
    */
   const dispatchResponse = (request, sender, sendResponse) => {
-    if (request.type === DISPATCH_TYPE) {
+    if (request.type === DISPATCH_TYPE && request.portName === portName) {
       const action = Object.assign({}, request.payload, {
         _sender: sender
       });
