@@ -26,7 +26,6 @@
     "lodash": "^4.5.1"
   },
   "devDependencies": {
-    "babel": "^6.3.26",
     "babel-cli": "^6.4.5",
     "babel-core": "^6.22.1",
     "babel-eslint": "^7.2.0",
