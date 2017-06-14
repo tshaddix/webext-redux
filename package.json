@@ -1,6 +1,6 @@
 {
   "name": "react-chrome-redux",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "A set of utilities for building Redux applications in Google Chrome Extensions.",
   "main": "lib/index.js",
   "scripts": {
@@ -26,7 +26,6 @@
     "lodash": "^4.5.1"
   },
   "devDependencies": {
-    "babel": "^6.3.26",
     "babel-cli": "^6.4.5",
     "babel-core": "^6.22.1",
     "babel-eslint": "^7.2.0",
