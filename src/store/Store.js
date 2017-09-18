@@ -2,7 +2,8 @@ import assignIn from 'lodash/assignIn';
 
 import {
   DISPATCH_TYPE,
-  STATE_TYPE
+  STATE_TYPE,
+  PATCH_STATE_TYPE
 } from '../constants';
 
 const backgroundErrPrefix = '\nLooks like there is an error in the background page. ' +
@@ -27,14 +28,23 @@ class Store {
     this.listeners = [];
     this.state = state;
 
-    this.port.onMessage.addListener((message) => {
-      if (message.type === STATE_TYPE) {
-        this.replaceState(message.payload);
+    this.port.onMessage.addListener(message => {
+      switch (message.type) {
+        case STATE_TYPE:
+          this.replaceState(message.payload);
 
-        if (!this.readyResolved) {
-          this.readyResolved = true;
-          this.readyResolve();
-        }
+          if (!this.readyResolved) {
+            this.readyResolved = true;
+            this.readyResolve();
+          }
+          break;
+
+        case PATCH_STATE_TYPE:
+          this.patchState(message.payload);
+          break;
+
+        default:
+          // do nothing
       }
     });
 
@@ -65,6 +75,26 @@ class Store {
     return () => {
       this.listeners = this.listeners.filter((l) => l !== listener);
     };
+  }
+
+  /**
+   * Replaces the state for only the keys in the updated state. Notifies all listeners of state change.
+   * @param {object} state the new (partial) redux state
+   */
+  patchState(difference) {
+    const state = Object.assign({}, this.state);
+
+    difference.forEach(({change, key, value}) => {
+      if (change === 'updated') {
+        state[key] = value;
+      } else if (change === 'removed') {
+        Reflect.deleteProperty(state, key);
+      }
+    });
+
+    this.state = state;
+
+    this.listeners.forEach((l) => l());
   }
 
   /**

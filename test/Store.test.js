@@ -148,6 +148,21 @@ describe('Store', function () {
     });
   });
 
+  describe('#patchState()', function () {
+    it('should patch the state of the store', function () {
+      const store = new Store({ portName, state: { b: 1 } });
+
+      store.getState().should.eql({ b: 1 });
+
+      store.patchState([
+        { key: 'a', value: 123, change: 'updated' },
+        { key: 'b', change: 'removed' },
+      ]);
+
+      store.getState().should.eql({ a: 123 });
+    });
+  });
+
   describe('#replaceState()', function () {
     it('should replace the state of the store', function () {
       const store = new Store({portName});
