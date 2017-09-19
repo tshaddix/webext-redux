@@ -3,7 +3,9 @@ import assignIn from 'lodash/assignIn';
 import {
   DISPATCH_TYPE,
   STATE_TYPE,
-  PATCH_STATE_TYPE
+  PATCH_STATE_TYPE,
+  DIFF_STATUS_UPDATED,
+  DIFF_STATUS_REMOVED,
 } from '../constants';
 
 const backgroundErrPrefix = '\nLooks like there is an error in the background page. ' +
@@ -85,9 +87,9 @@ class Store {
     const state = Object.assign({}, this.state);
 
     difference.forEach(({change, key, value}) => {
-      if (change === 'updated') {
+      if (change === DIFF_STATUS_UPDATED) {
         state[key] = value;
-      } else if (change === 'removed') {
+      } else if (change === DIFF_STATUS_REMOVED) {
         Reflect.deleteProperty(state, key);
       }
     });

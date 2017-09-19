@@ -1,6 +1,8 @@
-// import should from 'should';
-
 import shallowDiff from '../src/wrap-store/shallowDiff';
+import {
+  DIFF_STATUS_UPDATED,
+  DIFF_STATUS_REMOVED,
+} from '../src/constants';
 
 describe('#shallowDiff()', () => {
   it('should return an object containing updated fields', () => {
@@ -13,12 +15,12 @@ describe('#shallowDiff()', () => {
       {
         key: 'a',
         value: 2,
-        change: 'updated',
+        change: DIFF_STATUS_UPDATED,
       },
       {
         key: 'b',
         value: 3,
-        change: 'updated',
+        change: DIFF_STATUS_UPDATED,
       }
     ]);
   });
@@ -32,7 +34,7 @@ describe('#shallowDiff()', () => {
     diff.should.eql([
       {
         key: 'b',
-        change: 'removed',
+        change: DIFF_STATUS_REMOVED,
       }
     ]);
   });

@@ -4,7 +4,12 @@ import should from 'should';
 import sinon from 'sinon';
 
 import { Store } from '../src';
-import { DISPATCH_TYPE, STATE_TYPE } from '../src/constants';
+import {
+  DISPATCH_TYPE,
+  STATE_TYPE,
+  DIFF_STATUS_UPDATED,
+  DIFF_STATUS_REMOVED,
+} from '../src/constants';
 
 describe('Store', function () {
   const portName = 'test';
@@ -155,8 +160,8 @@ describe('Store', function () {
       store.getState().should.eql({ b: 1 });
 
       store.patchState([
-        { key: 'a', value: 123, change: 'updated' },
-        { key: 'b', change: 'removed' },
+        { key: 'a', value: 123, change: DIFF_STATUS_UPDATED },
+        { key: 'b', change: DIFF_STATUS_REMOVED },
       ]);
 
       store.getState().should.eql({ a: 123 });

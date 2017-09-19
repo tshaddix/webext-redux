@@ -90,7 +90,7 @@ export default (store, {
       }
     };
 
-    // Send new state down connected port on every redux store state change
+    // Send patched state down connected port on every redux store state change
     const unsubscribe = store.subscribe(patchState);
 
     // when the port disconnects, unsubscribe the sendState listener
