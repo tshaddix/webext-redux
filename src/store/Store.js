@@ -87,10 +87,17 @@ class Store {
     const state = Object.assign({}, this.state);
 
     difference.forEach(({change, key, value}) => {
-      if (change === DIFF_STATUS_UPDATED) {
-        state[key] = value;
-      } else if (change === DIFF_STATUS_REMOVED) {
-        Reflect.deleteProperty(state, key);
+      switch (change) {
+        case DIFF_STATUS_UPDATED:
+          state[key] = value;
+          break;
+
+        case DIFF_STATUS_REMOVED:
+          Reflect.deleteProperty(state, key);
+          break;
+
+        default:
+          // do nothing
       }
     });
 
