@@ -1,7 +1,10 @@
 import {
   DISPATCH_TYPE,
-  STATE_TYPE
+  STATE_TYPE,
+  PATCH_STATE_TYPE,
 } from '../constants';
+
+import shallowDiff from './shallowDiff';
 
 /**
  * Responder for promisified results
@@ -71,25 +74,33 @@ export default (store, {
       return;
     }
 
-    /**
-     * Send store's current state through port
-     * @return undefined
-     */
-    const sendState = () => {
-      port.postMessage({
-        type: STATE_TYPE,
-        payload: store.getState()
-      });
+    let prevState = store.getState();
+
+    const patchState = () => {
+      const state = store.getState();
+      const diff = shallowDiff(prevState, state);
+
+      if (diff.length) {
+        prevState = state;
+
+        port.postMessage({
+          type: PATCH_STATE_TYPE,
+          payload: diff,
+        });
+      }
     };
 
-    // Send new state down connected port on every redux store state change
-    const unsubscribe = store.subscribe(sendState);
+    // Send patched state down connected port on every redux store state change
+    const unsubscribe = store.subscribe(patchState);
 
     // when the port disconnects, unsubscribe the sendState listener
     port.onDisconnect.addListener(unsubscribe);
 
-    // send initial state
-    sendState();
+    // Send store's initial state through port
+    port.postMessage({
+      type: STATE_TYPE,
+      payload: prevState,
+    });
   };
 
   /**

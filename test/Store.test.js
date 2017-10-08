@@ -4,7 +4,12 @@ import should from 'should';
 import sinon from 'sinon';
 
 import { Store } from '../src';
-import { DISPATCH_TYPE, STATE_TYPE } from '../src/constants';
+import {
+  DISPATCH_TYPE,
+  STATE_TYPE,
+  DIFF_STATUS_UPDATED,
+  DIFF_STATUS_REMOVED,
+} from '../src/constants';
 
 describe('Store', function () {
   const portName = 'test';
@@ -145,6 +150,21 @@ describe('Store', function () {
 
       // make sure replace state was only called once
       readyCb.calledOnce.should.equal(true);
+    });
+  });
+
+  describe('#patchState()', function () {
+    it('should patch the state of the store', function () {
+      const store = new Store({ portName, state: { b: 1 } });
+
+      store.getState().should.eql({ b: 1 });
+
+      store.patchState([
+        { key: 'a', value: 123, change: DIFF_STATUS_UPDATED },
+        { key: 'b', change: DIFF_STATUS_REMOVED },
+      ]);
+
+      store.getState().should.eql({ a: 123 });
     });
   });
 
