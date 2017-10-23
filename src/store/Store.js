@@ -154,7 +154,7 @@ class Store {
 
   safetyHandler(message){
     chrome.runtime.onMessage.removeListener(this.safetyHandler);
-    if (!this.readyResolved) {
+    if (message.action === 'storeReady' && !this.readyResolved) {
       this.readyResolved = true;
       this.readyResolve();
     }

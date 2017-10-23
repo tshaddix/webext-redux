@@ -136,12 +136,12 @@ export default (store, {
    */
   chrome.tabs.query({}, tabs => {
     for(const tab of tabs){
-      chrome.tabs.sendMessage(tab.id, {storeReady: true});
+      chrome.tabs.sendMessage(tab.id, {action: 'storeReady'});
     }
   });
 
   // For non-tab based
   // TODO: Find use case for this
-  chrome.runtime.sendMessage(null, {storeReady: true});
+  chrome.runtime.sendMessage(null, {action: 'storeReady'});
 
 };
