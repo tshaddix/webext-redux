@@ -153,10 +153,16 @@ class Store {
   }
 
   safetyHandler(message){
-    if (message.action === 'storeReady' && !this.readyResolved) {
+    if (message.action === 'storeReady'){
+
+      // Remove Saftey Listener
       chrome.runtime.onMessage.removeListener(this.safetyHandler);
-      this.readyResolved = true;
-      this.readyResolve();
+
+      // Resolve if readyPromise has not been resolved.
+      if(!this.readyResolved) {
+        this.readyResolved = true;
+        this.readyResolve();
+      }
     }
   }
 }
