@@ -27,7 +27,7 @@ class Store {
 
     this.extensionId = extensionId; // keep the extensionId as an instance variable
     this.port = chrome.runtime.connect(this.extensionId, {name: portName});
-    this.safteyMessage = chrome.runtime.onMessage.addListener(this.safetyHandler.bind(this));
+    this.safetyMessage = chrome.runtime.onMessage.addListener(this.safetyHandler.bind(this));
     this.listeners = [];
     this.state = state;
 
