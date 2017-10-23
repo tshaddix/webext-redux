@@ -27,6 +27,7 @@ class Store {
 
     this.extensionId = extensionId; // keep the extensionId as an instance variable
     this.port = chrome.runtime.connect(this.extensionId, {name: portName});
+    this.safteyMessage = chrome.runtime.onMessage.addListener(this.safetyHandler.bind(this));
     this.listeners = [];
     this.state = state;
 
@@ -149,6 +150,14 @@ class Store {
           }
         });
     });
+  }
+
+  safetyHandler(message){
+    chrome.runtime.onMessage.removeListener(this.safetyHandler);
+    if (!this.readyResolved) {
+      this.readyResolved = true;
+      this.readyResolve();
+    }
   }
 }
 
