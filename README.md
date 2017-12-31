@@ -177,6 +177,8 @@ No changes are required to your actions, react-chrome-redux automatically adds t
 
 [![GoGuardian][goguardian-image]][goguardian-url]
 
+[![Chrome IG Story][chrome-ig-story-image]][chrome-ig-story-url]
+
 Using `react-chrome-redux` in your project? We'd love to hear about it! Just [open an issue](https://github.com/tshaddix/react-chrome-redux/issues) and let us know.
 
 
@@ -188,3 +190,5 @@ Using `react-chrome-redux` in your project? We'd love to hear about it! Just [op
 [loom-url]: https://www.useloom.com
 [goguardian-image]: https://cloud.githubusercontent.com/assets/2173532/17540959/c6749bdc-5e6f-11e6-979c-c0e0da51fc63.png
 [goguardian-url]: https://goguardian.com
+[chrome-ig-story-image]: https://user-images.githubusercontent.com/2003684/34464412-895af814-ee32-11e7-86e4-b602bf58cdbc.png
+[chrome-ig-story-url]: https://chrome.google.com/webstore/detail/chrome-ig-story/bojgejgifofondahckoaahkilneffhmf
