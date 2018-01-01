@@ -38,6 +38,12 @@ export class Store<T> {
   replaceState(state: T): void;
 
   /**
+   * Replaces the state for only the keys in the updated state. Notifies all listeners of state change.
+   * @param difference the new (partial) redux state
+   */
+  patchState(difference: Array<any>): void;
+
+  /**
    * Get the current state of the store
    * @return the current store state
    */
