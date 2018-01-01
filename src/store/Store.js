@@ -123,6 +123,15 @@ class Store {
   getState() {
     return this.state;
   }
+  
+  
+  /**
+   * Stub function to stay consistent with Redux Store API. No-op.
+   * @param {object} nextReducer The reducer for the store to use instead.
+   */
+  replaceReducer(nextReducer) {
+    return;
+  }
 
   /**
    * Dispatch an action to the background using messaging passing
