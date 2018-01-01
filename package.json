@@ -3,6 +3,7 @@
   "version": "1.4.0",
   "description": "A set of utilities for building Redux applications in Google Chrome Extensions.",
   "main": "lib/index.js",
+  "typings": "./index.d.ts",
   "scripts": {
     "lint-src": "./node_modules/.bin/eslint src/**/*.js",
     "lint-test": "./node_modules/.bin/eslint test/**/*.js",
