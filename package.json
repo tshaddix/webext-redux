@@ -24,7 +24,8 @@
   },
   "homepage": "https://github.com/tshaddix/react-chrome-redux#readme",
   "dependencies": {
-    "lodash": "^4.5.1"
+    "lodash": "^4.5.1",
+    "redux": "^3.7.2"
   },
   "devDependencies": {
     "babel-cli": "^6.4.5",

@@ -125,6 +125,13 @@ class Store {
   }
 
   /**
+   * Stub function to stay consistent with Redux Store API. No-op.
+   */
+  replaceReducer() {
+    return;
+  }
+
+  /**
    * Dispatch an action to the background using messaging passing
    * @param  {object} data The action data to dispatch
    * @return {Promise}     Promise that will resolve/reject based on the action response from the background
