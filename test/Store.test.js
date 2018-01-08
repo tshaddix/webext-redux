@@ -1,28 +1,27 @@
-import 'babel-polyfill';
+import "babel-polyfill";
 
-import should from 'should';
-import sinon from 'sinon';
+import should from "should";
+import sinon from "sinon";
 
-import { Store } from '../src';
+import { Store } from "../src";
 import {
   DISPATCH_TYPE,
   STATE_TYPE,
   DIFF_STATUS_UPDATED,
-  DIFF_STATUS_REMOVED,
-} from '../src/constants';
+  DIFF_STATUS_REMOVED
+} from "../src/constants";
 
-describe('Store', function () {
-  const portName = 'test';
+describe("Store", function() {
+  const portName = "test";
 
-  beforeEach(function () {
+  beforeEach(function() {
     // Mock chrome.runtime API
     global.chrome = {
       runtime: {
         connect() {
           return {
             onMessage: {
-              addListener() {
-              }
+              addListener() {}
             }
           };
         },
@@ -33,8 +32,8 @@ describe('Store', function () {
     };
   });
 
-  describe('#new Store()', function () {
-    it('should setup a listener on the chrome port defined by the portName option and call replaceState on new state messages', function () {
+  describe("#new Store()", function() {
+    it("should setup a listener on the chrome port defined by the portName option and call replaceState on new state messages", function() {
       // mock connect.onMessage listeners array
       const listeners = [];
 
@@ -49,7 +48,7 @@ describe('Store', function () {
         };
       };
 
-      const store = new Store({portName});
+      const store = new Store({ portName });
 
       // make replaceState() a spy function
       store.replaceState = sinon.spy();
@@ -57,7 +56,7 @@ describe('Store', function () {
       // verify one listener was added on port connect
       listeners.length.should.equal(1);
 
-      const [ l ] = listeners;
+      const [l] = listeners;
 
       // send one state type message
       l({
@@ -78,21 +77,21 @@ describe('Store', function () {
       store.replaceState.alwaysCalledWithExactly(badMessage);
     });
 
-    it('should set the initial state to empty object by default', function () {
-      const store = new Store({portName});
+    it("should set the initial state to empty object by default", function() {
+      const store = new Store({ portName });
 
       store.getState().should.eql({});
     });
 
-    it('should set the initial state to opts.state if available', function () {
-      const store = new Store({portName, state: {a: 'a'}});
+    it("should set the initial state to opts.state if available", function() {
+      const store = new Store({ portName, state: { a: "a" } });
 
-      store.getState().should.eql({a: 'a'});
+      store.getState().should.eql({ a: "a" });
     });
   });
 
-  describe('#ready()', function () {
-    it('should call Store.ready once on STATE_TYPE port message', async function () {
+  describe("#ready()", function() {
+    it("should call Store.ready once on STATE_TYPE port message", async function() {
       // mock connect.onMessage listeners array
       const listeners = [];
 
@@ -107,12 +106,12 @@ describe('Store', function () {
         };
       };
 
-      const store = new Store({portName}),
-            readyCb = sinon.spy(),
-            readyPromise = store.ready().then(() => {
-              readyCb();
-              return Promise.resolve();
-            });
+      const store = new Store({ portName }),
+        readyCb = sinon.spy(),
+        readyPromise = store.ready().then(() => {
+          readyCb();
+          return Promise.resolve();
+        });
 
       // verify one listener was added on port connect
       listeners.length.should.equal(1);
@@ -120,7 +119,7 @@ describe('Store', function () {
       // verify Store.ready has not been called yet
       readyCb.callCount.should.equal(0);
 
-      const [ l ] = listeners;
+      const [l] = listeners;
 
       // send one state type message, this should trigger the ready callback
       l({
@@ -153,49 +152,49 @@ describe('Store', function () {
     });
   });
 
-  describe('#patchState()', function () {
-    it('should patch the state of the store', function () {
+  describe("#patchState()", function() {
+    it("should patch the state of the store", function() {
       const store = new Store({ portName, state: { b: 1 } });
 
       store.getState().should.eql({ b: 1 });
 
       store.patchState([
-        { key: 'a', value: 123, change: DIFF_STATUS_UPDATED },
-        { key: 'b', change: DIFF_STATUS_REMOVED },
+        { key: "a", value: 123, change: DIFF_STATUS_UPDATED },
+        { key: "b", change: DIFF_STATUS_REMOVED }
       ]);
 
       store.getState().should.eql({ a: 123 });
     });
   });
 
-  describe('#replaceState()', function () {
-    it('should replace the state of the store', function () {
-      const store = new Store({portName});
+  describe("#replaceState()", function() {
+    it("should replace the state of the store", function() {
+      const store = new Store({ portName });
 
       store.getState().should.eql({});
 
-      store.replaceState({a: 'a'});
+      store.replaceState({ a: "a" });
 
-      store.getState().should.eql({a: 'a'});
+      store.getState().should.eql({ a: "a" });
     });
   });
 
-  describe('#getState()', function () {
-    it('should get the current state of the Store', function () {
-      const store = new Store({portName, state: {a: 'a'}});
+  describe("#getState()", function() {
+    it("should get the current state of the Store", function() {
+      const store = new Store({ portName, state: { a: "a" } });
 
-      store.getState().should.eql({a: 'a'});
+      store.getState().should.eql({ a: "a" });
 
-      store.replaceState({b: 'b'});
+      store.replaceState({ b: "b" });
 
-      store.getState().should.eql({b: 'b'});
+      store.getState().should.eql({ b: "b" });
     });
   });
 
-  describe('#subscribe()', function () {
-    it('should register a listener for state changes', function () {
-      const store = new Store({portName}),
-            newState = {b: 'b'};
+  describe("#subscribe()", function() {
+    it("should register a listener for state changes", function() {
+      const store = new Store({ portName }),
+        newState = { b: "b" };
 
       let callCount = 0;
 
@@ -209,87 +208,91 @@ describe('Store', function () {
       callCount.should.eql(1);
     });
 
-    it('should return a function which will unsubscribe the listener', function () {
-      const store = new Store({portName}),
-            listener = sinon.spy(),
-            unsub = store.subscribe(listener);
+    it("should return a function which will unsubscribe the listener", function() {
+      const store = new Store({ portName }),
+        listener = sinon.spy(),
+        unsub = store.subscribe(listener);
 
-      store.replaceState({b: 'b'});
+      store.replaceState({ b: "b" });
 
       listener.calledOnce.should.eql(true);
 
       unsub();
 
-      store.replaceState({c: 'c'});
+      store.replaceState({ c: "c" });
 
       listener.calledOnce.should.eql(true);
     });
   });
 
-  describe('#dispatch()', function () {
-    it('should send a message with the correct dispatch type and payload given an extensionId', function () {
-      const spy = global.chrome.runtime.sendMessage = sinon.spy(),
-            store = new Store({portName, extensionId: 'xxxxxxxxxxxx'});
+  describe("#dispatch()", function() {
+    it("should send a message with the correct dispatch type and payload given an extensionId", function() {
+      const spy = (global.chrome.runtime.sendMessage = sinon.spy()),
+        store = new Store({ portName, extensionId: "xxxxxxxxxxxx" });
 
-      store.dispatch({a: 'a'});
-
-      spy.calledOnce.should.eql(true);
-      spy.alwaysCalledWith('xxxxxxxxxxxx', {
-        type: DISPATCH_TYPE,
-        portName,
-        payload: {a: 'a'}
-      }).should.eql(true);
-    });
-
-    it('should send a message with the correct dispatch type and payload not given an extensionId', function () {
-      const spy = global.chrome.runtime.sendMessage = sinon.spy(),
-            store = new Store({portName});
-
-      store.dispatch({a: 'a'});
+      store.dispatch({ a: "a" });
 
       spy.calledOnce.should.eql(true);
-      spy.alwaysCalledWith('', {
-        type: DISPATCH_TYPE,
-        portName,
-        payload: {a: 'a'}
-      }).should.eql(true);
+      spy
+        .alwaysCalledWith("xxxxxxxxxxxx", {
+          type: DISPATCH_TYPE,
+          portName,
+          payload: { a: "a" }
+        })
+        .should.eql(true);
     });
 
-    it('should return a promise that resolves with successful action', function () {
+    it("should send a message with the correct dispatch type and payload not given an extensionId", function() {
+      const spy = (global.chrome.runtime.sendMessage = sinon.spy()),
+        store = new Store({ portName });
+
+      store.dispatch({ a: "a" });
+
+      spy.calledOnce.should.eql(true);
+      spy
+        .alwaysCalledWith("", {
+          type: DISPATCH_TYPE,
+          portName,
+          payload: { a: "a" }
+        })
+        .should.eql(true);
+    });
+
+    it("should return a promise that resolves with successful action", function() {
       global.chrome.runtime.sendMessage = (extensionId, data, cb) => {
-        cb({value: {payload: 'hello'}});
+        cb({ value: { payload: "hello" } });
       };
 
-      const store = new Store({portName}),
-            p = store.dispatch({a: 'a'});
+      const store = new Store({ portName }),
+        p = store.dispatch({ a: "a" });
 
-      return p.should.be.fulfilledWith('hello');
+      return p.should.be.fulfilledWith("hello");
     });
 
-    it('should return a promise that rejects with an action error', function () {
+    it("should return a promise that rejects with an action error", function() {
       global.chrome.runtime.sendMessage = (extensionId, data, cb) => {
-        cb({value: {payload: 'hello'}, error: {extraMsg: 'test'}});
+        cb({ value: { payload: "hello" }, error: { extraMsg: "test" } });
       };
 
-      const store = new Store({portName}),
-            p = store.dispatch({a: 'a'});
+      const store = new Store({ portName }),
+        p = store.dispatch({ a: "a" });
 
-      return p.should.be.rejectedWith(Error, {extraMsg: 'test'});
+      return p.should.be.rejectedWith(Error, { extraMsg: "test" });
     });
 
-    it('should throw an error if portName is not present', function () {
+    it("should throw an error if portName is not present", function() {
       should.throws(() => {
         new Store();
       }, Error);
     });
 
-    it('should return a promise that resolves with undefined for an undefined return value', function () {
+    it("should return a promise that resolves with undefined for an undefined return value", function() {
       global.chrome.runtime.sendMessage = (extensionId, data, cb) => {
-        cb({value: undefined});
+        cb({ value: undefined });
       };
 
-      const store = new Store({portName}),
-            p = store.dispatch({a: 'a'});
+      const store = new Store({ portName }),
+        p = store.dispatch({ a: "a" });
 
       return p.should.be.fulfilledWith(undefined);
     });
