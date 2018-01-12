@@ -58,10 +58,10 @@ describe('wrapStore', function () {
     return listeners;
   }
 
-  describe("on receiving messages", function() {
+  describe("on receiving messages", function () {
     let listeners, store, payload, message, sender, callback;
 
-    beforeEach(function() {
+    beforeEach(function () {
       listeners = setupListeners();
       store = {
         dispatch: sinon.spy(),
@@ -92,7 +92,7 @@ describe('wrapStore', function () {
         )
         .should.eql(true);
     });
-  
+
     it('should not dispatch actions received on onMessage for other ports', function () {
       wrapStore(store, {portName});
       message.portName = portName + '2';
@@ -100,9 +100,10 @@ describe('wrapStore', function () {
 
       store.dispatch.notCalled.should.eql(true);
     });
-  
+
     it('should deserialize incoming messages correctly', function () {
       const deserializer = sinon.spy(JSON.parse);
+
       wrapStore(store, {portName, deserializer});
       message.payload = JSON.stringify(payload);
       listeners.onMessage.forEach(l => l(message, sender, callback));
@@ -119,6 +120,7 @@ describe('wrapStore', function () {
 
     it('should not deserialize incoming messages for other ports', function () {
       const deserializer = sinon.spy(JSON.parse);
+
       wrapStore(store, {portName, deserializer});
       message.portName = portName + '2';
       message.payload = JSON.stringify(payload);
@@ -130,24 +132,25 @@ describe('wrapStore', function () {
 
   it('should serialize initial state and subsequent patches correctly', function () {
     const listeners = setupListeners();
-    
+
     // Mock store subscription
     const subscribers = [];
     const store = {
       subscribe: subscriber => {
         subscribers.push(subscriber);
-        return () => ({})
+        return () => ({});
       },
       getState: () => ({})
     };
-    
+
     // Stub state access (the first access will be on
     // initialization, and the second will be on update)
     const firstState = { a: 1, b: 2 };
     const secondState = { a: 1, b: 3, c: 5 };
+
     sinon.stub(store, 'getState')
         .onFirstCall().returns(firstState)
-        .onSecondCall().returns(secondState)
+        .onSecondCall().returns(secondState);
 
     // Mock the port object for onConnect and spy on postMessage
     const port = {
@@ -170,7 +173,7 @@ describe('wrapStore', function () {
     const expectedSetupMessage = {
       type: STATE_TYPE,
       payload: serializer(firstState)
-    }
+    };
     const expectedPatchMessage = {
       type: PATCH_STATE_TYPE,
       payload: serializer(shallowDiff(firstState, secondState))

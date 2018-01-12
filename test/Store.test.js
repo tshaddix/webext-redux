@@ -53,7 +53,7 @@ describe('Store', function () {
     });
 
     it('should setup a listener on the chrome port defined by the portName option', function () {
-      const store = new Store({portName});
+      new Store({portName});
 
       // verify one listener was added on port connect
       listeners.length.should.equal(1);
@@ -69,7 +69,7 @@ describe('Store', function () {
 
       const payload = {
         a: 1
-      }
+      };
 
       // send one state type message
       l({
@@ -101,7 +101,7 @@ describe('Store', function () {
 
       const payload = {
         a: 1
-      }
+      };
 
       // send one state type message
       l({
