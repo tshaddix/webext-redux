@@ -1,4 +1,4 @@
-import '@babel/polyfill';
+import 'babel-polyfill';
 
 import should from 'should';
 import sinon from 'sinon';
