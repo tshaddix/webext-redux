@@ -39,6 +39,7 @@ class Store {
     this.listeners = [];
     this.state = state;
 
+    //Don't use shouldDeserialize here, since no one else should be using this port
     this.serializedPortListener(message => {
       switch (message.type) {
         case STATE_TYPE:

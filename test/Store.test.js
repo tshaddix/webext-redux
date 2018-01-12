@@ -34,9 +34,11 @@ describe('Store', function () {
   });
 
   describe('#new Store()', function () {
-    it('should setup a listener on the chrome port defined by the portName option and call replaceState on new state messages', function () {
+    let listeners;
+
+    beforeEach(function () {
       // mock connect.onMessage listeners array
-      const listeners = [];
+      listeners = [];
 
       // override mock chrome API for this test
       global.chrome.runtime.connect = () => {
@@ -48,14 +50,20 @@ describe('Store', function () {
           }
         };
       };
+    });
 
+    it('should setup a listener on the chrome port defined by the portName option', function () {
+      const store = new Store({portName});
+
+      // verify one listener was added on port connect
+      listeners.length.should.equal(1);
+    });
+
+    it('should call replaceState on new state messages', function () {
       const store = new Store({portName});
 
       // make replaceState() a spy function
       store.replaceState = sinon.spy();
-
-      // verify one listener was added on port connect
-      listeners.length.should.equal(1);
 
       const [ l ] = listeners;
 
@@ -72,11 +80,44 @@ describe('Store', function () {
       // send one non-state type message
       l({
         type: `NOT_${STATE_TYPE}`,
-        payload
+        payload: {
+          a: 2
+        }
       });
 
       // make sure replace state was only called once
       store.replaceState.calledOnce.should.equal(true);
+      store.replaceState.firstCall.args[0].should.eql(payload);
+    });
+
+    it('should deserialize incoming messages', function () {
+      const deserializer = sinon.spy(JSON.parse);
+      const store = new Store({portName, deserializer});
+
+      // make replaceState() a spy function
+      store.replaceState = sinon.spy();
+
+      const [ l ] = listeners;
+
+      const payload = {
+        a: 1
+      }
+
+      // send one state type message
+      l({
+        type: STATE_TYPE,
+        payload: JSON.stringify(payload)
+      });
+
+      // send one non-state type message
+      l({
+        type: `NOT_${STATE_TYPE}`,
+        payload: JSON.stringify({
+          a: 2
+        })
+      });
+
+      // make sure replace state was called with the deserialized payload
       store.replaceState.firstCall.args[0].should.eql(payload);
     });
 
@@ -254,6 +295,21 @@ describe('Store', function () {
         type: DISPATCH_TYPE,
         portName,
         payload: {a: 'a'}
+      }).should.eql(true);
+    });
+
+    it('should serialize payloads before sending', function () {
+      const spy = global.chrome.runtime.sendMessage = sinon.spy(),
+            serializer = sinon.spy(JSON.stringify),
+            store = new Store({portName, serializer});
+
+      store.dispatch({a: 'a'});
+
+      spy.calledOnce.should.eql(true);
+      spy.alwaysCalledWith('', {
+        type: DISPATCH_TYPE,
+        portName,
+        payload: JSON.stringify({a: 'a'})
       }).should.eql(true);
     });
 
