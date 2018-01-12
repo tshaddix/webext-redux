@@ -34,8 +34,8 @@ class Store {
 
     this.extensionId = extensionId; // keep the extensionId as an instance variable
     this.port = chrome.runtime.connect(this.extensionId, {name: portName});
-    this.serializedPortListener = withDeserializer(deserializer)(this.port.onMessage.addListener);
-    this.serializedMessageSender = withSerializer(serializer)(chrome.runtime.sendMessage, 1);
+    this.serializedPortListener = withDeserializer(deserializer)((...args) => this.port.onMessage.addListener(...args));
+    this.serializedMessageSender = withSerializer(serializer)((...args) => chrome.runtime.sendMessage(...args), 1);
     this.listeners = [];
     this.state = state;
 

@@ -88,7 +88,7 @@ export default (store, {
       return;
     }
 
-    const serializedMessagePoster = withSerializer(serializer)(port.postMessage);
+    const serializedMessagePoster = withSerializer(serializer)((...args) => port.postMessage(...args));
 
     let prevState = store.getState();
 
@@ -125,13 +125,13 @@ export default (store, {
   /**
    * Setup action handler
    */
-  withPayloadDeserializer(chrome.runtime.onMessage.addListener)(dispatchResponse, shouldDeserialize);
+  withPayloadDeserializer((...args) => chrome.runtime.onMessage.addListener(...args))(dispatchResponse, shouldDeserialize);
 
   /**
    * Setup external action handler
    */
   if (chrome.runtime.onMessageExternal) {
-    withPayloadDeserializer(chrome.runtime.onMessageExternal.addListener)(dispatchResponse, shouldDeserialize);
+    withPayloadDeserializer((...args) => chrome.runtime.onMessageExternal.addListener(...args))(dispatchResponse, shouldDeserialize);
   } else {
     console.warn('runtime.onMessageExternal is not supported');
   }
