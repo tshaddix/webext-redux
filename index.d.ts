@@ -9,8 +9,8 @@ export class Store<S = any, A extends redux.Action = redux.Action> {
     portName: string,
     state?: any,
     extensionId?: string,
-    serializer: Function,
-    deserializer: Function
+    serializer?: Function,
+    deserializer?: Function
   });
 
   /**
@@ -74,8 +74,8 @@ export function wrapStore<S>(
   configuration: {
     portName: string,
     dispatchResponder?(dispatchResult: any, send: (response: any) => void): void,
-    serializer: Function,
-    deserializer: Function
+    serializer?: Function,
+    deserializer?: Function
   },
 ): void;
 
