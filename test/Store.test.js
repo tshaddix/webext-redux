@@ -59,23 +59,25 @@ describe('Store', function () {
 
       const [ l ] = listeners;
 
+      const payload = {
+        a: 1
+      }
+
       // send one state type message
       l({
         type: STATE_TYPE,
-        payload: {}
+        payload
       });
 
-      const badMessage = {
-        type: `NOT_${STATE_TYPE}`,
-        payload: {}
-      };
-
       // send one non-state type message
-      l(badMessage);
+      l({
+        type: `NOT_${STATE_TYPE}`,
+        payload
+      });
 
       // make sure replace state was only called once
       store.replaceState.calledOnce.should.equal(true);
-      store.replaceState.alwaysCalledWithExactly(badMessage);
+      store.replaceState.firstCall.args[0].should.eql(payload);
     });
 
     it('should set the initial state to empty object by default', function () {
