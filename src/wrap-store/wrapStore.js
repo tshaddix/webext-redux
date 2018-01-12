@@ -120,17 +120,18 @@ export default (store, {
   };
 
   const withPayloadDeserializer = withDeserializer(deserializer);
+  const shouldDeserialize = (request) => request.type === DISPATCH_TYPE && request.portName === portName;
 
   /**
    * Setup action handler
    */
-  withPayloadDeserializer(chrome.runtime.onMessage.addListener)(dispatchResponse);
+  withPayloadDeserializer(chrome.runtime.onMessage.addListener)(dispatchResponse, shouldDeserialize);
 
   /**
    * Setup external action handler
    */
   if (chrome.runtime.onMessageExternal) {
-    withPayloadDeserializer(chrome.runtime.onMessageExternal.addListener)(dispatchResponse);
+    withPayloadDeserializer(chrome.runtime.onMessageExternal.addListener)(dispatchResponse, shouldDeserialize);
   } else {
     console.warn('runtime.onMessageExternal is not supported');
   }

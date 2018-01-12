@@ -277,12 +277,6 @@ describe('Store', function () {
       return p.should.be.rejectedWith(Error, {extraMsg: 'test'});
     });
 
-    it('should throw an error if portName is not present', function () {
-      should.throws(() => {
-        new Store();
-      }, Error);
-    });
-
     it('should return a promise that resolves with undefined for an undefined return value', function () {
       global.chrome.runtime.sendMessage = (extensionId, data, cb) => {
         cb({value: undefined});
@@ -292,6 +286,26 @@ describe('Store', function () {
             p = store.dispatch({a: 'a'});
 
       return p.should.be.fulfilledWith(undefined);
+    });
+  });
+
+  describe("when validating options", function () {
+    it('should throw an error if portName is not present', function () {
+      should.throws(() => {
+        new Store();
+      }, Error);
+    });
+
+    it('should throw an error if serializer is not a function', function () {
+      should.throws(() => {
+        new Store({portName, serializer: "abc"});
+      }, Error);
+    });
+
+    it('should throw an error if deserializer is not a function', function () {
+      should.throws(() => {
+        new Store({portName, deserializer: "abc"});
+      }, Error);
     });
   });
 });
