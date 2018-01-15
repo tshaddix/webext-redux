@@ -76,5 +76,5 @@ export function wrapStore<S>(
 ): void;
 
 export function alias(aliases: {
-  [key: string]: () => void
+  [key: string]: (action: any) => void
 }): redux.Middleware;
