@@ -1,7 +1,4 @@
-import {
-  DIFF_STATUS_UPDATED,
-  DIFF_STATUS_REMOVED
-} from '../constants';
+import { DIFF_STATUS_UPDATED, DIFF_STATUS_REMOVED } from "../constants";
 
 /**
  * Returns a new Object containing only the fields in `new` that differ from `old`
@@ -15,12 +12,12 @@ import {
 export default function shallowDiff(oldObj, newObj) {
   const difference = [];
 
-  Object.keys(newObj).forEach((key) => {
+  Object.keys(newObj).forEach(key => {
     if (oldObj[key] !== newObj[key]) {
       difference.push({
         key,
         value: newObj[key],
-        change: DIFF_STATUS_UPDATED,
+        change: DIFF_STATUS_UPDATED
       });
     }
   });
@@ -29,7 +26,7 @@ export default function shallowDiff(oldObj, newObj) {
     if (!newObj[key]) {
       difference.push({
         key,
-        change: DIFF_STATUS_REMOVED,
+        change: DIFF_STATUS_REMOVED
       });
     }
   });

@@ -5,14 +5,13 @@
   "main": "lib/index.js",
   "typings": "./index.d.ts",
   "scripts": {
-    "lint-src": "./node_modules/.bin/eslint src/**/*.js",
-    "lint-test": "./node_modules/.bin/eslint test/**/*.js",
-    "lint": "npm run lint-src && npm run lint-test",
+    "format": "./node_modules/.bin/prettier es6 --write \"{src,test}/**/*.js\"",
     "prepublish": "./node_modules/.bin/babel src --out-dir lib",
     "pretest": "./node_modules/.bin/babel src --out-dir lib",
     "test-run": "./node_modules/.bin/mocha --compilers js:babel-core/register",
-    "test": "npm run lint && npm run test-run"
+    "test": "npm run test-run"
   },
+  "pre-commit": ["format", "test"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tshaddix/react-chrome-redux.git"
@@ -30,12 +29,12 @@
   "devDependencies": {
     "babel-cli": "^6.4.5",
     "babel-core": "^6.22.1",
-    "babel-eslint": "^7.2.0",
     "babel-plugin-transform-async-to-generator": "^6.22.0",
     "babel-polyfill": "^6.22.0",
     "babel-preset-es2015": "^6.3.13",
-    "eslint": "^3.17.1",
     "mocha": "^2.3.4",
+    "pre-commit": "^1.2.2",
+    "prettier": "^1.9.2",
     "should": "^8.2.0",
     "sinon": "^1.17.2"
   }

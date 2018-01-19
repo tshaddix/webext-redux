@@ -1,30 +1,30 @@
-import 'babel-polyfill';
+import "babel-polyfill";
 
-import sinon from 'sinon';
+import sinon from "sinon";
 
-import {wrapStore} from '../src';
-import {DISPATCH_TYPE} from '../src/constants';
+import { wrapStore } from "../src";
+import { DISPATCH_TYPE } from "../src/constants";
 
-describe('wrapStore', function () {
-  const portName = 'test';
+describe("wrapStore", function() {
+  const portName = "test";
 
-  beforeEach(function () {
+  beforeEach(function() {
     // Mock chrome.runtime API
     global.chrome = {
       runtime: {
         onMessage: {
-          addListener: () => {},
+          addListener: () => {}
         },
         onMessageExternal: {
-          addListener: () => {},
+          addListener: () => {}
         },
         onConnect: {
-          addListener: () => {},
+          addListener: () => {}
         },
         onConnectExternal: {
-          addListener: () => {},
-        },
-      },
+          addListener: () => {}
+        }
+      }
     };
   });
 
@@ -33,44 +33,44 @@ describe('wrapStore', function () {
       onMessage: [],
       onMessageExternal: [],
       onConnect: [],
-      onConnectExternal: [],
+      onConnectExternal: []
     };
 
     global.chrome = {
       runtime: {
         onMessage: {
-          addListener: fn => listeners.onMessage.push(fn),
+          addListener: fn => listeners.onMessage.push(fn)
         },
         onMessageExternal: {
-          addListener: fn => listeners.onMessageExternal.push(fn),
+          addListener: fn => listeners.onMessageExternal.push(fn)
         },
         onConnect: {
-          addListener: fn => listeners.onConnect.push(fn),
+          addListener: fn => listeners.onConnect.push(fn)
         },
         onConnectExternal: {
-          addListener: fn => listeners.onConnectExternal.push(fn),
-        },
-      },
+          addListener: fn => listeners.onConnectExternal.push(fn)
+        }
+      }
     };
 
     return listeners;
   }
 
-  it('should dispatch actions received on onMessage to store', function () {
+  it("should dispatch actions received on onMessage to store", function() {
     const listeners = setupListeners();
     const store = {
-      dispatch: sinon.spy(),
+      dispatch: sinon.spy()
     };
 
-    wrapStore(store, {portName});
+    wrapStore(store, { portName });
 
     const payload = {
-      a: 'a',
+      a: "a"
     };
     const message = {
       type: DISPATCH_TYPE,
       portName,
-      payload,
+      payload
     };
     const sender = {};
     const callback = () => {}; // noop.  Maybe should validate it is invoked?
@@ -80,35 +80,32 @@ describe('wrapStore', function () {
     store.dispatch
       .alwaysCalledWith(
         Object.assign({}, payload, {
-          _sender: sender,
-        }),
+          _sender: sender
+        })
       )
       .should.eql(true);
   });
 
-  it(
-    'should not dispatch actions received on onMessage for other ports',
-    function () {
-      const listeners = setupListeners();
-      const store = {
-        dispatch: sinon.spy(),
-      };
+  it("should not dispatch actions received on onMessage for other ports", function() {
+    const listeners = setupListeners();
+    const store = {
+      dispatch: sinon.spy()
+    };
 
-      wrapStore(store, {portName});
+    wrapStore(store, { portName });
 
-      const payload = {
-        a: 'a',
-      };
-      const message = {
-        type: DISPATCH_TYPE,
-        portName: portName + '2',
-        payload,
-      };
-      const sender = {};
-      const callback = () => {}; // noop.  Maybe should validate it is invoked?
+    const payload = {
+      a: "a"
+    };
+    const message = {
+      type: DISPATCH_TYPE,
+      portName: portName + "2",
+      payload
+    };
+    const sender = {};
+    const callback = () => {}; // noop.  Maybe should validate it is invoked?
 
-      listeners.onMessage.forEach(l => l(message, sender, callback));
-      store.dispatch.notCalled.should.eql(true);
-    },
-  );
+    listeners.onMessage.forEach(l => l(message, sender, callback));
+    store.dispatch.notCalled.should.eql(true);
+  });
 });

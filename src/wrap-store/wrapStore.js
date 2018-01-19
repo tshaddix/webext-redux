@@ -1,10 +1,6 @@
-import {
-  DISPATCH_TYPE,
-  STATE_TYPE,
-  PATCH_STATE_TYPE,
-} from '../constants';
+import { DISPATCH_TYPE, STATE_TYPE, PATCH_STATE_TYPE } from "../constants";
 
-import shallowDiff from './shallowDiff';
+import shallowDiff from "./shallowDiff";
 
 /**
  * Responder for promisified results
@@ -13,16 +9,15 @@ import shallowDiff from './shallowDiff';
  * @return {undefined}
  */
 const promiseResponder = (dispatchResult, send) => {
-  Promise
-    .resolve(dispatchResult)
-    .then((res) => {
+  Promise.resolve(dispatchResult)
+    .then(res => {
       send({
         error: null,
         value: res
       });
     })
-    .catch((err) => {
-      console.error('error dispatching result:', err);
+    .catch(err => {
+      console.error("error dispatching result:", err);
       send({
         error: err.message,
         value: null
@@ -30,12 +25,9 @@ const promiseResponder = (dispatchResult, send) => {
     });
 };
 
-export default (store, {
-  portName,
-  dispatchResponder
-}) => {
+export default (store, { portName, dispatchResponder }) => {
   if (!portName) {
-    throw new Error('portName is required in options');
+    throw new Error("portName is required in options");
   }
 
   // set dispatch responder as promise responder
@@ -67,9 +59,9 @@ export default (store, {
   };
 
   /**
-  * Setup for state updates
-  */
-  const connectState = (port) => {
+   * Setup for state updates
+   */
+  const connectState = port => {
     if (port.name !== portName) {
       return;
     }
@@ -85,7 +77,7 @@ export default (store, {
 
         port.postMessage({
           type: PATCH_STATE_TYPE,
-          payload: diff,
+          payload: diff
         });
       }
     };
@@ -99,7 +91,7 @@ export default (store, {
     // Send store's initial state through port
     port.postMessage({
       type: STATE_TYPE,
-      payload: prevState,
+      payload: prevState
     });
   };
 
@@ -114,7 +106,7 @@ export default (store, {
   if (chrome.runtime.onMessageExternal) {
     chrome.runtime.onMessageExternal.addListener(dispatchResponse);
   } else {
-    console.warn('runtime.onMessageExternal is not supported');
+    console.warn("runtime.onMessageExternal is not supported");
   }
 
   /**
@@ -128,6 +120,6 @@ export default (store, {
   if (chrome.runtime.onConnectExternal) {
     chrome.runtime.onConnectExternal.addListener(connectState);
   } else {
-    console.warn('runtime.onConnectExternal is not supported');
+    console.warn("runtime.onConnectExternal is not supported");
   }
 };
