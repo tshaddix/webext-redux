@@ -229,7 +229,7 @@ function dateReplacer (key, value) {
 
 function dateReviver (key, value) {
   // Look for the custom flag and revive the date
-  return value["_RECOVER_DATE"] ? new Date(value["_RECOVER_DATE"]) : value
+  return value && value["_RECOVER_DATE"] ? new Date(value["_RECOVER_DATE"]) : value
 };
 
 const stringified = JSON.stringify(state, dateReplacer)
