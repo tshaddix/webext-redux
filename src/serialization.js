@@ -13,9 +13,9 @@ const deserializeListener = (listener, deserializer = noop, shouldDeserialize) =
   if (shouldDeserialize) {
     return (message, ...args) => {
       if (shouldDeserialize(message, ...args)) {
-        listener(transformPayload(message, deserializer), ...args);
+        return listener(transformPayload(message, deserializer), ...args);
       } else {
-        listener(message, ...args);
+        return listener(message, ...args);
       }
     };
   }
