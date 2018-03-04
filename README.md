@@ -121,6 +121,33 @@ class ContentApp extends Component {
 }
 ```
 
+Also, if you're passing the alias an asynchronous action using something like `redux-thunk` for example, you'll need to have your alias function return a plain javascript object in the interim while the async action is run and include the async middleware after the alias middleware:
+
+```js
+// background.js
+
+import { applyMiddleware, createStore } from 'redux';
+import { alias, wrapStore } from 'react-chrome-redux';
+import thunk from 'redux-thunk';
+
+import { fetchImportantData } from // 'path/to/your/async/action'
+
+const aliases = {
+  'fetch-important-data': (userId) => {
+    // we return an plain javascript object with a type property while the async function runs
+    store.dispatch(fetchImportantData(userId)); // async
+    return {type: 'NOOP'};
+  };
+};
+
+const store = createStore(rootReducer,
+  applyMiddleware(
+    alias(aliases),
+    thunk
+  )
+);
+```
+
 ### 4. Optional: Retrieve information about the initiator of the action
 
 There are probably going to be times where you are going to want to know who sent you a message. For example, maybe you have a UI Component that lives in a tab and you want to have it send information to a store that is managed by the background script and you want your background script to know which tab sent the information to it. You can retrieve this information by using the `_sender` property of the action. Let's look at an example of what this would look like.
