@@ -248,7 +248,7 @@ describe('Store', function () {
       store.dispatch({a: 'a'});
 
       spy.calledOnce.should.eql(true);
-      spy.alwaysCalledWith('', {
+      spy.alwaysCalledWith(null, {
         type: DISPATCH_TYPE,
         portName,
         payload: {a: 'a'}
@@ -256,7 +256,7 @@ describe('Store', function () {
     });
 
     it('should return a promise that resolves with successful action', function () {
-      global.chrome.runtime.sendMessage = (extensionId, data, cb) => {
+      global.chrome.runtime.sendMessage = (extensionId, data, options, cb) => {
         cb({value: {payload: 'hello'}});
       };
 
@@ -267,7 +267,7 @@ describe('Store', function () {
     });
 
     it('should return a promise that rejects with an action error', function () {
-      global.chrome.runtime.sendMessage = (extensionId, data, cb) => {
+      global.chrome.runtime.sendMessage = (extensionId, data, options, cb) => {
         cb({value: {payload: 'hello'}, error: {extraMsg: 'test'}});
       };
 
@@ -284,7 +284,7 @@ describe('Store', function () {
     });
 
     it('should return a promise that resolves with undefined for an undefined return value', function () {
-      global.chrome.runtime.sendMessage = (extensionId, data, cb) => {
+      global.chrome.runtime.sendMessage = (extensionId, data, options, cb) => {
         cb({value: undefined});
       };
 
