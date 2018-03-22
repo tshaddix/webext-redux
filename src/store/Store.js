@@ -16,7 +16,7 @@ class Store {
    * Creates a new Proxy store
    * @param  {object} options An object of form {portName, state, extensionId}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by chrome when extension is loaded (default `''`)
    */
-  constructor({portName, state = {}, extensionId = ''}) {
+  constructor({portName, state = {}, extensionId = null}) {
     if (!portName) {
       throw new Error('portName is required in options');
     }
@@ -144,7 +144,7 @@ class Store {
           type: DISPATCH_TYPE,
           portName: this.portName,
           payload: data
-        }, (resp) => {
+        }, null, (resp) => {
           const {error, value} = resp;
 
           if (error) {
