@@ -17,7 +17,7 @@ class Store {
    * Creates a new Proxy store
    * @param  {object} options An object of form {portName, state, extensionId, serializer, deserializer}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by chrome when extension is loaded (default `''`), `serializer` is a function to serialize outgoing message payloads (default is passthrough), and `deserializer` is a function to deserialize incoming message payloads (default is passthrough)
    */
-  constructor({portName, state = {}, extensionId = '', serializer = noop, deserializer = noop}) {
+  constructor({portName, state = {}, extensionId = null, serializer = noop, deserializer = noop}) {
     if (!portName) {
       throw new Error('portName is required in options');
     }
@@ -154,7 +154,7 @@ class Store {
           type: DISPATCH_TYPE,
           portName: this.portName,
           payload: data
-        }, (resp) => {
+        }, null, (resp) => {
           const {error, value} = resp;
 
           if (error) {
