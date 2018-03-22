@@ -1,8 +1,9 @@
 {
   "name": "react-chrome-redux",
-  "version": "1.4.0",
+  "version": "1.5.1",
   "description": "A set of utilities for building Redux applications in Google Chrome Extensions.",
   "main": "lib/index.js",
+  "typings": "./index.d.ts",
   "scripts": {
     "lint-src": "./node_modules/.bin/eslint src/**/*.js",
     "lint-test": "./node_modules/.bin/eslint test/**/*.js",
@@ -23,7 +24,8 @@
   },
   "homepage": "https://github.com/tshaddix/react-chrome-redux#readme",
   "dependencies": {
-    "lodash": "^4.5.1"
+    "lodash": "^4.5.1",
+    "redux": "^3.7.2"
   },
   "devDependencies": {
     "babel-cli": "^6.4.5",
