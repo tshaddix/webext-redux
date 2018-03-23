@@ -306,7 +306,7 @@ describe('Store', function () {
       store.dispatch({a: 'a'});
 
       spy.calledOnce.should.eql(true);
-      spy.alwaysCalledWith('', {
+      spy.alwaysCalledWith(null, {
         type: DISPATCH_TYPE,
         portName,
         payload: JSON.stringify({a: 'a'})

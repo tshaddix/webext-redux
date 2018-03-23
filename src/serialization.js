@@ -4,6 +4,8 @@ const transformPayload = (message, transformer = noop) => ({
   ...message,
   // If the message has a payload, transform it. Otherwise,
   // just return a copy of the message.
+  // We return a copy rather than the original message so that we're not
+  // mutating the original action object.
   ...(message.payload ? {payload: transformer(message.payload)} : {})
 });
 
