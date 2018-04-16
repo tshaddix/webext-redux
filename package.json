@@ -1,6 +1,6 @@
 {
   "name": "react-chrome-redux",
-  "version": "1.5.1",
+  "version": "1.6.0-alpha.1",
   "description": "A set of utilities for building Redux applications in Google Chrome Extensions.",
   "main": "lib/index.js",
   "typings": "./index.d.ts",
