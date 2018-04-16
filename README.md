@@ -161,6 +161,84 @@ No changes are required to your actions, react-chrome-redux automatically adds t
 
 `react-chrome-redux` supports `onMessageExternal` which is fired when a message is sent from another extension, app, or website. By default, if `externally_connectable` is not declared in your extension's manifest, all extensions or apps will be able to send messages to your extension, but no websites will be able to. You can follow [this](https://developer.chrome.com/extensions/manifest/externally_connectable) to address your needs appropriately.
 
+## Custom Serialization
+
+You may wish to implement custom serialization and deserialization logic for communication between the background store and your proxy store(s). Chrome's message passing (which is used to implement this library) automatically serializes messages when they are sent and deserializes them when they are received. In the case that you have non-JSON-ifiable information in your Redux state, like a circular reference or a `Date` object, you will lose information between the background store and the proxy store(s). To manage this, both `wrapStore` and `Store` accept `serializer` and `deserializer` options. These should be functions that take a single parameter, the payload of a message, and return a serialized and deserialized form, respectively. The `serializer` function will be called every time a message is sent, and the `deserializer` function will be called every time a message is received. Note that, in addition to state updates, action creators being passed from your content script(s) to your background page will be serialized and deserialized as well.
+
+### Example
+For example, consider the following `state` in your background page:
+
+```js
+{todos: [
+    {
+      id: 1,
+      text: 'Write a Chrome extension',
+      created: new Date(2018, 0, 1)
+    }
+]}
+```
+
+With no custom serialization, the `state` in your proxy store will look like this:
+
+```js
+{todos: [
+    {
+      id: 1,
+      text: 'Write a Chrome extension',
+      created: {}
+    }
+]}
+```
+
+As you can see, Chrome's message passing has caused your date to disappear. You can pass a custom `serializer` and `deserializer` to both `wrapStore` and `Store` to make sure your dates get preserved:
+
+```js
+// background.js
+
+import {wrapStore} from 'react-chrome-redux';
+
+const store; // a normal Redux store
+
+wrapStore(store, {
+  portName: 'MY_APP',
+  serializer: payload => JSON.stringify(payload, dateReplacer),
+  deserializer: payload => JSON.parse(payload, dateReviver)
+});
+```
+
+```js
+// content.js
+
+import {Store} from 'react-chrome-redux';
+
+const store = new Store({
+  portName: 'MY_APP',
+  serializer: payload => JSON.stringify(payload, dateReplacer),
+  deserializer: payload => JSON.parse(payload, dateReviver)
+});
+```
+
+In this example, `dateReplacer` and `dateReviver` are a custom JSON [replacer](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) and [reviver](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse) function, respectively. They are defined as such:
+
+```js
+function dateReplacer (key, value) {
+  // Put a custom flag on dates instead of relying on JSON's native
+  // stringification, which would force us to use a regex on the other end
+  return this[key] instanceof Date ? {"_RECOVER_DATE": this[key].getTime()} : value
+};
+
+function dateReviver (key, value) {
+  // Look for the custom flag and revive the date
+  return value && value["_RECOVER_DATE"] ? new Date(value["_RECOVER_DATE"]) : value
+};
+
+const stringified = JSON.stringify(state, dateReplacer)
+//"{"todos":[{"id":1,"text":"Write a Chrome extension","created":{"_RECOVER_DATE":1514793600000}}]}"
+
+JSON.parse(stringified, dateReviver)
+// {todos: [{ id: 1, text: 'Write a Chrome extension', created: new Date(2018, 0, 1) }]}
+```
+
 ## Docs
 
 * [Introduction](https://github.com/tshaddix/react-chrome-redux/wiki/Introduction)

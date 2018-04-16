@@ -7,6 +7,7 @@ import {
   DIFF_STATUS_UPDATED,
   DIFF_STATUS_REMOVED,
 } from '../constants';
+import { withSerializer, withDeserializer, noop } from "../serialization";
 
 const backgroundErrPrefix = '\nLooks like there is an error in the background page. ' +
   'You might want to inspect your background page for more details.\n';
@@ -14,11 +15,17 @@ const backgroundErrPrefix = '\nLooks like there is an error in the background pa
 class Store {
   /**
    * Creates a new Proxy store
-   * @param  {object} options An object of form {portName, state, extensionId}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by chrome when extension is loaded (default `''`)
+   * @param  {object} options An object of form {portName, state, extensionId, serializer, deserializer}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by chrome when extension is loaded (default `''`), `serializer` is a function to serialize outgoing message payloads (default is passthrough), and `deserializer` is a function to deserialize incoming message payloads (default is passthrough)
    */
-  constructor({portName, state = {}, extensionId = null}) {
+  constructor({portName, state = {}, extensionId = null, serializer = noop, deserializer = noop}) {
     if (!portName) {
       throw new Error('portName is required in options');
+    }
+    if (typeof serializer !== 'function') {
+      throw new Error('serializer must be a function');
+    }
+    if (typeof deserializer !== 'function') {
+      throw new Error('deserializer must be a function');
     }
 
     this.portName = portName;
@@ -27,10 +34,13 @@ class Store {
 
     this.extensionId = extensionId; // keep the extensionId as an instance variable
     this.port = chrome.runtime.connect(this.extensionId, {name: portName});
+    this.serializedPortListener = withDeserializer(deserializer)((...args) => this.port.onMessage.addListener(...args));
+    this.serializedMessageSender = withSerializer(serializer)((...args) => chrome.runtime.sendMessage(...args), 1);
     this.listeners = [];
     this.state = state;
 
-    this.port.onMessage.addListener(message => {
+    // Don't use shouldDeserialize here, since no one else should be using this port
+    this.serializedPortListener(message => {
       switch (message.type) {
         case STATE_TYPE:
           this.replaceState(message.payload);
@@ -138,7 +148,7 @@ class Store {
    */
   dispatch(data) {
     return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage(
+      this.serializedMessageSender(
         this.extensionId,
         {
           type: DISPATCH_TYPE,
