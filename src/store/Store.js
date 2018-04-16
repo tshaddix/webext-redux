@@ -1,5 +1,7 @@
 import assignIn from 'lodash/assignIn';
 
+import { default as applyMiddlewareFn } from './applyMiddleware';
+
 import {
   DISPATCH_TYPE,
   STATE_TYPE,
@@ -11,6 +13,8 @@ import { withSerializer, withDeserializer, noop } from "../serialization";
 
 const backgroundErrPrefix = '\nLooks like there is an error in the background page. ' +
   'You might want to inspect your background page for more details.\n';
+
+export const applyMiddleware = applyMiddlewareFn;
 
 class Store {
   /**

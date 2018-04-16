@@ -11,7 +11,8 @@
     "prepublish": "./node_modules/.bin/babel src --out-dir lib",
     "pretest": "./node_modules/.bin/babel src --out-dir lib",
     "test-run": "./node_modules/.bin/mocha --compilers js:babel-core/register",
-    "test": "npm run lint && npm run test-run"
+    "test": "npm run lint && npm run test-run",
+    "prepare": "npm run prepublish"
   },
   "repository": {
     "type": "git",
