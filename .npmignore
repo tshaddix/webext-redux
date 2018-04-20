@@ -1,3 +1,4 @@
 src/
 .idea/
 test/
+.babelrc
