@@ -26,7 +26,7 @@ export default function shallowDiff(oldObj, newObj) {
   });
 
   Object.keys(oldObj).forEach(key => {
-    if (!newObj[key]) {
+    if (!newObj.hasOwnProperty(key)) {
       difference.push({
         key,
         change: DIFF_STATUS_REMOVED,
