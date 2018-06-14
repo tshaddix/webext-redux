@@ -1,6 +1,6 @@
 {
   "name": "react-chrome-redux",
-  "version": "1.5.0",
+  "version": "2.0.0-alpha.1",
   "description": "A set of utilities for building Redux applications in Google Chrome Extensions.",
   "main": "lib/index.js",
   "typings": "./index.d.ts",
@@ -11,7 +11,8 @@
     "prepublish": "./node_modules/.bin/babel src --out-dir lib",
     "pretest": "./node_modules/.bin/babel src --out-dir lib",
     "test-run": "./node_modules/.bin/mocha --compilers js:babel-core/register",
-    "test": "npm run lint && npm run test-run"
+    "test": "npm run lint && npm run test-run",
+    "prepare": "npm run prepublish"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
     "babel-plugin-transform-async-to-generator": "^6.22.0",
     "babel-polyfill": "^6.22.0",
     "babel-preset-es2015": "^6.3.13",
+    "babel-preset-stage-1": "^6.24.1",
     "eslint": "^3.17.1",
     "mocha": "^2.3.4",
     "should": "^8.2.0",

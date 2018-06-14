@@ -34,9 +34,11 @@ describe('Store', function () {
   });
 
   describe('#new Store()', function () {
-    it('should setup a listener on the chrome port defined by the portName option and call replaceState on new state messages', function () {
+    let listeners;
+
+    beforeEach(function () {
       // mock connect.onMessage listeners array
-      const listeners = [];
+      listeners = [];
 
       // override mock chrome API for this test
       global.chrome.runtime.connect = () => {
@@ -48,34 +50,75 @@ describe('Store', function () {
           }
         };
       };
+    });
 
+    it('should setup a listener on the chrome port defined by the portName option', function () {
+      new Store({portName});
+
+      // verify one listener was added on port connect
+      listeners.length.should.equal(1);
+    });
+
+    it('should call replaceState on new state messages', function () {
       const store = new Store({portName});
 
       // make replaceState() a spy function
       store.replaceState = sinon.spy();
 
-      // verify one listener was added on port connect
-      listeners.length.should.equal(1);
-
       const [ l ] = listeners;
+
+      const payload = {
+        a: 1
+      };
 
       // send one state type message
       l({
         type: STATE_TYPE,
-        payload: {}
+        payload
       });
 
-      const badMessage = {
-        type: `NOT_${STATE_TYPE}`,
-        payload: {}
-      };
-
       // send one non-state type message
-      l(badMessage);
+      l({
+        type: `NOT_${STATE_TYPE}`,
+        payload: {
+          a: 2
+        }
+      });
 
       // make sure replace state was only called once
       store.replaceState.calledOnce.should.equal(true);
-      store.replaceState.alwaysCalledWithExactly(badMessage);
+      store.replaceState.firstCall.args[0].should.eql(payload);
+    });
+
+    it('should deserialize incoming messages', function () {
+      const deserializer = sinon.spy(JSON.parse);
+      const store = new Store({portName, deserializer});
+
+      // make replaceState() a spy function
+      store.replaceState = sinon.spy();
+
+      const [ l ] = listeners;
+
+      const payload = {
+        a: 1
+      };
+
+      // send one state type message
+      l({
+        type: STATE_TYPE,
+        payload: JSON.stringify(payload)
+      });
+
+      // send one non-state type message
+      l({
+        type: `NOT_${STATE_TYPE}`,
+        payload: JSON.stringify({
+          a: 2
+        })
+      });
+
+      // make sure replace state was called with the deserialized payload
+      store.replaceState.firstCall.args[0].should.eql(payload);
     });
 
     it('should set the initial state to empty object by default', function () {
@@ -248,15 +291,30 @@ describe('Store', function () {
       store.dispatch({a: 'a'});
 
       spy.calledOnce.should.eql(true);
-      spy.alwaysCalledWith('', {
+      spy.alwaysCalledWith(null, {
         type: DISPATCH_TYPE,
         portName,
         payload: {a: 'a'}
       }).should.eql(true);
     });
 
+    it('should serialize payloads before sending', function () {
+      const spy = global.chrome.runtime.sendMessage = sinon.spy(),
+            serializer = sinon.spy(JSON.stringify),
+            store = new Store({portName, serializer});
+
+      store.dispatch({a: 'a'});
+
+      spy.calledOnce.should.eql(true);
+      spy.alwaysCalledWith(null, {
+        type: DISPATCH_TYPE,
+        portName,
+        payload: JSON.stringify({a: 'a'})
+      }).should.eql(true);
+    });
+
     it('should return a promise that resolves with successful action', function () {
-      global.chrome.runtime.sendMessage = (extensionId, data, cb) => {
+      global.chrome.runtime.sendMessage = (extensionId, data, options, cb) => {
         cb({value: {payload: 'hello'}});
       };
 
@@ -267,7 +325,7 @@ describe('Store', function () {
     });
 
     it('should return a promise that rejects with an action error', function () {
-      global.chrome.runtime.sendMessage = (extensionId, data, cb) => {
+      global.chrome.runtime.sendMessage = (extensionId, data, options, cb) => {
         cb({value: {payload: 'hello'}, error: {extraMsg: 'test'}});
       };
 
@@ -277,14 +335,8 @@ describe('Store', function () {
       return p.should.be.rejectedWith(Error, {extraMsg: 'test'});
     });
 
-    it('should throw an error if portName is not present', function () {
-      should.throws(() => {
-        new Store();
-      }, Error);
-    });
-
     it('should return a promise that resolves with undefined for an undefined return value', function () {
-      global.chrome.runtime.sendMessage = (extensionId, data, cb) => {
+      global.chrome.runtime.sendMessage = (extensionId, data, options, cb) => {
         cb({value: undefined});
       };
 
@@ -292,6 +344,26 @@ describe('Store', function () {
             p = store.dispatch({a: 'a'});
 
       return p.should.be.fulfilledWith(undefined);
+    });
+  });
+
+  describe("when validating options", function () {
+    it('should throw an error if portName is not present', function () {
+      should.throws(() => {
+        new Store();
+      }, Error);
+    });
+
+    it('should throw an error if serializer is not a function', function () {
+      should.throws(() => {
+        new Store({portName, serializer: "abc"});
+      }, Error);
+    });
+
+    it('should throw an error if deserializer is not a function', function () {
+      should.throws(() => {
+        new Store({portName, deserializer: "abc"});
+      }, Error);
     });
   });
 });
