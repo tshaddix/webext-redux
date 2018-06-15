@@ -5,11 +5,12 @@ import { default as applyMiddlewareFn } from './applyMiddleware';
 import {
   DISPATCH_TYPE,
   STATE_TYPE,
-  PATCH_STATE_TYPE,
-  DIFF_STATUS_UPDATED,
-  DIFF_STATUS_REMOVED,
+  PATCH_STATE_TYPE
 } from '../constants';
 import { withSerializer, withDeserializer, noop } from "../serialization";
+
+import patchDeepDiff from './patchDeepDiff';
+import deepDiff from '../wrap-store/deepDiff';
 
 const backgroundErrPrefix = '\nLooks like there is an error in the background page. ' +
   'You might want to inspect your background page for more details.\n';
@@ -98,24 +99,10 @@ class Store {
    * @param {object} state the new (partial) redux state
    */
   patchState(difference) {
-    const state = Object.assign({}, this.state);
-
-    difference.forEach(({change, key, value}) => {
-      switch (change) {
-        case DIFF_STATUS_UPDATED:
-          state[key] = value;
-          break;
-
-        case DIFF_STATUS_REMOVED:
-          Reflect.deleteProperty(state, key);
-          break;
-
-        default:
-          // do nothing
-      }
-    });
-
-    this.state = state;
+    console.log("Patching diffs from background", difference);
+    const prevState = this.state;
+    this.state = patchDeepDiff(this.state, difference);
+    console.log("Diff after patch:", deepDiff(this.state, prevState));
 
     this.listeners.forEach((l) => l());
   }

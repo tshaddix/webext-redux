@@ -5,7 +5,7 @@ import {
 } from '../constants';
 import { withSerializer, withDeserializer, noop } from "../serialization";
 
-import shallowDiff from './shallowDiff';
+import deepDiff from './deepDiff';
 
 /**
  * Responder for promisified results
@@ -94,7 +94,7 @@ export default (store, {
 
     const patchState = () => {
       const state = store.getState();
-      const diff = shallowDiff(prevState, state);
+      const diff = deepDiff(state, prevState, (cur, prev, context) => { console.log("Diff context:", context); return true; });
 
       if (diff.length) {
         prevState = state;
