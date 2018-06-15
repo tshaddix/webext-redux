@@ -1,11 +1,11 @@
 import {
   DISPATCH_TYPE,
   STATE_TYPE,
-  PATCH_STATE_TYPE,
+  PATCH_STATE_TYPE
 } from '../constants';
 import { withSerializer, withDeserializer, noop } from "../serialization";
 
-import deepDiff from './deepDiff';
+import shallowDiff from '../strategies/shallowDiff/diff';
 
 /**
  * Responder for promisified results
@@ -34,13 +34,14 @@ const promiseResponder = (dispatchResult, send) => {
 /**
  * Wraps a Redux store so that proxy stores can connect to it.
  * @param {Object} store A Redux store
- * @param {Object} options An object of form {portName, dispatchResponder, serializer, deserializer}, where `portName` is a required string and defines the name of the port for state transition changes, `dispatchResponder` is a function that takes the result of a store dispatch and optionally implements custom logic for responding to the original dispatch message,`serializer` is a function to serialize outgoing message payloads (default is passthrough), and `deserializer` is a function to deserialize incoming message payloads (default is passthrough)
+ * @param {Object} options An object of form {portName, dispatchResponder, serializer, deserializer}, where `portName` is a required string and defines the name of the port for state transition changes, `dispatchResponder` is a function that takes the result of a store dispatch and optionally implements custom logic for responding to the original dispatch message,`serializer` is a function to serialize outgoing message payloads (default is passthrough), `deserializer` is a function to deserialize incoming message payloads (default is passthrough), and diffStrategy is one of the included diffing strategies (default is shallow diff) or a custom diffing function.
  */
 export default (store, {
   portName,
   dispatchResponder,
   serializer = noop,
-  deserializer = noop
+  deserializer = noop,
+  diffStrategy = shallowDiff
 }) => {
   if (!portName) {
     throw new Error('portName is required in options');
@@ -50,6 +51,9 @@ export default (store, {
   }
   if (typeof deserializer !== 'function') {
     throw new Error('deserializer must be a function');
+  }
+  if (typeof diffStrategy !== 'function') {
+    throw new Error('diffStrategy must be one of the included diffing strategies or a custom diff function')
   }
 
   // set dispatch responder as promise responder
@@ -94,7 +98,7 @@ export default (store, {
 
     const patchState = () => {
       const state = store.getState();
-      const diff = deepDiff(state, prevState, (cur, prev, context) => { console.log("Diff context:", context); return true; });
+      const diff = diffStrategy(prevState, state);
 
       if (diff.length) {
         prevState = state;

@@ -9,8 +9,8 @@ import {
 } from '../constants';
 import { withSerializer, withDeserializer, noop } from "../serialization";
 
-import patchDeepDiff from './patchDeepDiff';
-import deepDiff from '../wrap-store/deepDiff';
+import shallowDiff from '../strategies/shallowDiff/patch';
+import deepDiff from '../strategies/deepDiff/patch';
 
 const backgroundErrPrefix = '\nLooks like there is an error in the background page. ' +
   'You might want to inspect your background page for more details.\n';
@@ -20,9 +20,9 @@ export const applyMiddleware = applyMiddlewareFn;
 class Store {
   /**
    * Creates a new Proxy store
-   * @param  {object} options An object of form {portName, state, extensionId, serializer, deserializer}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by chrome when extension is loaded (default `''`), `serializer` is a function to serialize outgoing message payloads (default is passthrough), and `deserializer` is a function to deserialize incoming message payloads (default is passthrough)
+   * @param  {object} options An object of form {portName, state, extensionId, serializer, deserializer, diffStrategy}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by chrome when extension is loaded (default `''`), `serializer` is a function to serialize outgoing message payloads (default is passthrough), `deserializer` is a function to deserialize incoming message payloads (default is passthrough), and patchStrategy is one of the included patching strategies (default is shallow diff) or a custom patching function.
    */
-  constructor({portName, state = {}, extensionId = null, serializer = noop, deserializer = noop}) {
+  constructor({portName, state = {}, extensionId = null, serializer = noop, deserializer = noop, patchStrategy = shallowDiff}) {
     if (!portName) {
       throw new Error('portName is required in options');
     }
@@ -31,6 +31,9 @@ class Store {
     }
     if (typeof deserializer !== 'function') {
       throw new Error('deserializer must be a function');
+    }
+    if (typeof patchStrategy !== 'function') {
+      throw new Error('patchStrategy must be one of the included patching strategies or a custom patching function')
     }
 
     this.portName = portName;
@@ -99,11 +102,7 @@ class Store {
    * @param {object} state the new (partial) redux state
    */
   patchState(difference) {
-    console.log("Patching diffs from background", difference);
-    const prevState = this.state;
-    this.state = patchDeepDiff(this.state, difference);
-    console.log("Diff after patch:", deepDiff(this.state, prevState));
-
+    this.state = patchStrategy(this.state, difference);
     this.listeners.forEach((l) => l());
   }
 

@@ -1,10 +1,15 @@
 import { DIFF_STATUS_KEYS_UPDATED, DIFF_STATUS_REMOVED, DIFF_STATUS_UPDATED } from "../constants";
 
-export default function patchObject(obj, patches) {
+/**
+ * Patches the given object according to the specified list of patches.
+ * @param {Object} obj The object to patch
+ * @param {Array} difference The array of differences generated from diffing
+ */
+export default function patchObject(obj, difference) {
   // Start with a shallow copy of the object.
   const newObject = { ...obj };
   // Iterate through the patches.
-  patches.forEach(patch => {
+  difference.forEach(patch => {
     // If the value is an object whose keys are being updated,
     // then recursively patch the object.
     if (patch.type === DIFF_STATUS_KEYS_UPDATED) {
