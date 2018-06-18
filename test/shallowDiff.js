@@ -1,8 +1,8 @@
-import shallowDiff from '../src/wrap-store/shallowDiff';
+import shallowDiff from '../src/strategies/shallowDiff/diff';
 import {
   DIFF_STATUS_UPDATED,
   DIFF_STATUS_REMOVED,
-} from '../src/constants';
+} from '../src/strategies/constants';
 
 describe('#shallowDiff()', () => {
   it('should return an object containing updated fields', () => {

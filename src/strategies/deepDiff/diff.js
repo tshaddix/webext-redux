@@ -1,6 +1,7 @@
 import { DIFF_STATUS_KEYS_UPDATED, DIFF_STATUS_REMOVED, DIFF_STATUS_UPDATED } from "../constants";
 
 const objectConstructor = ({}).constructor;
+
 function isObject(o) {
   return typeof o === "object" && o.constructor === objectConstructor;
 }
@@ -13,12 +14,10 @@ function diffValues(oldObj, newObj, shouldContinue, context) {
   // If it's a non-object, or if the type is changing, or if it's an array,
   // just go with the current value.
   if (shouldTreatAsValue(oldObj, newObj) || shouldContinue(oldObj, newObj, context)) {
-    return { type: DIFF_STATUS_UPDATED, value: newObj }
+    return { type: DIFF_STATUS_UPDATED, value: newObj };
   }
   // If it's an object, compute the differences for each key.
-  else {
-    return { type: DIFF_STATUS_KEYS_UPDATED, value: diffObjects(oldObj, newObj, shouldContinue, context) }
-  }
+  return { type: DIFF_STATUS_KEYS_UPDATED, value: diffObjects(oldObj, newObj, shouldContinue, context) };
 }
 
 /**
@@ -34,10 +33,10 @@ function diffValues(oldObj, newObj, shouldContinue, context) {
  * @param {Object} newObj The new object
  * @param {Function} shouldContinue Called with oldObj, newObj, and context, which is the current object path
  * Return false to stop diffing and treat everything under the current key as an updated value
- * @param {*} context 
+ * @param {*} context
  */
 export default function diffObjects(oldObj, newObj, shouldContinue = () => true, context = []) {
-  const difference = []
+  const difference = [];
 
   // For each key in the current state,
   // get the differences in values.

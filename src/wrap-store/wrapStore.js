@@ -53,7 +53,7 @@ export default (store, {
     throw new Error('deserializer must be a function');
   }
   if (typeof diffStrategy !== 'function') {
-    throw new Error('diffStrategy must be one of the included diffing strategies or a custom diff function')
+    throw new Error('diffStrategy must be one of the included diffing strategies or a custom diff function');
   }
 
   // set dispatch responder as promise responder

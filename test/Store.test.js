@@ -6,10 +6,12 @@ import sinon from 'sinon';
 import { Store } from '../src';
 import {
   DISPATCH_TYPE,
-  STATE_TYPE,
+  STATE_TYPE
+} from '../src/constants';
+import {
   DIFF_STATUS_UPDATED,
   DIFF_STATUS_REMOVED,
-} from '../src/constants';
+} from '../src/strategies/constants';
 
 describe('Store', function () {
   const portName = 'test';

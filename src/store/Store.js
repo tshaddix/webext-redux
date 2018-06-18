@@ -10,7 +10,6 @@ import {
 import { withSerializer, withDeserializer, noop } from "../serialization";
 
 import shallowDiff from '../strategies/shallowDiff/patch';
-import deepDiff from '../strategies/deepDiff/patch';
 
 const backgroundErrPrefix = '\nLooks like there is an error in the background page. ' +
   'You might want to inspect your background page for more details.\n';
@@ -33,7 +32,7 @@ class Store {
       throw new Error('deserializer must be a function');
     }
     if (typeof patchStrategy !== 'function') {
-      throw new Error('patchStrategy must be one of the included patching strategies or a custom patching function')
+      throw new Error('patchStrategy must be one of the included patching strategies or a custom patching function');
     }
 
     this.portName = portName;
@@ -46,6 +45,7 @@ class Store {
     this.serializedMessageSender = withSerializer(serializer)((...args) => chrome.runtime.sendMessage(...args), 1);
     this.listeners = [];
     this.state = state;
+    this.patchStrategy = patchStrategy;
 
     // Don't use shouldDeserialize here, since no one else should be using this port
     this.serializedPortListener(message => {
@@ -102,7 +102,7 @@ class Store {
    * @param {object} state the new (partial) redux state
    */
   patchState(difference) {
-    this.state = patchStrategy(this.state, difference);
+    this.state = this.patchStrategy(this.state, difference);
     this.listeners.forEach((l) => l());
   }
 

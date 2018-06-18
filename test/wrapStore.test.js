@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import should from 'should';
 
 import {wrapStore} from '../src';
-import shallowDiff from "../src/wrap-store/shallowDiff";
+import shallowDiff from '../src/strategies/shallowDiff/diff';
 import {DISPATCH_TYPE, STATE_TYPE, PATCH_STATE_TYPE} from '../src/constants';
 
 describe('wrapStore', function () {
