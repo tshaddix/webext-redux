@@ -38,7 +38,7 @@
     "babel-preset-stage-1": "^6.24.1",
     "eslint": "^3.17.1",
     "mocha": "^2.3.4",
-    "should": "^8.2.0",
-    "sinon": "^1.17.2"
+    "should": "^13.2.1",
+    "sinon": "^6.0.0"
   }
 }

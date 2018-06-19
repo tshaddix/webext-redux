@@ -6,6 +6,10 @@ import { DIFF_STATUS_KEYS_UPDATED, DIFF_STATUS_REMOVED, DIFF_STATUS_UPDATED } fr
  * @param {Array} difference The array of differences generated from diffing
  */
 export default function patchObject(obj, difference) {
+  if (!difference.length) {
+    return obj;
+  }
+
   // Start with a shallow copy of the object.
   const newObject = { ...obj };
 
@@ -13,15 +17,15 @@ export default function patchObject(obj, difference) {
   difference.forEach(patch => {
     // If the value is an object whose keys are being updated,
     // then recursively patch the object.
-    if (patch.type === DIFF_STATUS_KEYS_UPDATED) {
+    if (patch.change === DIFF_STATUS_KEYS_UPDATED) {
       newObject[patch.key] = patchObject(newObject[patch.key], patch.value);
     }
     // If the key has been deleted, delete it.
-    else if (patch.type === DIFF_STATUS_REMOVED) {
-      Reflect.deleteProperty(newObject[patch.key]);
+    else if (patch.change === DIFF_STATUS_REMOVED) {
+      Reflect.deleteProperty(newObject, patch.key);
     }
     // If the key has been updated to a new value, update it.
-    else if (patch.type === DIFF_STATUS_UPDATED) {
+    else if (patch.change === DIFF_STATUS_UPDATED) {
       newObject[patch.key] = patch.value;
     }
   });

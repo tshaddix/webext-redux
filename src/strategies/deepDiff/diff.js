@@ -3,7 +3,7 @@ import { DIFF_STATUS_KEYS_UPDATED, DIFF_STATUS_REMOVED, DIFF_STATUS_UPDATED } fr
 const objectConstructor = ({}).constructor;
 
 function isObject(o) {
-  return typeof o === "object" && o.constructor === objectConstructor;
+  return typeof o === "object" && o !== null && o.constructor === objectConstructor;
 }
 
 function shouldTreatAsValue(oldObj, newObj) {
@@ -13,11 +13,11 @@ function shouldTreatAsValue(oldObj, newObj) {
 function diffValues(oldObj, newObj, shouldContinue, context) {
   // If it's a non-object, or if the type is changing, or if it's an array,
   // just go with the current value.
-  if (shouldTreatAsValue(oldObj, newObj) || shouldContinue(oldObj, newObj, context)) {
-    return { type: DIFF_STATUS_UPDATED, value: newObj };
+  if (shouldTreatAsValue(oldObj, newObj) || !shouldContinue(oldObj, newObj, context)) {
+    return { change: DIFF_STATUS_UPDATED, value: newObj };
   }
   // If it's an object, compute the differences for each key.
-  return { type: DIFF_STATUS_KEYS_UPDATED, value: diffObjects(oldObj, newObj, shouldContinue, context) };
+  return { change: DIFF_STATUS_KEYS_UPDATED, value: diffObjects(oldObj, newObj, shouldContinue, context) };
 }
 
 /**
@@ -52,9 +52,9 @@ export default function diffObjects(oldObj, newObj, shouldContinue = () => true,
   // For each key previously present,
   // record its deletion.
   Object.keys(oldObj).forEach(key => {
-    if (newObj[key] === undefined) {
+    if (!newObj.hasOwnProperty(key)) {
       difference.push({
-        key, type: DIFF_STATUS_REMOVED
+        key, change: DIFF_STATUS_REMOVED
       });
     }
   });
