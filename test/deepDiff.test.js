@@ -353,9 +353,10 @@ describe('deepDiff strategy', () => {
     it("should return a diff strategy function that uses the provided shouldContinue param", () => {
       const shouldContinue = sinon.spy(() => true);
       const diffStrategy = makeDiff(shouldContinue);
+
       shouldContinue.callCount.should.eql(0);
       diffStrategy({ a: { b: 1 }}, { a: { b: 2 }});
       shouldContinue.callCount.should.be.greaterThan(0);
-    })
-  })
+    });
+  });
 });

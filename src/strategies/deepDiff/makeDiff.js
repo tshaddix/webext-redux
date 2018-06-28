@@ -5,7 +5,7 @@ import diffObjects from './diff';
  * and returns a custom deep diff function that uses the provided
  * `shouldContinue` function to decide when to stop traversing
  * the state tree.
- * @param {Function} shouldContinue A function, called during 
+ * @param {Function} shouldContinue A function, called during
  * diffing just after each state tree traversal, which should
  * return a boolean indicating whether or not to continue down
  * the tree, or to just treat the current object as a value. It
