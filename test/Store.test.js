@@ -6,7 +6,8 @@ import sinon from 'sinon';
 import { Store } from '../src';
 import {
   DISPATCH_TYPE,
-  STATE_TYPE
+  STATE_TYPE,
+  PATCH_STATE_TYPE
 } from '../src/constants';
 import {
   DIFF_STATUS_UPDATED,
@@ -211,6 +212,25 @@ describe('Store', function () {
 
       store.getState().should.eql({ a: 123 });
     });
+
+    it('should use the provided patch strategy to patch the state', function () {
+      // Create a fake patch strategy
+      const patchStrategy = sinon.spy((state, diffs) => ({
+        ...state, a: state.a + 1
+      }));
+      // Initialize the store
+      const store = new Store({ portName, state: { a: 1, b: 5 }, patchStrategy });
+      store.getState().should.eql({ a: 1, b: 5 });
+
+      // Patch the state
+      store.patchState([]);
+
+      const expectedState = { a: 2, b: 5 };
+      // make sure the patch strategy was used
+      patchStrategy.callCount.should.eql(1);
+      // make sure the state got patched
+      store.state.should.eql(expectedState);
+    });
   });
 
   describe('#replaceState()', function () {
@@ -365,6 +385,12 @@ describe('Store', function () {
     it('should throw an error if deserializer is not a function', function () {
       should.throws(() => {
         new Store({portName, deserializer: "abc"});
+      }, Error);
+    });
+
+    it('should throw an error if patchStrategy is not a function', function () {
+      should.throws(() => {
+        new Store({portName, patchStrategy: "abc"});
       }, Error);
     });
   });
