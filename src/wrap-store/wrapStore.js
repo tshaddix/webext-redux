@@ -40,7 +40,8 @@ export default (store, {
   portName,
   dispatchResponder,
   serializer = noop,
-  deserializer = noop
+  deserializer = noop,
+  onPortClosed
 }) => {
   if (!portName) {
     throw new Error('portName is required in options');
@@ -111,6 +112,7 @@ export default (store, {
 
     // when the port disconnects, unsubscribe the sendState listener
     port.onDisconnect.addListener(unsubscribe);
+    if (onPortClosed) port.onDisconnect.addListener(onPortClosed);
 
     // Send store's initial state through port
     serializedMessagePoster({
