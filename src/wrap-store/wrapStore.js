@@ -40,7 +40,8 @@ export default (store, {
   portName,
   dispatchResponder,
   serializer = noop,
-  deserializer = noop
+  deserializer = noop,
+  onDisconnectHook = noop
 }) => {
   if (!portName) {
     throw new Error('portName is required in options');
@@ -50,6 +51,9 @@ export default (store, {
   }
   if (typeof deserializer !== 'function') {
     throw new Error('deserializer must be a function');
+  }
+  if (typeof onDisconnectHook !== 'function') {
+    throw new Error('onDisconnectHook must be a function');
   }
 
   // set dispatch responder as promise responder
@@ -111,6 +115,9 @@ export default (store, {
 
     // when the port disconnects, unsubscribe the sendState listener
     port.onDisconnect.addListener(unsubscribe);
+    if (onDisconnectHook) {
+      port.onDisconnect.addListener(onDisconnectHook);
+    }
 
     // Send store's initial state through port
     serializedMessagePoster({
