@@ -25,6 +25,9 @@ describe('wrapStore', function () {
           addListener: () => {},
         },
       },
+      tabs: {
+        query: () => {}
+      }
     };
   });
 
@@ -51,6 +54,9 @@ describe('wrapStore', function () {
           addListener: fn => listeners.onConnectExternal.push(fn),
         },
       },
+      tabs: {
+        query: () => {}
+      }
     };
 
     return listeners;
@@ -109,6 +115,46 @@ describe('wrapStore', function () {
 
       listeners.onMessage.forEach(l => l(message, sender, callback));
       store.dispatch.notCalled.should.eql(true);
+    },
+  );
+
+  it(
+    'should send a safety message to all tabs once initialized',
+    function () {
+      const tabs = [123,456,789,1011,1213];
+      const tabResponders = [];
+      const store = {
+        dispatch: sinon.spy(),
+      };
+
+      global.chrome = {
+        runtime: {
+          onMessage: {
+            addListener: () => {},
+          },
+          onMessageExternal: {
+            addListener: () => {},
+          },
+          onConnect: {
+            addListener: () => {},
+          },
+          onConnectExternal: {
+            addListener: () => {},
+          },
+        },
+        tabs: {
+          query: (tabObject, cb) => {
+            cb(tabs);
+          },
+          sendMessage: (tabId) => {
+            tabResponders.push(tabId);
+          }
+        }
+      };
+
+      wrapStore(store, {portName});
+
+      tabResponders.length.should.equal(5);
     },
   );
 });
