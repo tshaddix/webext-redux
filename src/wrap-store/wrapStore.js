@@ -141,7 +141,7 @@ export default (store, {
   });
 
   // For non-tab based
-  // TODO: Find use case for this
-  chrome.runtime.sendMessage(null, {action: 'storeReady'});
+  // TODO: Find use case for this. Ommiting until then.
+  // chrome.runtime.sendMessage(null, {action: 'storeReady'});
 
 };
