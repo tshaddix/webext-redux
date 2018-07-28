@@ -82,3 +82,8 @@ export function wrapStore<S>(
 export function alias(aliases: {
   [key: string]: (action: any) => any
 }): redux.Middleware;
+
+export function applyMiddleware(
+  store: Store,
+  ...middleware: redux.Middleware[]
+): Store;
