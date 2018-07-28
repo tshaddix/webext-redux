@@ -1,5 +1,8 @@
 import * as redux from 'redux';
 
+export type DiffStrategy = (oldObj, newObj) => any;
+export type PatchStrategy = (oldObj, patch) => any;
+
 export class Store<S = any, A extends redux.Action = redux.Action> {
   /**
    * Creates a new Proxy store
@@ -10,7 +13,9 @@ export class Store<S = any, A extends redux.Action = redux.Action> {
     state?: any,
     extensionId?: string,
     serializer?: Function,
-    deserializer?: Function
+    deserializer?: Function,
+    diffStrategy: DiffStrategy,
+    patchStrategy: PatchStrategy
   });
 
   /**

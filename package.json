@@ -1,6 +1,6 @@
 {
   "name": "react-chrome-redux",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0-alpha.2",
   "description": "A set of utilities for building Redux applications in Google Chrome Extensions.",
   "main": "lib/index.js",
   "typings": "./index.d.ts",
@@ -38,7 +38,7 @@
     "babel-preset-stage-1": "^6.24.1",
     "eslint": "^3.17.1",
     "mocha": "^2.3.4",
-    "should": "^8.2.0",
-    "sinon": "^1.17.2"
+    "should": "^13.2.1",
+    "sinon": "^6.0.0"
   }
 }
