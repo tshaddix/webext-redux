@@ -239,6 +239,99 @@ JSON.parse(stringified, dateReviver)
 // {todos: [{ id: 1, text: 'Write a Chrome extension', created: new Date(2018, 0, 1) }]}
 ```
 
+## Custom Diffing and Patching Strategies
+
+On each state update, `react-chrome-redux` generates a patch based on the difference between the old state and the new state. The patch is sent to each proxy store, where it is used to update the proxy store's state. This is more efficient than sending the entire state to each proxy store on every update.
+If you find that the default patching behavior is not sufficient, you can fine-tune `react-chrome-redux` using custom diffing and patching strategies. 
+
+### Deep Diff Strategy
+
+By default, `react-chrome-redux` uses a shallow diffing strategy to generate patches. If the identity of any of the store's top-level keys changes, their values are patched wholesale. Most of the time, this strategy will work just fine. However, in cases where a store's state is highly nested, or where many items are stored by key under a single slice of state, it can start to affect performance. Consider, for example, the following `state`:
+
+```js
+{
+  items: {
+    "a": { ... },
+    "b": { ... },
+    "c": { ... },
+    "d": { ... },
+    // ...
+  },
+  // ...
+}
+```
+
+If any of the individual keys under `state.items` is updated, `state.items` will become a new object (by standard Redux convention). As a result, the default diffing strategy will send then entire `state.items` object to every proxy store for patching. Since this involves serialization and deserialization of the entire object, having large objects - or many proxy stores - can create a noticeable slowdown. To mitigate this, `react-chrome-redux` also provides a deep diffing strategy, which will traverse down the state tree until it reaches non-object values, keeping track of only the updated keys at each level of state. So, for the example above, if the object under `state.items.b` is updated, the patch will only contain those keys under `state.items.b` whose values actually changed. The deep diffing strategy can be used like so:
+
+```js
+// background.js
+
+import {wrapStore} from 'react-chrome-redux';
+import deepDiff from 'react-chrome-redux/strategies/deepDiff/diff';
+
+const store; // a normal Redux store
+
+wrapStore(store, {
+  portName: 'MY_APP',
+  diffStrategy: deepDiff
+});
+```
+
+```js
+// content.js
+
+import {Store} from 'react-chrome-redux';
+import patchDeepDiff from 'react-chrome-redux/strategies/deepDiff/patch';
+
+const store = new Store({
+  portName: 'MY_APP',
+  patchStrategy: patchDeepDiff
+});
+```
+
+Note that the deep diffing strategy currently treats arrays as values, and always patches them wholesale.
+
+#### Custom Deep Diff Strategy
+
+`react-chrome-redux` also provides a `makeDiff` function to customize the deep diffing strategy. It takes a `shouldContinue` function, which is called during diffing just after each state tree traversal, and should return a boolean indicating whether or not to continue down the tree, or to just treat the current object as a value. It is called with the old state, the new state, and the current position in the state tree (provided as a list of keys so far). Continuing the example from above, say you wanted to treat all of the individual items under `state.items` as values, rather than traversing into each one to compare its properties:
+
+```js
+// background.js
+
+import {wrapStore} from 'react-chrome-redux';
+import makeDiff from 'react-chrome-redux/strategies/deepDiff/makeDiff';
+
+const store; // a normal Redux store
+
+const shouldContinue = (oldState, newState, context) => {
+  // If we've just traversed into a key under state.items,
+  // stop traversing down the tree and treat this as a changed value.
+  if (context.length === 2 && context[0] === 'items') {
+    return false;
+  }
+  // Otherwise, continue down the tree.
+  return true;
+}
+// Make the custom deep diff using the shouldContinue function
+const customDeepDiff = makeDiff(shouldContinue);
+
+wrapStore(store, {
+  portName: 'MY_APP',
+  diffStrategy: customDeepDiff // Use the custom deep diff
+});
+```
+
+Now, for each key under `state.items`, `react-chrome-redux` will treat it as a value and patch it wholesale, rather than comparing each of its individual properties.
+
+A `shouldContinue` function of the form `(oldObj, newObj, context) => context.length === 0` is equivalent to `react-chrome-redux`'s default shallow diffing strategy, since it will only check the top-level keys (when `context` is an empty list) and treat everything under them as changed values.
+
+### Custom `diffStrategy` and `patchStrategy` functions
+
+You can also provide your own diffing and patching strategies, using the `diffStrategy` parameter in `wrapStore` and the `patchStrategy` parameter in `Store`, repsectively. A diffing strategy should be a function that takes two arguments - the old state and the new state - and returns a patch, which can be of any form. A patch strategy is a function that takes two arguments - the old state and a patch - and returns the new state.
+When using a custom diffing and patching strategy, you are responsible for making sure that they function as expected; that is, that `patchStrategy(oldState, diffStrategy(oldState, newState))` is equal to `newState`.
+
+Aside from being able to fine-tune `react-chrome-redux`'s performance, custom diffing and patching strategies allow you to use `react-chrome-redux` with Redux stores whose states are not vanilla Javascript objects. For example, you could implement diffing and patching strategies - along with corresponding custom serialization and deserialization functions - that allow you to handle [Immutable.js](https://github.com/facebook/immutable-js) collections.
+
 ## Docs
 
 * [Introduction](https://github.com/tshaddix/react-chrome-redux/wiki/Introduction)

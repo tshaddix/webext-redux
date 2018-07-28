@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import should from 'should';
 
 import {wrapStore} from '../src';
-import shallowDiff from "../src/wrap-store/shallowDiff";
+import shallowDiff from '../src/strategies/shallowDiff/diff';
 import {DISPATCH_TYPE, STATE_TYPE, PATCH_STATE_TYPE} from '../src/constants';
 
 describe('wrapStore', function () {
@@ -184,6 +184,59 @@ describe('wrapStore', function () {
     port.postMessage.secondCall.args[0].should.eql(expectedPatchMessage);
   });
 
+  it('should use the provided diff strategy', function () {
+    const listeners = setupListeners();
+
+    // Mock store subscription
+    const subscribers = [];
+    const store = {
+      subscribe: subscriber => {
+        subscribers.push(subscriber);
+        return () => ({});
+      },
+      getState: () => ({})
+    };
+
+    // Stub state access (the first access will be on
+    // initialization, and the second will be on update)
+    const firstState = { a: 1, b: 2 };
+    const secondState = { a: 1, b: 3, c: 5 };
+
+    sinon.stub(store, 'getState')
+        .onFirstCall().returns(firstState)
+        .onSecondCall().returns(secondState);
+
+    // Mock the port object for onConnect and spy on postMessage
+    const port = {
+      name: portName,
+      postMessage: sinon.spy(),
+      onDisconnect: {
+        addListener: () => ({})
+      }
+    };
+
+    // Create a fake diff strategy
+    const diffStrategy = (oldObj, newObj) => ([{
+      type: 'FAKE_DIFF',
+      oldObj, newObj
+    }]);
+
+    wrapStore(store, {portName, diffStrategy});
+
+    // Simulate a port connection with the mocked port
+    listeners.onConnect.forEach(l => l(port));
+    // Simulate a state update by calling subscribers
+    subscribers.forEach(subscriber => subscriber());
+
+    const expectedPatchMessage = {
+      type: PATCH_STATE_TYPE,
+      payload: diffStrategy(firstState, secondState)
+    };
+
+    port.postMessage.calledTwice.should.eql(true);
+    port.postMessage.secondCall.args[0].should.eql(expectedPatchMessage);
+  });
+
   describe("when validating options", function () {
     const store = {
       dispatch: sinon.spy(),
@@ -204,6 +257,12 @@ describe('wrapStore', function () {
     it('should throw an error if deserializer is not a function', function () {
       should.throws(() => {
         wrapStore(store, {portName, deserializer: "abc"});
+      }, Error);
+    });
+
+    it('should throw an error if diffStrategy is not a function', function () {
+      should.throws(() => {
+        wrapStore(store, {portName, diffStrategy: "abc"});
       }, Error);
     });
   });
