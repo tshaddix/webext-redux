@@ -72,7 +72,41 @@ wrapStore(store, {portName: 'MY_APP'}); // make sure portName matches
 
 That's it! The dispatches called from UI component will find their way to the background page no problem. The new state from your background page will make sure to find its way back to the UI components.
 
-### 3. Optional: Implement actions whose logic only happens in the background script (we call them aliases)
+
+
+
+### 3. Optional: Apply any redux middleware to your *Proxy Store* with `applyMiddleware()`
+
+
+Just like a regular Redux store, you can apply Redux middlewares to the Proxy store by using the library provided applyMiddleware function.  This can be useful for doing things such as dispatching thunks to handle async control flow.
+
+```js
+// content.js
+import {Store, applyMiddleware} from 'react-chrome-redux';
+import thunkMiddleware from 'redux-thunk';
+
+// Proxy store
+const store = new Store({
+  portName: 'MY_APP'
+});
+
+// Apply middleware to proxy store
+const middleware = [thunkMiddleware];
+const storeWithMiddleware = applyMiddleware(store, ...middleware);
+
+// You can now dispatch a function from the proxy store
+storeWithMiddleware.dispatch((dispatch, getState) => {
+  // Regular dispatches will still be routed to the background
+  dispatch({ type: 'start-async-action' });
+  setTimeout(() => {
+    dispatch({ type: 'complete-async-action' });
+  }, 0);
+});
+```
+
+
+
+### 4. Optional: Implement actions whose logic only happens in the background script (we call them aliases)
 
 
 Sometimes you'll want to make sure the logic of your action creators happen in the background script. In this case, you will want to create an alias so that the alias is proxied from the UI component and the action creator logic executes in the background script.
@@ -121,7 +155,7 @@ class ContentApp extends Component {
 }
 ```
 
-### 4. Optional: Retrieve information about the initiator of the action
+### 5. Optional: Retrieve information about the initiator of the action
 
 There are probably going to be times where you are going to want to know who sent you a message. For example, maybe you have a UI Component that lives in a tab and you want to have it send information to a store that is managed by the background script and you want your background script to know which tab sent the information to it. You can retrieve this information by using the `_sender` property of the action. Let's look at an example of what this would look like.
 
