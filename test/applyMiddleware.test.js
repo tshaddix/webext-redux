@@ -33,7 +33,7 @@ describe('applyMiddleware', function () {
     const middleware = [dispatchingMiddleware];
 
     should.throws(() => {
-      applyMiddleware(applyMiddleware(new Store({portName, state: {a: 'a'}}), ...middleware));
+      applyMiddleware(new Store({portName, state: {a: 'a'}}), ...middleware);
     }, Error);
   });
 
