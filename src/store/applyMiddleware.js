@@ -23,7 +23,7 @@ export default function applyMiddleware(store, ...middlewares) {
   };
 
   const middlewareAPI = {
-    getState: store.getState,
+    getState: store.getState.bind(store),
     dispatch: (...args) => dispatch(...args)
   };
 
