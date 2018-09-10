@@ -1,7 +1,7 @@
 import * as redux from 'redux';
 
-export type DiffStrategy = (oldObj, newObj) => any;
-export type PatchStrategy = (oldObj, patch) => any;
+export type DiffStrategy = (oldObj: any, newObj: any) => any;
+export type PatchStrategy = (oldObj: any, patch: any) => any;
 
 export class Store<S = any, A extends redux.Action = redux.Action> {
   /**
@@ -14,8 +14,7 @@ export class Store<S = any, A extends redux.Action = redux.Action> {
     extensionId?: string,
     serializer?: Function,
     deserializer?: Function,
-    diffStrategy: DiffStrategy,
-    patchStrategy: PatchStrategy
+    patchStrategy?: PatchStrategy
   });
 
   /**
@@ -80,7 +79,8 @@ export function wrapStore<S>(
     portName: string,
     dispatchResponder?(dispatchResult: any, send: (response: any) => void): void,
     serializer?: Function,
-    deserializer?: Function
+    deserializer?: Function,
+    diffStrategy?: DiffStrategy
   },
 ): void;
 
