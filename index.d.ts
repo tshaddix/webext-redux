@@ -80,7 +80,7 @@ export function wrapStore<S>(
     dispatchResponder?(dispatchResult: any, send: (response: any) => void): void,
     serializer?: Function,
     deserializer?: Function,
-    diffStrategy?: Function
+    diffStrategy?: DiffStrategy
   },
 ): void;
 
