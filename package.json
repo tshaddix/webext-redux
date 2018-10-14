@@ -5,12 +5,12 @@
   "main": "lib/index.js",
   "typings": "./index.d.ts",
   "scripts": {
-    "lint-src": "./node_modules/.bin/eslint src/**/*.js",
-    "lint-test": "./node_modules/.bin/eslint test/**/*.js",
+    "lint-src": "eslint src/**/*.js",
+    "lint-test": "eslint test/**/*.js",
     "lint": "npm run lint-src && npm run lint-test",
-    "prepublish": "./node_modules/.bin/babel src --out-dir lib",
-    "pretest": "./node_modules/.bin/babel src --out-dir lib",
-    "test-run": "./node_modules/.bin/mocha --require babel-core/register",
+    "prepublish": "babel src --out-dir lib",
+    "pretest": "babel src --out-dir lib",
+    "test-run": "mocha --require babel-core/register",
     "test": "npm run lint && npm run test-run",
     "prepare": "npm run prepublish"
   },
