@@ -94,6 +94,10 @@ export default (store, {
 
     const serializedMessagePoster = withSerializer(serializer)((...args) => port.postMessage(...args));
 
+    const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+    
+    const allGlobal= isChrome === true ? chrome : browser;
+
     let prevState = store.getState();
 
     const patchState = () => {
@@ -129,13 +133,13 @@ export default (store, {
   /**
    * Setup action handler
    */
-  withPayloadDeserializer((...args) => chrome.runtime.onMessage.addListener(...args))(dispatchResponse, shouldDeserialize);
+  withPayloadDeserializer((...args) => allGlobal.runtime.onMessage.addListener(...args))(dispatchResponse, shouldDeserialize);
 
   /**
    * Setup external action handler
    */
-  if (chrome.runtime.onMessageExternal) {
-    withPayloadDeserializer((...args) => chrome.runtime.onMessageExternal.addListener(...args))(dispatchResponse, shouldDeserialize);
+  if (allGlobal.runtime.onMessageExternal) {
+    withPayloadDeserializer((...args) => allGlobal.runtime.onMessageExternal.addListener(...args))(dispatchResponse, shouldDeserialize);
   } else {
     console.warn('runtime.onMessageExternal is not supported');
   }
@@ -143,13 +147,13 @@ export default (store, {
   /**
    * Setup extended connection
    */
-  chrome.runtime.onConnect.addListener(connectState);
+  allGlobal.runtime.onConnect.addListener(connectState);
 
   /**
    * Setup extended external connection
    */
-  if (chrome.runtime.onConnectExternal) {
-    chrome.runtime.onConnectExternal.addListener(connectState);
+  if (allGlobal.runtime.onConnectExternal) {
+    allGlobal.runtime.onConnectExternal.addListener(connectState);
   } else {
     console.warn('runtime.onConnectExternal is not supported');
   }

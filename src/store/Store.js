@@ -31,15 +31,19 @@ class Store {
     if (typeof patchStrategy !== 'function') {
       throw new Error('patchStrategy must be one of the included patching strategies or a custom patching function');
     }
+    
+    const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+
+    const allGlobal= isChrome === true ? chrome : browser;
 
     this.portName = portName;
     this.readyResolved = false;
     this.readyPromise = new Promise(resolve => this.readyResolve = resolve);
 
-    this.extensionId = extensionId; // keep the extensionId as an instance variable
-    this.port = chrome.runtime.connect(this.extensionId, {name: portName});
+    this.extensionId = allGlobal.runtime.id; // keep the extensionId as an instance variable
+    this.port = allGlobal.runtime.connect(this.extensionId, {name: portName});
     this.serializedPortListener = withDeserializer(deserializer)((...args) => this.port.onMessage.addListener(...args));
-    this.serializedMessageSender = withSerializer(serializer)((...args) => chrome.runtime.sendMessage(...args), 1);
+    this.serializedMessageSender = withSerializer(serializer)((...args) => allGlobal.runtime.sendMessage(...args), 1);
     this.listeners = [];
     this.state = state;
     this.patchStrategy = patchStrategy;
