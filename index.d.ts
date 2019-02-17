@@ -1,5 +1,8 @@
 import * as redux from 'redux';
 
+export type DiffStrategy = (oldObj: any, newObj: any) => any;
+export type PatchStrategy = (oldObj: any, patch: any) => any;
+
 export class Store<S = any, A extends redux.Action = redux.Action> {
   /**
    * Creates a new Proxy store
@@ -9,6 +12,9 @@ export class Store<S = any, A extends redux.Action = redux.Action> {
     portName: string,
     state?: any,
     extensionId?: string,
+    serializer?: Function,
+    deserializer?: Function,
+    patchStrategy?: PatchStrategy
   });
 
   /**
@@ -72,9 +78,17 @@ export function wrapStore<S>(
   configuration: {
     portName: string,
     dispatchResponder?(dispatchResult: any, send: (response: any) => void): void,
+    serializer?: Function,
+    deserializer?: Function,
+    diffStrategy?: DiffStrategy
   },
 ): void;
 
 export function alias(aliases: {
   [key: string]: (action: any) => any
 }): redux.Middleware;
+
+export function applyMiddleware(
+  store: Store,
+  ...middleware: redux.Middleware[]
+): Store;

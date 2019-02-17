@@ -1,24 +1,35 @@
-import assignIn from 'lodash/assignIn';
+import assignIn from 'lodash.assignin';
 
 import {
   DISPATCH_TYPE,
   STATE_TYPE,
-  PATCH_STATE_TYPE,
-  DIFF_STATUS_UPDATED,
-  DIFF_STATUS_REMOVED,
+  PATCH_STATE_TYPE
 } from '../constants';
+import { withSerializer, withDeserializer, noop } from "../serialization";
+
+import shallowDiff from '../strategies/shallowDiff/patch';
 
 const backgroundErrPrefix = '\nLooks like there is an error in the background page. ' +
   'You might want to inspect your background page for more details.\n';
 
+
 class Store {
   /**
    * Creates a new Proxy store
-   * @param  {object} options An object of form {portName, state, extensionId}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by chrome when extension is loaded (default `''`)
+   * @param  {object} options An object of form {portName, state, extensionId, serializer, deserializer, diffStrategy}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by chrome when extension is loaded (default `''`), `serializer` is a function to serialize outgoing message payloads (default is passthrough), `deserializer` is a function to deserialize incoming message payloads (default is passthrough), and patchStrategy is one of the included patching strategies (default is shallow diff) or a custom patching function.
    */
-  constructor({portName, state = {}, extensionId = null}) {
+  constructor({portName, state = {}, extensionId = null, serializer = noop, deserializer = noop, patchStrategy = shallowDiff}) {
     if (!portName) {
       throw new Error('portName is required in options');
+    }
+    if (typeof serializer !== 'function') {
+      throw new Error('serializer must be a function');
+    }
+    if (typeof deserializer !== 'function') {
+      throw new Error('deserializer must be a function');
+    }
+    if (typeof patchStrategy !== 'function') {
+      throw new Error('patchStrategy must be one of the included patching strategies or a custom patching function');
     }
 
     this.portName = portName;
@@ -29,10 +40,14 @@ class Store {
     this.port = chrome.runtime.connect(this.extensionId, {name: portName});
     this.safetyHandler = this.safetyHandler.bind(this);
     this.safetyMessage = chrome.runtime.onMessage.addListener(this.safetyHandler);
+    this.serializedPortListener = withDeserializer(deserializer)((...args) => this.port.onMessage.addListener(...args));
+    this.serializedMessageSender = withSerializer(serializer)((...args) => chrome.runtime.sendMessage(...args), 1);
     this.listeners = [];
     this.state = state;
+    this.patchStrategy = patchStrategy;
 
-    this.port.onMessage.addListener(message => {
+    // Don't use shouldDeserialize here, since no one else should be using this port
+    this.serializedPortListener(message => {
       switch (message.type) {
         case STATE_TYPE:
           this.replaceState(message.payload);
@@ -86,25 +101,7 @@ class Store {
    * @param {object} state the new (partial) redux state
    */
   patchState(difference) {
-    const state = Object.assign({}, this.state);
-
-    difference.forEach(({change, key, value}) => {
-      switch (change) {
-        case DIFF_STATUS_UPDATED:
-          state[key] = value;
-          break;
-
-        case DIFF_STATUS_REMOVED:
-          Reflect.deleteProperty(state, key);
-          break;
-
-        default:
-          // do nothing
-      }
-    });
-
-    this.state = state;
-
+    this.state = this.patchStrategy(this.state, difference);
     this.listeners.forEach((l) => l());
   }
 
@@ -140,7 +137,7 @@ class Store {
    */
   dispatch(data) {
     return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage(
+      this.serializedMessageSender(
         this.extensionId,
         {
           type: DISPATCH_TYPE,
