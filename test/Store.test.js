@@ -33,7 +33,7 @@ describe('Store', function () {
         },
         onMessage: {
           addListener: () => {}
-        },
+        }
       }
     };
   });

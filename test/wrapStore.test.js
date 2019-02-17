@@ -208,51 +208,6 @@ describe('wrapStore', function () {
     const firstState = { a: 1, b: 2 };
     const secondState = { a: 1, b: 3, c: 5 };
 
-      listeners.onMessage.forEach(l => l(message, sender, callback));
-      store.dispatch.notCalled.should.eql(true);
-    },
-  );
-
-  it(
-    'should send a safety message to all tabs once initialized',
-    function () {
-      const tabs = [123,456,789,1011,1213];
-      const tabResponders = [];
-      const store = {
-        dispatch: sinon.spy(),
-      };
-
-      global.chrome = {
-        runtime: {
-          onMessage: {
-            addListener: () => {},
-          },
-          onMessageExternal: {
-            addListener: () => {},
-          },
-          onConnect: {
-            addListener: () => {},
-          },
-          onConnectExternal: {
-            addListener: () => {},
-          },
-        },
-        tabs: {
-          query: (tabObject, cb) => {
-            cb(tabs);
-          },
-          sendMessage: (tabId) => {
-            tabResponders.push(tabId);
-          }
-        }
-      };
-
-      wrapStore(store, {portName});
-
-      tabResponders.length.should.equal(5);
-    },
-  );
-  
     sinon.stub(store, 'getState')
         .onFirstCall().returns(firstState)
         .onSecondCall().returns(secondState);
@@ -317,4 +272,44 @@ describe('wrapStore', function () {
       }, Error);
     });
   });
+
+  it(
+    'should send a safety message to all tabs once initialized',
+    function () {
+      const tabs = [123,456,789,1011,1213];
+      const tabResponders = [];
+      const store = {
+        dispatch: sinon.spy(),
+      };
+
+      global.chrome = {
+        runtime: {
+          onMessage: {
+            addListener: () => {},
+          },
+          onMessageExternal: {
+            addListener: () => {},
+          },
+          onConnect: {
+            addListener: () => {},
+          },
+          onConnectExternal: {
+            addListener: () => {},
+          },
+        },
+        tabs: {
+          query: (tabObject, cb) => {
+            cb(tabs);
+          },
+          sendMessage: (tabId) => {
+            tabResponders.push(tabId);
+          }
+        }
+      };
+
+      wrapStore(store, {portName});
+
+      tabResponders.length.should.equal(5);
+    },
+  );
 });
