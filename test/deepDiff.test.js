@@ -184,6 +184,24 @@ describe('deepDiff strategy', () => {
       });
     });
 
+    describe('when a null value is being replaced with an object', () => {
+      it('should generate a diff', () => {
+        const old = { a: null };
+        const latest = { a: { b: 1 } };
+
+        const diff = deepDiff(old, latest);
+
+        diff.length.should.eql(1);
+        diff.should.eql([
+          {
+            key: 'a',
+            value: { b: 1 },
+            change: DIFF_STATUS_UPDATED,
+          }
+        ]);
+      });
+    });
+
     describe("shouldContinue param", () => {
 
       let old, latest, shouldContinue, diff;

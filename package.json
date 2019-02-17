@@ -8,11 +8,10 @@
     "lint-src": "./node_modules/.bin/eslint src/**/*.js",
     "lint-test": "./node_modules/.bin/eslint test/**/*.js",
     "lint": "npm run lint-src && npm run lint-test",
-    "prepublish": "./node_modules/.bin/babel src --out-dir lib",
+    "prepublishOnly": "babel src --out-dir lib",
     "pretest": "./node_modules/.bin/babel src --out-dir lib",
     "test-run": "./node_modules/.bin/mocha --require babel-core/register",
-    "test": "npm run lint && npm run test-run",
-    "prepare": "npm run prepublish"
+    "test": "npm run lint && npm run test-run"
   },
   "repository": {
     "type": "git",
@@ -25,7 +24,8 @@
   },
   "homepage": "https://github.com/tshaddix/react-chrome-redux#readme",
   "dependencies": {
-    "lodash": "^4.5.1",
+    "lodash.assignin": "^4.2.0",
+    "lodash.clonedeep": "^4.5.0",
     "redux": "^3.7.2"
   },
   "devDependencies": {
