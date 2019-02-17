@@ -38,6 +38,8 @@ class Store {
 
     this.extensionId = extensionId; // keep the extensionId as an instance variable
     this.port = chrome.runtime.connect(this.extensionId, {name: portName});
+    this.safetyHandler = this.safetyHandler.bind(this);
+    this.safetyMessage = chrome.runtime.onMessage.addListener(this.safetyHandler);
     this.serializedPortListener = withDeserializer(deserializer)((...args) => this.port.onMessage.addListener(...args));
     this.serializedMessageSender = withSerializer(serializer)((...args) => chrome.runtime.sendMessage(...args), 1);
     this.listeners = [];
@@ -153,6 +155,20 @@ class Store {
           }
         });
     });
+  }
+
+  safetyHandler(message){
+    if (message.action === 'storeReady'){
+
+      // Remove Saftey Listener
+      chrome.runtime.onMessage.removeListener(this.safetyHandler);
+
+      // Resolve if readyPromise has not been resolved.
+      if(!this.readyResolved) {
+        this.readyResolved = true;
+        this.readyResolve();
+      }
+    }
   }
 }
 

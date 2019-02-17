@@ -30,6 +30,9 @@ describe('Store', function () {
         },
         sendMessage(data, cb) {
           cb();
+        },
+        onMessage: {
+          addListener: () => {}
         }
       }
     };
@@ -43,14 +46,19 @@ describe('Store', function () {
       listeners = [];
 
       // override mock chrome API for this test
-      global.chrome.runtime.connect = () => {
-        return {
-          onMessage: {
-            addListener: listener => {
-              listeners.push(listener);
+      global.chrome.runtime = {
+        connect: () => {
+          return {
+            onMessage: {
+              addListener: listener => {
+                listeners.push(listener);
+              }
             }
-          }
-        };
+          };
+        },
+        onMessage: {
+          addListener: () => {}
+        },
       };
     });
 
@@ -133,6 +141,51 @@ describe('Store', function () {
       const store = new Store({portName, state: {a: 'a'}});
 
       store.getState().should.eql({a: 'a'});
+    });
+
+    it('should setup a safety listener ', function () {
+      // mock onMessage listeners array
+      const safetyListeners = [];
+
+      // override mock chrome API for this test
+      global.chrome.runtime = {
+        connect: () => {
+          return {
+            onMessage: {
+              addListener: () => {}
+            }
+          };
+        },
+        onMessage: {
+          addListener: (listener) => {
+            safetyListeners.push(listener);
+          },
+          removeListener: (listener) => {
+            const index = safetyListeners.indexOf(listener);
+
+            if (index > -1) {
+              safetyListeners.splice(index, 1);
+            }
+          }
+        },
+      };
+
+      const store = new Store({portName});
+
+      // verify one listener was added on port connect
+      safetyListeners.length.should.equal(1);
+
+      const [ l ] = safetyListeners;
+
+      // make readyResolve() a spy function
+      store.readyResolve = sinon.spy();
+
+      // send message
+      l({action: 'storeReady'});
+
+      safetyListeners.length.should.equal(0);
+      store.readyResolved.should.eql(true);
+      store.readyResolve.calledOnce.should.equal(true);
     });
   });
 

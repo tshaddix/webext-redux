@@ -21,6 +21,9 @@ describe('applyMiddleware', function () {
             }
           };
         },
+        onMessage: {
+          addListener: () => {}
+        }
       }
     };
   });
