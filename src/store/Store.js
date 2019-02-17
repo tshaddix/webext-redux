@@ -1,4 +1,4 @@
-import assignIn from 'lodash/assignIn';
+import assignIn from 'lodash.assignin';
 
 import {
   DISPATCH_TYPE,
