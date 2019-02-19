@@ -153,4 +153,18 @@ export default (store, {
   } else {
     console.warn('runtime.onConnectExternal is not supported');
   }
+
+  /**
+   * Safety message to tabs for content scripts
+   */
+  chrome.tabs.query({}, tabs => {
+    for(const tab of tabs){
+      chrome.tabs.sendMessage(tab.id, {action: 'storeReady'});
+    }
+  });
+
+  // For non-tab based
+  // TODO: Find use case for this. Ommiting until then.
+  // chrome.runtime.sendMessage(null, {action: 'storeReady'});
+
 };

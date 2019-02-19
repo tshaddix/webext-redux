@@ -1,6 +1,6 @@
 import should from 'should';
 import sinon from 'sinon';
-import cloneDeep from 'lodash/cloneDeep';
+import cloneDeep from 'lodash.clonedeep';
 
 import { withSerializer, withDeserializer } from '../src/serialization';
 

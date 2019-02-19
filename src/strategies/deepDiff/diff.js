@@ -11,6 +11,10 @@ function shouldTreatAsValue(oldObj, newObj) {
 }
 
 function diffValues(oldObj, newObj, shouldContinue, context) {
+  // If it's null, use the current value
+  if (oldObj === null) {
+    return { change: DIFF_STATUS_UPDATED, value: newObj };
+  }
   // If it's a non-object, or if the type is changing, or if it's an array,
   // just go with the current value.
   if (shouldTreatAsValue(oldObj, newObj) || !shouldContinue(oldObj, newObj, context)) {

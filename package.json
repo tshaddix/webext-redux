@@ -1,6 +1,6 @@
 {
   "name": "react-chrome-redux",
-  "version": "2.0.0-alpha.4",
+  "version": "2.0.0-alpha.5",
   "description": "A set of utilities for building Redux applications in Google Chrome Extensions.",
   "main": "lib/index.js",
   "typings": "./index.d.ts",
@@ -8,11 +8,10 @@
     "lint-src": "./node_modules/.bin/eslint src/**/*.js",
     "lint-test": "./node_modules/.bin/eslint test/**/*.js",
     "lint": "npm run lint-src && npm run lint-test",
-    "prepublish": "./node_modules/.bin/babel src --out-dir lib",
+    "prepublishOnly": "./node_modules/.bin/babel src --out-dir lib",
     "pretest": "./node_modules/.bin/babel src --out-dir lib",
-    "test-run": "./node_modules/.bin/mocha --require babel-core/register",
-    "test": "npm run lint && npm run test-run",
-    "prepare": "npm run prepublish"
+    "test-run": "./node_modules/.bin/mocha --require @babel/register",
+    "test": "npm run lint && npm run test-run"
   },
   "repository": {
     "type": "git",
@@ -25,17 +24,18 @@
   },
   "homepage": "https://github.com/tshaddix/react-chrome-redux#readme",
   "dependencies": {
-    "lodash": "^4.5.1",
+    "lodash.assignin": "^4.2.0",
+    "lodash.clonedeep": "^4.5.0",
     "redux": "^3.7.2"
   },
   "devDependencies": {
-    "babel-cli": "^6.4.5",
-    "babel-core": "^6.22.1",
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.3",
+    "@babel/plugin-transform-async-to-generator": "^7.2.0",
+    "@babel/polyfill": "^7.2.5",
+    "@babel/preset-env": "^7.3.1",
+    "@babel/register": "^7.0.0",
     "babel-eslint": "^7.2.0",
-    "babel-plugin-transform-async-to-generator": "^6.22.0",
-    "babel-polyfill": "^6.22.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-stage-1": "^6.24.1",
     "eslint": "^3.17.1",
     "mocha": "^5.2.0",
     "should": "^13.2.1",
