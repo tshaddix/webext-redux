@@ -7,8 +7,8 @@ import {
   DEFAULT_PORT_NAME
 } from '../constants';
 import { withSerializer, withDeserializer, noop } from "../serialization";
-
 import shallowDiff from '../strategies/shallowDiff/patch';
+import {getBrowserAPI} from '../util';
 
 const backgroundErrPrefix = '\nLooks like there is an error in the background page. ' +
   'You might want to inspect your background page for more details.\n';
@@ -17,7 +17,7 @@ const backgroundErrPrefix = '\nLooks like there is an error in the background pa
 class Store {
   /**
    * Creates a new Proxy store
-   * @param  {object} options An object of form {portName, state, extensionId, serializer, deserializer, diffStrategy}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by chrome when extension is loaded (default `''`), `serializer` is a function to serialize outgoing message payloads (default is passthrough), `deserializer` is a function to deserialize incoming message payloads (default is passthrough), and patchStrategy is one of the included patching strategies (default is shallow diff) or a custom patching function.
+   * @param  {object} options An object of form {portName, state, extensionId, serializer, deserializer, diffStrategy}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by browserAPI when extension is loaded (default `''`), `serializer` is a function to serialize outgoing message payloads (default is passthrough), `deserializer` is a function to deserialize incoming message payloads (default is passthrough), and patchStrategy is one of the included patching strategies (default is shallow diff) or a custom patching function.
    */
   constructor({portName = DEFAULT_PORT_NAME, state = {}, extensionId = null, serializer = noop, deserializer = noop, patchStrategy = shallowDiff}) {
     if (!portName) {
@@ -37,12 +37,13 @@ class Store {
     this.readyResolved = false;
     this.readyPromise = new Promise(resolve => this.readyResolve = resolve);
 
+    this.browserAPI = getBrowserAPI();
     this.extensionId = extensionId; // keep the extensionId as an instance variable
-    this.port = chrome.runtime.connect(this.extensionId, {name: portName});
+    this.port = this.browserAPI.runtime.connect(this.extensionId, {name: portName});
     this.safetyHandler = this.safetyHandler.bind(this);
-    this.safetyMessage = chrome.runtime.onMessage.addListener(this.safetyHandler);
+    this.safetyMessage = this.browserAPI.runtime.onMessage.addListener(this.safetyHandler);
     this.serializedPortListener = withDeserializer(deserializer)((...args) => this.port.onMessage.addListener(...args));
-    this.serializedMessageSender = withSerializer(serializer)((...args) => chrome.runtime.sendMessage(...args), 1);
+    this.serializedMessageSender = withSerializer(serializer)((...args) => this.browserAPI.runtime.sendMessage(...args), 1);
     this.listeners = [];
     this.state = state;
     this.patchStrategy = patchStrategy;
@@ -162,7 +163,7 @@ class Store {
     if (message.action === 'storeReady'){
 
       // Remove Saftey Listener
-      chrome.runtime.onMessage.removeListener(this.safetyHandler);
+      this.browserAPI.runtime.onMessage.removeListener(this.safetyHandler);
 
       // Resolve if readyPromise has not been resolved.
       if(!this.readyResolved) {
