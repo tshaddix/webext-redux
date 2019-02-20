@@ -1,7 +1,8 @@
 import {
   DISPATCH_TYPE,
   STATE_TYPE,
-  PATCH_STATE_TYPE
+  PATCH_STATE_TYPE,
+  DEFAULT_PORT_NAME
 } from '../constants';
 import { withSerializer, withDeserializer, noop } from "../serialization";
 
@@ -37,7 +38,7 @@ const promiseResponder = (dispatchResult, send) => {
  * @param {Object} options An object of form {portName, dispatchResponder, serializer, deserializer}, where `portName` is a required string and defines the name of the port for state transition changes, `dispatchResponder` is a function that takes the result of a store dispatch and optionally implements custom logic for responding to the original dispatch message,`serializer` is a function to serialize outgoing message payloads (default is passthrough), `deserializer` is a function to deserialize incoming message payloads (default is passthrough), and diffStrategy is one of the included diffing strategies (default is shallow diff) or a custom diffing function.
  */
 export default (store, {
-  portName,
+  portName = DEFAULT_PORT_NAME,
   dispatchResponder,
   serializer = noop,
   deserializer = noop,

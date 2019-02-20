@@ -3,7 +3,8 @@ import assignIn from 'lodash.assignin';
 import {
   DISPATCH_TYPE,
   STATE_TYPE,
-  PATCH_STATE_TYPE
+  PATCH_STATE_TYPE,
+  DEFAULT_PORT_NAME
 } from '../constants';
 import { withSerializer, withDeserializer, noop } from "../serialization";
 
@@ -18,7 +19,7 @@ class Store {
    * Creates a new Proxy store
    * @param  {object} options An object of form {portName, state, extensionId, serializer, deserializer, diffStrategy}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by chrome when extension is loaded (default `''`), `serializer` is a function to serialize outgoing message payloads (default is passthrough), `deserializer` is a function to deserialize incoming message payloads (default is passthrough), and patchStrategy is one of the included patching strategies (default is shallow diff) or a custom patching function.
    */
-  constructor({portName, state = {}, extensionId = null, serializer = noop, deserializer = noop, patchStrategy = shallowDiff}) {
+  constructor({portName = DEFAULT_PORT_NAME, state = {}, extensionId = null, serializer = noop, deserializer = noop, patchStrategy = shallowDiff}) {
     if (!portName) {
       throw new Error('portName is required in options');
     }
