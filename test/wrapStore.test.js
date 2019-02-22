@@ -248,6 +248,10 @@ describe('wrapStore', function () {
       dispatch: sinon.spy(),
     };
 
+    it('should use defaults if no options present', function () {
+      should.doesNotThrow(() => wrapStore(store));
+    });
+
     it('should throw an error if serializer is not a function', function () {
       should.throws(() => {
         wrapStore(store, { portName, serializer: "abc" });

@@ -32,18 +32,26 @@ const promiseResponder = (dispatchResult, send) => {
     });
 };
 
+const defaultOpts = {
+  portName: DEFAULT_PORT_NAME,
+  dispatchResponder: promiseResponder,
+  serializer: noop,
+  deserializer: noop,
+  diffStrategy: shallowDiff
+};
+
 /**
  * Wraps a Redux store so that proxy stores can connect to it.
  * @param {Object} store A Redux store
  * @param {Object} options An object of form {portName, dispatchResponder, serializer, deserializer}, where `portName` is a required string and defines the name of the port for state transition changes, `dispatchResponder` is a function that takes the result of a store dispatch and optionally implements custom logic for responding to the original dispatch message,`serializer` is a function to serialize outgoing message payloads (default is passthrough), `deserializer` is a function to deserialize incoming message payloads (default is passthrough), and diffStrategy is one of the included diffing strategies (default is shallow diff) or a custom diffing function.
  */
 export default (store, {
-  portName = DEFAULT_PORT_NAME,
-  dispatchResponder,
-  serializer = noop,
-  deserializer = noop,
-  diffStrategy = shallowDiff
-}) => {
+  portName = defaultOpts.portName,
+  dispatchResponder = defaultOpts.dispatchResponder,
+  serializer = defaultOpts.serializer,
+  deserializer = defaultOpts.deserializer,
+  diffStrategy = defaultOpts.diffStrategy
+} = defaultOpts) => {
   if (!portName) {
     throw new Error('portName is required in options');
   }
@@ -55,11 +63,6 @@ export default (store, {
   }
   if (typeof diffStrategy !== 'function') {
     throw new Error('diffStrategy must be one of the included diffing strategies or a custom diff function');
-  }
-
-  // set dispatch responder as promise responder
-  if (!dispatchResponder) {
-    dispatchResponder = promiseResponder;
   }
 
   const browserAPI = getBrowserAPI();
