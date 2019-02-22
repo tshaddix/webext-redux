@@ -1,5 +1,5 @@
-# React Chrome Redux
-A set of utilities for building Redux applications in Google Chrome extensions. Although [React](https://facebook.github.io/react/) is mentioned in the package name, this package's only requirement is Redux. Feel free to use this with [AngularJS](https://angularjs.org/) and other libraries.
+# WebExt Redux
+A set of utilities for building Redux applications in web extensions. This package was originally named `react-chrome-redux`.
 
 [![Build Status](https://travis-ci.org/tshaddix/react-chrome-redux.svg?branch=master)](https://travis-ci.org/tshaddix/react-chrome-redux)
 [![NPM Version][npm-image]][npm-url]
@@ -7,15 +7,15 @@ A set of utilities for building Redux applications in Google Chrome extensions. 
 
 ## Installation
 
-This package is available on [npm](https://www.npmjs.com/package/react-chrome-redux):
+This package is available on [npm](https://www.npmjs.com/package/webext-redux):
 
 ```
-npm install react-chrome-redux
+npm install webext-redux
 ```
 
 ## Overview
 
-`react-chrome-redux` allows you to build your Chrome extension like a Redux-powered webapp. The background page holds the Redux store, while Popovers and Content-Scripts act as UI Components, passing actions and state updates between themselves and the background store. At the end of the day, you have a single source of truth (your Redux store) that describes the entire state of your extension.
+`webext-redux` allows you to build your Chrome extension like a Redux-powered webapp. The background page holds the Redux store, while Popovers and Content-Scripts act as UI Components, passing actions and state updates between themselves and the background store. At the end of the day, you have a single source of truth (your Redux store) that describes the entire state of your extension.
 
 All UI Components follow the same basic flow:
 
@@ -26,9 +26,9 @@ All UI Components follow the same basic flow:
 
 ![Architecture](https://cloud.githubusercontent.com/assets/603426/18599404/329ca9ca-7c0d-11e6-9a02-5718a0fba8db.png)
 
-## Basic Usage ([full docs here](https://github.com/tshaddix/react-chrome-redux/wiki))
+## Basic Usage ([full docs here](https://github.com/tshaddix/webext-redux/wiki))
 
-As described in the [introduction](https://github.com/tshaddix/react-chrome-redux/wiki/Introduction#react-chrome-redux), there are two pieces to a basic implementation of this package.
+As described in the [introduction](https://github.com/tshaddix/webext-redux/wiki/Introduction#webext-redux), there are two pieces to a basic implementation of this package.
 
 ### 1. Add the *Proxy Store* to a UI Component, such as a popup
 
@@ -38,7 +38,7 @@ As described in the [introduction](https://github.com/tshaddix/react-chrome-redu
 import React from 'react';
 import {render} from 'react-dom';
 import {Provider} from 'react-redux';
-import {Store} from 'react-chrome-redux';
+import {Store} from 'webext-redux';
 
 import App from './components/app/App';
 
@@ -61,7 +61,7 @@ store.ready().then(() => {
 ```js
 // background.js
 
-import {wrapStore} from 'react-chrome-redux';
+import {wrapStore} from 'webext-redux';
 
 const store; // a normal Redux store
 
@@ -80,7 +80,7 @@ Just like a regular Redux store, you can apply Redux middlewares to the Proxy st
 
 ```js
 // content.js
-import {Store, applyMiddleware} from 'react-chrome-redux';
+import {Store, applyMiddleware} from 'webext-redux';
 import thunkMiddleware from 'redux-thunk';
 
 // Proxy store
@@ -111,7 +111,7 @@ Sometimes you'll want to make sure the logic of your action creators happen in t
 // background.js
 
 import { applyMiddleware, createStore } from 'redux';
-import { alias, wrapStore } from 'react-chrome-redux';
+import { alias, wrapStore } from 'webext-redux';
 
 const aliases = {
   // this key is the name of the action to proxy, the value is the action
@@ -185,11 +185,11 @@ export function rootReducer(state = ..., action) {
 }
 ```
 
-No changes are required to your actions, react-chrome-redux automatically adds this information for you when you use a wrapped store.
+No changes are required to your actions, webext-redux automatically adds this information for you when you use a wrapped store.
 
 ## Security
 
-`react-chrome-redux` supports `onMessageExternal` which is fired when a message is sent from another extension, app, or website. By default, if `externally_connectable` is not declared in your extension's manifest, all extensions or apps will be able to send messages to your extension, but no websites will be able to. You can follow [this](https://developer.chrome.com/extensions/manifest/externally_connectable) to address your needs appropriately.
+`webext-redux` supports `onMessageExternal` which is fired when a message is sent from another extension, app, or website. By default, if `externally_connectable` is not declared in your extension's manifest, all extensions or apps will be able to send messages to your extension, but no websites will be able to. You can follow [this](https://developer.chrome.com/extensions/manifest/externally_connectable) to address your needs appropriately.
 
 ## Custom Serialization
 
@@ -225,7 +225,7 @@ As you can see, Chrome's message passing has caused your date to disappear. You 
 ```js
 // background.js
 
-import {wrapStore} from 'react-chrome-redux';
+import {wrapStore} from 'webext-redux';
 
 const store; // a normal Redux store
 
@@ -238,7 +238,7 @@ wrapStore(store, {
 ```js
 // content.js
 
-import {Store} from 'react-chrome-redux';
+import {Store} from 'webext-redux';
 
 const store = new Store({
   serializer: payload => JSON.stringify(payload, dateReplacer),
@@ -269,12 +269,12 @@ JSON.parse(stringified, dateReviver)
 
 ## Custom Diffing and Patching Strategies
 
-On each state update, `react-chrome-redux` generates a patch based on the difference between the old state and the new state. The patch is sent to each proxy store, where it is used to update the proxy store's state. This is more efficient than sending the entire state to each proxy store on every update.
-If you find that the default patching behavior is not sufficient, you can fine-tune `react-chrome-redux` using custom diffing and patching strategies. 
+On each state update, `webext-redux` generates a patch based on the difference between the old state and the new state. The patch is sent to each proxy store, where it is used to update the proxy store's state. This is more efficient than sending the entire state to each proxy store on every update.
+If you find that the default patching behavior is not sufficient, you can fine-tune `webext-redux` using custom diffing and patching strategies. 
 
 ### Deep Diff Strategy
 
-By default, `react-chrome-redux` uses a shallow diffing strategy to generate patches. If the identity of any of the store's top-level keys changes, their values are patched wholesale. Most of the time, this strategy will work just fine. However, in cases where a store's state is highly nested, or where many items are stored by key under a single slice of state, it can start to affect performance. Consider, for example, the following `state`:
+By default, `webext-redux` uses a shallow diffing strategy to generate patches. If the identity of any of the store's top-level keys changes, their values are patched wholesale. Most of the time, this strategy will work just fine. However, in cases where a store's state is highly nested, or where many items are stored by key under a single slice of state, it can start to affect performance. Consider, for example, the following `state`:
 
 ```js
 {
@@ -289,13 +289,13 @@ By default, `react-chrome-redux` uses a shallow diffing strategy to generate pat
 }
 ```
 
-If any of the individual keys under `state.items` is updated, `state.items` will become a new object (by standard Redux convention). As a result, the default diffing strategy will send then entire `state.items` object to every proxy store for patching. Since this involves serialization and deserialization of the entire object, having large objects - or many proxy stores - can create a noticeable slowdown. To mitigate this, `react-chrome-redux` also provides a deep diffing strategy, which will traverse down the state tree until it reaches non-object values, keeping track of only the updated keys at each level of state. So, for the example above, if the object under `state.items.b` is updated, the patch will only contain those keys under `state.items.b` whose values actually changed. The deep diffing strategy can be used like so:
+If any of the individual keys under `state.items` is updated, `state.items` will become a new object (by standard Redux convention). As a result, the default diffing strategy will send then entire `state.items` object to every proxy store for patching. Since this involves serialization and deserialization of the entire object, having large objects - or many proxy stores - can create a noticeable slowdown. To mitigate this, `webext-redux` also provides a deep diffing strategy, which will traverse down the state tree until it reaches non-object values, keeping track of only the updated keys at each level of state. So, for the example above, if the object under `state.items.b` is updated, the patch will only contain those keys under `state.items.b` whose values actually changed. The deep diffing strategy can be used like so:
 
 ```js
 // background.js
 
-import {wrapStore} from 'react-chrome-redux';
-import deepDiff from 'react-chrome-redux/strategies/deepDiff/diff';
+import {wrapStore} from 'webext-redux';
+import deepDiff from 'webext-redux/strategies/deepDiff/diff';
 
 const store; // a normal Redux store
 
@@ -307,8 +307,8 @@ wrapStore(store, {
 ```js
 // content.js
 
-import {Store} from 'react-chrome-redux';
-import patchDeepDiff from 'react-chrome-redux/strategies/deepDiff/patch';
+import {Store} from 'webext-redux';
+import patchDeepDiff from 'webext-redux/strategies/deepDiff/patch';
 
 const store = new Store({
   patchStrategy: patchDeepDiff
@@ -319,13 +319,13 @@ Note that the deep diffing strategy currently treats arrays as values, and alway
 
 #### Custom Deep Diff Strategy
 
-`react-chrome-redux` also provides a `makeDiff` function to customize the deep diffing strategy. It takes a `shouldContinue` function, which is called during diffing just after each state tree traversal, and should return a boolean indicating whether or not to continue down the tree, or to just treat the current object as a value. It is called with the old state, the new state, and the current position in the state tree (provided as a list of keys so far). Continuing the example from above, say you wanted to treat all of the individual items under `state.items` as values, rather than traversing into each one to compare its properties:
+`webext-redux` also provides a `makeDiff` function to customize the deep diffing strategy. It takes a `shouldContinue` function, which is called during diffing just after each state tree traversal, and should return a boolean indicating whether or not to continue down the tree, or to just treat the current object as a value. It is called with the old state, the new state, and the current position in the state tree (provided as a list of keys so far). Continuing the example from above, say you wanted to treat all of the individual items under `state.items` as values, rather than traversing into each one to compare its properties:
 
 ```js
 // background.js
 
-import {wrapStore} from 'react-chrome-redux';
-import makeDiff from 'react-chrome-redux/strategies/deepDiff/makeDiff';
+import {wrapStore} from 'webext-redux';
+import makeDiff from 'webext-redux/strategies/deepDiff/makeDiff';
 
 const store; // a normal Redux store
 
@@ -346,26 +346,26 @@ wrapStore(store, {
 });
 ```
 
-Now, for each key under `state.items`, `react-chrome-redux` will treat it as a value and patch it wholesale, rather than comparing each of its individual properties.
+Now, for each key under `state.items`, `webext-redux` will treat it as a value and patch it wholesale, rather than comparing each of its individual properties.
 
-A `shouldContinue` function of the form `(oldObj, newObj, context) => context.length === 0` is equivalent to `react-chrome-redux`'s default shallow diffing strategy, since it will only check the top-level keys (when `context` is an empty list) and treat everything under them as changed values.
+A `shouldContinue` function of the form `(oldObj, newObj, context) => context.length === 0` is equivalent to `webext-redux`'s default shallow diffing strategy, since it will only check the top-level keys (when `context` is an empty list) and treat everything under them as changed values.
 
 ### Custom `diffStrategy` and `patchStrategy` functions
 
 You can also provide your own diffing and patching strategies, using the `diffStrategy` parameter in `wrapStore` and the `patchStrategy` parameter in `Store`, repsectively. A diffing strategy should be a function that takes two arguments - the old state and the new state - and returns a patch, which can be of any form. A patch strategy is a function that takes two arguments - the old state and a patch - and returns the new state.
 When using a custom diffing and patching strategy, you are responsible for making sure that they function as expected; that is, that `patchStrategy(oldState, diffStrategy(oldState, newState))` is equal to `newState`.
 
-Aside from being able to fine-tune `react-chrome-redux`'s performance, custom diffing and patching strategies allow you to use `react-chrome-redux` with Redux stores whose states are not vanilla Javascript objects. For example, you could implement diffing and patching strategies - along with corresponding custom serialization and deserialization functions - that allow you to handle [Immutable.js](https://github.com/facebook/immutable-js) collections.
+Aside from being able to fine-tune `webext-redux`'s performance, custom diffing and patching strategies allow you to use `webext-redux` with Redux stores whose states are not vanilla Javascript objects. For example, you could implement diffing and patching strategies - along with corresponding custom serialization and deserialization functions - that allow you to handle [Immutable.js](https://github.com/facebook/immutable-js) collections.
 
 ## Docs
 
-* [Introduction](https://github.com/tshaddix/react-chrome-redux/wiki/Introduction)
-* [Getting Started](https://github.com/tshaddix/react-chrome-redux/wiki/Getting-Started)
-* [Advanced Usage](https://github.com/tshaddix/react-chrome-redux/wiki/Advanced-Usage)
-* [API](https://github.com/tshaddix/react-chrome-redux/wiki/API)
-  * [Store](https://github.com/tshaddix/react-chrome-redux/wiki/Store)
-  * [wrapStore](https://github.com/tshaddix/react-chrome-redux/wiki/wrapStore)
-  * [alias](https://github.com/tshaddix/react-chrome-redux/wiki/alias)
+* [Introduction](https://github.com/tshaddix/webext-redux/wiki/Introduction)
+* [Getting Started](https://github.com/tshaddix/webext-redux/wiki/Getting-Started)
+* [Advanced Usage](https://github.com/tshaddix/webext-redux/wiki/Advanced-Usage)
+* [API](https://github.com/tshaddix/webext-redux/wiki/API)
+  * [Store](https://github.com/tshaddix/webext-redux/wiki/Store)
+  * [wrapStore](https://github.com/tshaddix/webext-redux/wiki/wrapStore)
+  * [alias](https://github.com/tshaddix/webext-redux/wiki/alias)
 
 ## Who's using this?
 
@@ -375,13 +375,13 @@ Aside from being able to fine-tune `react-chrome-redux`'s performance, custom di
 
 [![Chrome IG Story][chrome-ig-story-image]][chrome-ig-story-url]
 
-Using `react-chrome-redux` in your project? We'd love to hear about it! Just [open an issue](https://github.com/tshaddix/react-chrome-redux/issues) and let us know.
+Using `webext-redux` in your project? We'd love to hear about it! Just [open an issue](https://github.com/tshaddix/webext-redux/issues) and let us know.
 
 
-[npm-image]: https://img.shields.io/npm/v/react-chrome-redux.svg
-[npm-url]: https://npmjs.org/package/react-chrome-redux
-[downloads-image]: https://img.shields.io/npm/dm/react-chrome-redux.svg
-[downloads-url]: https://npmjs.org/package/react-chrome-redux
+[npm-image]: https://img.shields.io/npm/v/webext-redux.svg
+[npm-url]: https://npmjs.org/package/webext-redux
+[downloads-image]: https://img.shields.io/npm/dm/webext-redux.svg
+[downloads-url]: https://npmjs.org/package/webext-redux
 [loom-image]: https://cloud.githubusercontent.com/assets/603426/22037715/28c653aa-dcad-11e6-814d-d7a418d5670f.png
 [loom-url]: https://www.useloom.com
 [goguardian-image]: https://cloud.githubusercontent.com/assets/2173532/17540959/c6749bdc-5e6f-11e6-979c-c0e0da51fc63.png
