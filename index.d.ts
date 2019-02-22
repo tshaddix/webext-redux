@@ -9,7 +9,7 @@ export class Store<S = any, A extends redux.Action = redux.Action> {
    * @param options An object of form {portName, state, extensionId}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by chrome when extension is loaded (default `''`)
    */
   constructor(options: {
-    portName: string,
+    portName?: string,
     state?: any,
     extensionId?: string,
     serializer?: Function,
@@ -76,7 +76,7 @@ export class Store<S = any, A extends redux.Action = redux.Action> {
 export function wrapStore<S>(
   store: redux.Store<S>,
   configuration: {
-    portName: string,
+    portName?: string,
     dispatchResponder?(dispatchResult: any, send: (response: any) => void): void,
     serializer?: Function,
     deserializer?: Function,

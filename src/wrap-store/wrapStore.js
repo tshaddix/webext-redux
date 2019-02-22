@@ -1,10 +1,11 @@
 import {
   DISPATCH_TYPE,
   STATE_TYPE,
-  PATCH_STATE_TYPE
+  PATCH_STATE_TYPE,
+  DEFAULT_PORT_NAME
 } from '../constants';
 import { withSerializer, withDeserializer, noop } from "../serialization";
-
+import {getBrowserAPI} from '../util';
 import shallowDiff from '../strategies/shallowDiff/diff';
 
 /**
@@ -37,7 +38,7 @@ const promiseResponder = (dispatchResult, send) => {
  * @param {Object} options An object of form {portName, dispatchResponder, serializer, deserializer}, where `portName` is a required string and defines the name of the port for state transition changes, `dispatchResponder` is a function that takes the result of a store dispatch and optionally implements custom logic for responding to the original dispatch message,`serializer` is a function to serialize outgoing message payloads (default is passthrough), `deserializer` is a function to deserialize incoming message payloads (default is passthrough), and diffStrategy is one of the included diffing strategies (default is shallow diff) or a custom diffing function.
  */
 export default (store, {
-  portName,
+  portName = DEFAULT_PORT_NAME,
   dispatchResponder,
   serializer = noop,
   deserializer = noop,
@@ -60,6 +61,8 @@ export default (store, {
   if (!dispatchResponder) {
     dispatchResponder = promiseResponder;
   }
+
+  const browserAPI = getBrowserAPI();
 
   /**
    * Respond to dispatches from UI components
@@ -129,13 +132,13 @@ export default (store, {
   /**
    * Setup action handler
    */
-  withPayloadDeserializer((...args) => chrome.runtime.onMessage.addListener(...args))(dispatchResponse, shouldDeserialize);
+  withPayloadDeserializer((...args) => browserAPI.runtime.onMessage.addListener(...args))(dispatchResponse, shouldDeserialize);
 
   /**
    * Setup external action handler
    */
-  if (chrome.runtime.onMessageExternal) {
-    withPayloadDeserializer((...args) => chrome.runtime.onMessageExternal.addListener(...args))(dispatchResponse, shouldDeserialize);
+  if (browserAPI.runtime.onMessageExternal) {
+    withPayloadDeserializer((...args) => browserAPI.runtime.onMessageExternal.addListener(...args))(dispatchResponse, shouldDeserialize);
   } else {
     console.warn('runtime.onMessageExternal is not supported');
   }
@@ -143,13 +146,13 @@ export default (store, {
   /**
    * Setup extended connection
    */
-  chrome.runtime.onConnect.addListener(connectState);
+  browserAPI.runtime.onConnect.addListener(connectState);
 
   /**
    * Setup extended external connection
    */
-  if (chrome.runtime.onConnectExternal) {
-    chrome.runtime.onConnectExternal.addListener(connectState);
+  if (browserAPI.runtime.onConnectExternal) {
+    browserAPI.runtime.onConnectExternal.addListener(connectState);
   } else {
     console.warn('runtime.onConnectExternal is not supported');
   }
@@ -157,14 +160,14 @@ export default (store, {
   /**
    * Safety message to tabs for content scripts
    */
-  chrome.tabs.query({}, tabs => {
+  browserAPI.tabs.query({}, tabs => {
     for(const tab of tabs){
-      chrome.tabs.sendMessage(tab.id, {action: 'storeReady'});
+      browserAPI.tabs.sendMessage(tab.id, {action: 'storeReady'});
     }
   });
 
   // For non-tab based
   // TODO: Find use case for this. Ommiting until then.
-  // chrome.runtime.sendMessage(null, {action: 'storeReady'});
+  // browserAPI.runtime.sendMessage(null, {action: 'storeReady'});
 
 };

@@ -248,12 +248,6 @@ describe('wrapStore', function () {
       dispatch: sinon.spy(),
     };
 
-    it('should throw an error if portName is not present', function () {
-      should.throws(() => {
-        wrapStore(store, {});
-      }, Error);
-    });
-
     it('should throw an error if serializer is not a function', function () {
       should.throws(() => {
         wrapStore(store, { portName, serializer: "abc" });

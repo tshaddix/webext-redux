@@ -42,9 +42,7 @@ import {Store} from 'react-chrome-redux';
 
 import App from './components/app/App';
 
-const store = new Store({
-  portName: 'MY_APP' // communication port name
-});
+const store = new Store();
 
 // wait for the store to connect to the background page
 store.ready().then(() => {
@@ -67,7 +65,7 @@ import {wrapStore} from 'react-chrome-redux';
 
 const store; // a normal Redux store
 
-wrapStore(store, {portName: 'MY_APP'}); // make sure portName matches
+wrapStore(store);
 ```
 
 That's it! The dispatches called from UI component will find their way to the background page no problem. The new state from your background page will make sure to find its way back to the UI components.
@@ -86,9 +84,7 @@ import {Store, applyMiddleware} from 'react-chrome-redux';
 import thunkMiddleware from 'redux-thunk';
 
 // Proxy store
-const store = new Store({
-  portName: 'MY_APP'
-});
+const store = new Store();
 
 // Apply middleware to proxy store
 const middleware = [thunkMiddleware];
@@ -234,7 +230,6 @@ import {wrapStore} from 'react-chrome-redux';
 const store; // a normal Redux store
 
 wrapStore(store, {
-  portName: 'MY_APP',
   serializer: payload => JSON.stringify(payload, dateReplacer),
   deserializer: payload => JSON.parse(payload, dateReviver)
 });
@@ -246,7 +241,6 @@ wrapStore(store, {
 import {Store} from 'react-chrome-redux';
 
 const store = new Store({
-  portName: 'MY_APP',
   serializer: payload => JSON.stringify(payload, dateReplacer),
   deserializer: payload => JSON.parse(payload, dateReviver)
 });
@@ -306,7 +300,6 @@ import deepDiff from 'react-chrome-redux/strategies/deepDiff/diff';
 const store; // a normal Redux store
 
 wrapStore(store, {
-  portName: 'MY_APP',
   diffStrategy: deepDiff
 });
 ```
@@ -318,7 +311,6 @@ import {Store} from 'react-chrome-redux';
 import patchDeepDiff from 'react-chrome-redux/strategies/deepDiff/patch';
 
 const store = new Store({
-  portName: 'MY_APP',
   patchStrategy: patchDeepDiff
 });
 ```
@@ -350,7 +342,6 @@ const shouldContinue = (oldState, newState, context) => {
 const customDeepDiff = makeDiff(shouldContinue);
 
 wrapStore(store, {
-  portName: 'MY_APP',
   diffStrategy: customDeepDiff // Use the custom deep diff
 });
 ```
