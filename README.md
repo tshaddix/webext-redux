@@ -295,7 +295,7 @@ If any of the individual keys under `state.items` is updated, `state.items` will
 // background.js
 
 import {wrapStore} from 'webext-redux';
-import deepDiff from 'webext-redux/strategies/deepDiff/diff';
+import deepDiff from 'webext-redux/lib/strategies/deepDiff/diff';
 
 const store; // a normal Redux store
 
@@ -308,7 +308,7 @@ wrapStore(store, {
 // content.js
 
 import {Store} from 'webext-redux';
-import patchDeepDiff from 'webext-redux/strategies/deepDiff/patch';
+import patchDeepDiff from 'webext-redux/lib/strategies/deepDiff/patch';
 
 const store = new Store({
   patchStrategy: patchDeepDiff
@@ -325,7 +325,7 @@ Note that the deep diffing strategy currently treats arrays as values, and alway
 // background.js
 
 import {wrapStore} from 'webext-redux';
-import makeDiff from 'webext-redux/strategies/deepDiff/makeDiff';
+import makeDiff from 'webext-redux/lib/strategies/deepDiff/makeDiff';
 
 const store; // a normal Redux store
 
