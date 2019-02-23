@@ -424,10 +424,8 @@ describe('Store', function () {
   });
 
   describe("when validating options", function () {
-    it('should throw an error if portName is not present', function () {
-      should.throws(() => {
-        new Store();
-      }, Error);
+    it('should use defaults if no options present', function () {
+      should.doesNotThrow(() => new Store());
     });
 
     it('should throw an error if serializer is not a function', function () {
