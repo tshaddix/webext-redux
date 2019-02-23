@@ -15,7 +15,7 @@ npm install webext-redux
 
 ## Overview
 
-`webext-redux` allows you to build your Chrome extension like a Redux-powered webapp. The background page holds the Redux store, while Popovers and Content-Scripts act as UI Components, passing actions and state updates between themselves and the background store. At the end of the day, you have a single source of truth (your Redux store) that describes the entire state of your extension.
+`webext-redux` allows you to build your Web Extension like a Redux-powered webapp. The background page holds the Redux store, while Popovers and Content-Scripts act as UI Components, passing actions and state updates between themselves and the background store. At the end of the day, you have a single source of truth (your Redux store) that describes the entire state of your extension.
 
 All UI Components follow the same basic flow:
 
@@ -119,7 +119,7 @@ const aliases = {
   // background
   'user-clicked-alias': () => {
     // this call can only be made in the background script
-    chrome.notifications.create(...);
+    browser.notifications.create(...);
 
   };
 };
@@ -193,7 +193,7 @@ No changes are required to your actions, webext-redux automatically adds this in
 
 ## Custom Serialization
 
-You may wish to implement custom serialization and deserialization logic for communication between the background store and your proxy store(s). Chrome's message passing (which is used to implement this library) automatically serializes messages when they are sent and deserializes them when they are received. In the case that you have non-JSON-ifiable information in your Redux state, like a circular reference or a `Date` object, you will lose information between the background store and the proxy store(s). To manage this, both `wrapStore` and `Store` accept `serializer` and `deserializer` options. These should be functions that take a single parameter, the payload of a message, and return a serialized and deserialized form, respectively. The `serializer` function will be called every time a message is sent, and the `deserializer` function will be called every time a message is received. Note that, in addition to state updates, action creators being passed from your content script(s) to your background page will be serialized and deserialized as well.
+You may wish to implement custom serialization and deserialization logic for communication between the background store and your proxy store(s). Web Extension's message passing (which is used to implement this library) automatically serializes messages when they are sent and deserializes them when they are received. In the case that you have non-JSON-ifiable information in your Redux state, like a circular reference or a `Date` object, you will lose information between the background store and the proxy store(s). To manage this, both `wrapStore` and `Store` accept `serializer` and `deserializer` options. These should be functions that take a single parameter, the payload of a message, and return a serialized and deserialized form, respectively. The `serializer` function will be called every time a message is sent, and the `deserializer` function will be called every time a message is received. Note that, in addition to state updates, action creators being passed from your content script(s) to your background page will be serialized and deserialized as well.
 
 ### Example
 For example, consider the following `state` in your background page:
@@ -202,7 +202,7 @@ For example, consider the following `state` in your background page:
 {todos: [
     {
       id: 1,
-      text: 'Write a Chrome extension',
+      text: 'Write a Web extension',
       created: new Date(2018, 0, 1)
     }
 ]}
@@ -214,13 +214,13 @@ With no custom serialization, the `state` in your proxy store will look like thi
 {todos: [
     {
       id: 1,
-      text: 'Write a Chrome extension',
+      text: 'Write a Web extension',
       created: {}
     }
 ]}
 ```
 
-As you can see, Chrome's message passing has caused your date to disappear. You can pass a custom `serializer` and `deserializer` to both `wrapStore` and `Store` to make sure your dates get preserved:
+As you can see, Web Extension's message passing has caused your date to disappear. You can pass a custom `serializer` and `deserializer` to both `wrapStore` and `Store` to make sure your dates get preserved:
 
 ```js
 // background.js
@@ -261,10 +261,10 @@ function dateReviver (key, value) {
 };
 
 const stringified = JSON.stringify(state, dateReplacer)
-//"{"todos":[{"id":1,"text":"Write a Chrome extension","created":{"_RECOVER_DATE":1514793600000}}]}"
+//"{"todos":[{"id":1,"text":"Write a Web extension","created":{"_RECOVER_DATE":1514793600000}}]}"
 
 JSON.parse(stringified, dateReviver)
-// {todos: [{ id: 1, text: 'Write a Chrome extension', created: new Date(2018, 0, 1) }]}
+// {todos: [{ id: 1, text: 'Write a Web extension', created: new Date(2018, 0, 1) }]}
 ```
 
 ## Custom Diffing and Patching Strategies
