@@ -1,4 +1,10 @@
-import { DIFF_STATUS_KEYS_UPDATED, DIFF_STATUS_REMOVED, DIFF_STATUS_UPDATED } from "../constants";
+import {
+  DIFF_STATUS_ARRAY_UPDATED,
+  DIFF_STATUS_KEYS_UPDATED,
+  DIFF_STATUS_REMOVED,
+  DIFF_STATUS_UPDATED
+} from '../constants';
+import { getPatch as getArrayPatch } from 'fast-array-diff';
 
 const objectConstructor = ({}).constructor;
 
@@ -15,6 +21,11 @@ function diffValues(oldObj, newObj, shouldContinue, context) {
   if (oldObj === null) {
     return { change: DIFF_STATUS_UPDATED, value: newObj };
   }
+
+  if (Array.isArray(oldObj) && Array.isArray(newObj)) {
+    return { change: DIFF_STATUS_ARRAY_UPDATED, value: getArrayPatch(oldObj, newObj) };
+  }
+
   // If it's a non-object, or if the type is changing, or if it's an array,
   // just go with the current value.
   if (shouldTreatAsValue(oldObj, newObj) || !shouldContinue(oldObj, newObj, context)) {

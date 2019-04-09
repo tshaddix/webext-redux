@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/tshaddix/webext-redux#readme",
   "dependencies": {
+    "fast-array-diff": "^0.2.0",
     "lodash.assignin": "^4.2.0",
     "lodash.clonedeep": "^4.5.0",
     "redux": "^3.7.2"
