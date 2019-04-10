@@ -13,7 +13,8 @@ function isObject(o) {
 }
 
 function shouldTreatAsValue(oldObj, newObj) {
-  return !isObject(newObj) || typeof newObj !== typeof oldObj || Array.isArray(newObj);
+  const bothAreArrays = Array.isArray(oldObj) && Array.isArray(newObj);
+  return (!isObject(newObj) && !bothAreArrays) || typeof newObj !== typeof oldObj;
 }
 
 function diffValues(oldObj, newObj, shouldContinue, context) {
@@ -22,15 +23,16 @@ function diffValues(oldObj, newObj, shouldContinue, context) {
     return { change: DIFF_STATUS_UPDATED, value: newObj };
   }
 
-  if (Array.isArray(oldObj) && Array.isArray(newObj)) {
-    return { change: DIFF_STATUS_ARRAY_UPDATED, value: getArrayPatch(oldObj, newObj) };
-  }
-
   // If it's a non-object, or if the type is changing, or if it's an array,
   // just go with the current value.
   if (shouldTreatAsValue(oldObj, newObj) || !shouldContinue(oldObj, newObj, context)) {
     return { change: DIFF_STATUS_UPDATED, value: newObj };
   }
+
+  if (Array.isArray(oldObj) && Array.isArray(newObj)) {
+    return { change: DIFF_STATUS_ARRAY_UPDATED, value: getArrayPatch(oldObj, newObj) };
+  }
+
   // If it's an object, compute the differences for each key.
   return { change: DIFF_STATUS_KEYS_UPDATED, value: diffObjects(oldObj, newObj, shouldContinue, context) };
 }
