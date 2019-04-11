@@ -41,7 +41,7 @@ function diffValues(oldObj, newObj, shouldContinue, context) {
  * Performs a deep diff on two objects, created a nested list of patches. For objects, each key is compared.
  * If keys are not equal by reference, diffing continues on the key's corresponding values in the old and new
  * objects. If keys have been removed, they are recorded as such.
- * Non-object values that are not equal (including arrays by reference) are recorded as updated values.
+ * Non-object, non-array values that are not equal are recorded as updated values. Arrays are diffed shallowly.
  * The shouldContinue function is called on every potential value comparison with the current and previous objects
  * (at the present state in the tree) and the current path through the tree as an additional `context` parameter.
  * Returning false from this function will treat the current value as an updated value, regardless of whether or

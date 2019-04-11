@@ -315,7 +315,7 @@ const store = new Store({
 });
 ```
 
-Note that the deep diffing strategy currently treats arrays as values, and always patches them wholesale.
+Note that the deep diffing strategy currently diffs arrays shallowly, and patches item changes based on typed equality.
 
 #### Custom Deep Diff Strategy
 
