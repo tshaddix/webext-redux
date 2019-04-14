@@ -4,7 +4,7 @@ import {
   DIFF_STATUS_REMOVED,
   DIFF_STATUS_UPDATED
 } from '../constants';
-import { applyPatch as applyArrayPatch } from 'fast-array-diff';
+import { applyPatch as applyArrayPatch } from './arrayDiff';
 
 /**
  * Patches the given object according to the specified list of patches.

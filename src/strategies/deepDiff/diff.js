@@ -4,7 +4,7 @@ import {
   DIFF_STATUS_REMOVED,
   DIFF_STATUS_UPDATED
 } from '../constants';
-import { getPatch as getArrayPatch } from 'fast-array-diff';
+import { getPatch as getArrayPatch } from './arrayDiff';
 
 const objectConstructor = ({}).constructor;
 

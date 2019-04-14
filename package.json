@@ -10,7 +10,7 @@
     "lint": "npm run lint-src && npm run lint-test",
     "prepublishOnly": "./node_modules/.bin/babel src --out-dir lib",
     "pretest": "./node_modules/.bin/babel src --out-dir lib",
-    "test-run": "./node_modules/.bin/mocha --require @babel/register",
+    "test-run": "./node_modules/.bin/mocha --require @babel/register --recursive",
     "test": "npm run lint && npm run test-run"
   },
   "repository": {
@@ -24,7 +24,6 @@
   },
   "homepage": "https://github.com/tshaddix/webext-redux#readme",
   "dependencies": {
-    "fast-array-diff": "^0.2.0",
     "lodash.assignin": "^4.2.0",
     "lodash.clonedeep": "^4.5.0",
     "redux": "^3.7.2"
