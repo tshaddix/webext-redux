@@ -375,7 +375,7 @@ Aside from being able to fine-tune `webext-redux`'s performance, custom diffing 
 
 [![Chrome IG Story][chrome-ig-story-image]][chrome-ig-story-url]
 
-[![mabl][mabl-image]][mabl-url]
+[<img src="https://user-images.githubusercontent.com/1683635/56149225-12f1dc00-5f7a-11e9-884c-8ee2805f10a0.png" height="75">][mabl-url]
 
 Using `webext-redux` in your project? We'd love to hear about it! Just [open an issue](https://github.com/tshaddix/webext-redux/issues) and let us know.
 
@@ -390,5 +390,4 @@ Using `webext-redux` in your project? We'd love to hear about it! Just [open an 
 [goguardian-url]: https://goguardian.com
 [chrome-ig-story-image]: https://user-images.githubusercontent.com/2003684/34464412-895af814-ee32-11e7-86e4-b602bf58cdbc.png
 [chrome-ig-story-url]: https://chrome.google.com/webstore/detail/chrome-ig-story/bojgejgifofondahckoaahkilneffhmf
-[mabl-image]: https://user-images.githubusercontent.com/1683635/56149225-12f1dc00-5f7a-11e9-884c-8ee2805f10a0.png
 [mabl-url]: https://www.mabl.com
