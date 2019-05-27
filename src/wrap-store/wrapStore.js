@@ -167,6 +167,11 @@ export default (store, {
     for(const tab of tabs){
       browserAPI.tabs.sendMessage(tab.id, {action: 'storeReady'});
     }
+  }, () => {
+    if (chrome.runtime.lastError) {
+      // do nothing - errors can be present
+      // if no content script exists on reciever
+    }
   });
 
   // For non-tab based
