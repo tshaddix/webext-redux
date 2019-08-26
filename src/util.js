@@ -4,7 +4,12 @@
  * function will throw an error.
  */
 export function getBrowserAPI() {
-  const api = global.chrome || global.browser || browser;
+  let api;
+  try {
+    api = global.chrome || global.browser || browser;
+  } catch (error) {
+    api = browser;
+  }
 
   if (!api) {
     throw new Error("Browser API is not present");
