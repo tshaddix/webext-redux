@@ -155,8 +155,8 @@ describe('wrapStore', function () {
     const secondState = { a: 1, b: 3, c: 5 };
 
     sinon.stub(store, 'getState')
-        .onFirstCall().returns(firstState)
-        .onSecondCall().returns(secondState);
+      .onFirstCall().returns(firstState)
+      .onSecondCall().returns(secondState);
 
     // Mock the port object for onConnect and spy on postMessage
     const port = {
@@ -209,8 +209,8 @@ describe('wrapStore', function () {
     const secondState = { a: 1, b: 3, c: 5 };
 
     sinon.stub(store, 'getState')
-        .onFirstCall().returns(firstState)
-        .onSecondCall().returns(secondState);
+      .onFirstCall().returns(firstState)
+      .onSecondCall().returns(secondState);
 
     // Mock the port object for onConnect and spy on postMessage
     const port = {
