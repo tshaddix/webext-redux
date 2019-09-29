@@ -85,7 +85,7 @@ describe("Same", () => {
       const lcsResult = lcs(arr1, arr2), sameResult = same(arr1, arr2);
 
       assert.strictEqual(lcsResult.length, sameResult.length,
-                  `[${arr1}] <=> [${arr2}], correct: [${lcsResult}], incorrect: [${sameResult}]`);
+        `[${arr1}] <=> [${arr2}], correct: [${lcsResult}], incorrect: [${sameResult}]`);
       assert.strictEqual(isSubSeq(arr1, sameResult) && isSubSeq(arr2, sameResult), true);
     }
 
@@ -114,9 +114,9 @@ describe("Same", () => {
     assert.deepStrictEqual(same_str("aaaa", "aa"), "aa");
     assert.deepStrictEqual(same_str("TGGT", "GG"), "GG");
     assert.deepStrictEqual(same_str("GTCGTTCGGAATGCCGTTGCTCTGTAAA", "ACCGGTCGAGTGCGCGGAAGCCGGCCGAA"),
-     "GTCGTCGGAAGCCGGCCGAA");
+      "GTCGTCGGAAGCCGGCCGAA");
     assert.deepStrictEqual(same_str("ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    "ABCDEFGHIJKL12345678901234567890MNOPQRSTUVWXYZ"), "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+      "ABCDEFGHIJKL12345678901234567890MNOPQRSTUVWXYZ"), "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
   });
 
   it("Customize compare function", () => {

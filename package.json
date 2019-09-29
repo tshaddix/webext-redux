@@ -1,6 +1,6 @@
 {
   "name": "webext-redux",
-  "version": "2.0.2",
+  "version": "2.1.3",
   "description": "A set of utilities for building Redux applications in Web Extensions.",
   "main": "lib/index.js",
   "typings": "./index.d.ts",
@@ -36,7 +36,7 @@
     "@babel/preset-env": "^7.3.1",
     "@babel/register": "^7.0.0",
     "babel-eslint": "^7.2.0",
-    "eslint": "^3.17.1",
+    "eslint": "^4.18.2",
     "mocha": "^5.2.0",
     "should": "^13.2.1",
     "sinon": "^6.0.0"
