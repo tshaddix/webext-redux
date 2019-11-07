@@ -187,6 +187,78 @@ export function rootReducer(state = ..., action) {
 
 No changes are required to your actions, webext-redux automatically adds this information for you when you use a wrapped store.
 
+## Migrating from regular Redux
+
+### 1. dispatch
+
+Contrary to regular Redux, **all** dispatches are asynchronous and return a `Promise`.
+It is inevitable since proxy stores and the main store communicate via browser messaging, which is inherently asynchronous.
+
+In pure Redux, dispatches are synchronous 
+(which may not be true with some middlewares such as `redux-thunk`).
+
+Consider this piece of code:
+```js
+store.dispatch({ type: MODIFY_FOO_BAR, value: 'new value'});
+console.log(store.getState().fooBar);
+```
+
+You can rely that `console.log` in the code above will display the modified value.
+
+In `webext-redux` on the Proxy Store side you will need to 
+explicitly wait for the dispatch to complete:
+
+```js
+store.dispatch({ type: MODIFY_FOO_BAR, value: 'new value'}).then(() => 
+    console.log(store.getState().fooBar)
+);
+```
+or, using async/await syntax:
+
+```js
+await store.dispatch({ type: MODIFY_FOO_BAR, value: 'new value'});
+console.log(store.getState().fooBar);
+```
+
+### 2. dispatch / React component updates
+
+This case is relatively rare.
+
+On the Proxy Store side, React component updates with `webext-redux` 
+are more likely to take place after a dispatch is started and before it completes.
+
+While the code below might work (luckily?) in classical Redux, 
+it does not anymore since the component has been updated before the `deletePost` is fully completed
+and `post` object is not accessible anymore in the promise handler:
+```js
+class PostRemovePanel extends React.Component {
+    (...)
+    
+    handleRemoveButtonClicked() {
+        this.props.deletePost(this.props.post)
+          .then(() => {
+            this.setState({ message: `Post titled ${this.props.post.title} has just been deleted` });
+          });
+    }
+}
+```
+On the other hand, this piece of code is safe:
+
+```js
+    handleRemoveButtonClicked() {
+        const post = this.props.post;
+        this.props.deletePost(post);
+          .then(() => {
+            this.setState({ message: `Post titled ${post.title} has just been deleted` });
+          });
+        }
+    }
+```
+
+### Other
+
+If you spot any more surprises that are worth watching out for, make sure to let us know!
+
 ## Security
 
 `webext-redux` supports `onMessageExternal` which is fired when a message is sent from another extension, app, or website. By default, if `externally_connectable` is not declared in your extension's manifest, all extensions or apps will be able to send messages to your extension, but no websites will be able to. You can follow [this](https://developer.chrome.com/extensions/manifest/externally_connectable) to address your needs appropriately.
@@ -315,7 +387,7 @@ const store = new Store({
 });
 ```
 
-Note that the deep diffing strategy currently treats arrays as values, and always patches them wholesale.
+Note that the deep diffing strategy currently diffs arrays shallowly, and patches item changes based on typed equality.
 
 #### Custom Deep Diff Strategy
 
@@ -375,6 +447,8 @@ Aside from being able to fine-tune `webext-redux`'s performance, custom diffing 
 
 [![Chrome IG Story][chrome-ig-story-image]][chrome-ig-story-url]
 
+[<img src="https://user-images.githubusercontent.com/1683635/56149225-12f1dc00-5f7a-11e9-884c-8ee2805f10a0.png" height="75">][mabl-url]
+
 Using `webext-redux` in your project? We'd love to hear about it! Just [open an issue](https://github.com/tshaddix/webext-redux/issues) and let us know.
 
 
@@ -388,3 +462,4 @@ Using `webext-redux` in your project? We'd love to hear about it! Just [open an 
 [goguardian-url]: https://goguardian.com
 [chrome-ig-story-image]: https://user-images.githubusercontent.com/2003684/34464412-895af814-ee32-11e7-86e4-b602bf58cdbc.png
 [chrome-ig-story-url]: https://chrome.google.com/webstore/detail/chrome-ig-story/bojgejgifofondahckoaahkilneffhmf
+[mabl-url]: https://www.mabl.com

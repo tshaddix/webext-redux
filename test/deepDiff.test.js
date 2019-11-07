@@ -2,9 +2,10 @@ import deepDiff from '../src/strategies/deepDiff/diff';
 import patchDeepDiff from '../src/strategies/deepDiff/patch';
 import makeDiff from '../src/strategies/deepDiff/makeDiff';
 import {
-  DIFF_STATUS_UPDATED,
+  DIFF_STATUS_ARRAY_UPDATED,
+  DIFF_STATUS_KEYS_UPDATED,
   DIFF_STATUS_REMOVED,
-  DIFF_STATUS_KEYS_UPDATED
+  DIFF_STATUS_UPDATED
 } from '../src/strategies/constants';
 import sinon from 'sinon';
 
@@ -280,6 +281,94 @@ describe('deepDiff strategy', () => {
         });
       });
     });
+
+    describe('handles array values', () => {
+      it('should generate an array patch for an appended item', () => {
+        const old = {
+          a: [1]
+        };
+        const latest = {
+          a: [1, 2]
+        };
+
+        const diff = deepDiff(old, latest);
+
+        // console.log('***** arrays', diff);
+        diff.length.should.eql(1);
+        diff.should.eql([
+          {
+            key: 'a',
+            change: DIFF_STATUS_ARRAY_UPDATED,
+            value: [
+              {
+                type: 'add',
+                oldPos: 1,
+                newPos: 1,
+                items: [2]
+              }
+            ]
+          }
+        ]);
+      });
+
+      it('should generate an array patch for an inserted item', () => {
+        const old = {
+          a: [1, 3]
+        };
+        const latest = {
+          a: [1, 2, 3]
+        };
+
+        const diff = deepDiff(old, latest);
+
+        // console.log('***** arrays', diff);
+        diff.length.should.eql(1);
+        diff.should.eql([
+          {
+            key: 'a',
+            change: DIFF_STATUS_ARRAY_UPDATED,
+            value: [
+              {
+                type: 'add',
+                oldPos: 1,
+                newPos: 1,
+                items: [2]
+              }
+            ]
+          }
+        ]);
+      });
+
+      it('should generate an array patch for an inserted object', () => {
+        const aObject = { a: 'a' };
+        const cObject = { c: 'c' };
+        const old = {
+          a: [aObject, cObject]
+        };
+        const latest = {
+          a: [aObject, { b: 'b' }, cObject]
+        };
+
+        const diff = deepDiff(old, latest);
+
+        // console.log('***** arrays', diff);
+        diff.length.should.eql(1);
+        diff.should.eql([
+          {
+            key: 'a',
+            change: DIFF_STATUS_ARRAY_UPDATED,
+            value: [
+              {
+                type: 'add',
+                oldPos: 1,
+                newPos: 1,
+                items: [{ b: 'b' }]
+              }
+            ]
+          }
+        ]);
+      });
+    });
   });
 
   describe("#patch()", () => {
@@ -364,6 +453,44 @@ describe('deepDiff strategy', () => {
       it("should not modify the original object", () => {
         oldObj.should.have.property('c');
       });
+    });
+
+    describe("when arrays are updated", () => {
+      const oldObj = {
+        a: [ 1 ]
+      };
+
+      it("should append the value", () => {
+        const diff = [
+          {
+            key: 'a',
+            change: DIFF_STATUS_ARRAY_UPDATED,
+            value: [
+              {
+                type: 'add',
+                oldPos: 1,
+                newPos: 1,
+                items: [2]
+              }
+            ]
+          }
+        ];
+
+        const newObj = patchDeepDiff(oldObj, diff);
+
+        newObj.should.eql({a:[1, 2]});
+      });
+    });
+  });
+
+  describe("round trips", () => {
+    it("a simple array item append", () => {
+      const oldObj = { a: [1] };
+      const newObj = { a: [1, 2] };
+
+      const result = patchDeepDiff(oldObj, deepDiff(oldObj, newObj));
+
+      result.should.eql(newObj);
     });
   });
 

@@ -102,7 +102,7 @@ describe('applyMiddleware', function () {
     }
 
     function dummyMiddleware({ dispatch }) {
-      return next => action => {  // eslint-disable-line no-unused-vars
+      return next => action => { // eslint-disable-line no-unused-vars
         return dispatch(action, testCallArgs);
       };
     }
