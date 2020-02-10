@@ -49,8 +49,9 @@ class Store {
     this.browserAPI = getBrowserAPI();
     this.extensionId = extensionId; // keep the extensionId as an instance variable
     this.port = this.browserAPI.runtime.connect(this.extensionId, {name: portName});
-    this.safetyHandler = this.safetyHandler.bind(this);
-    this.safetyMessage = this.browserAPI.runtime.onMessage.addListener(this.safetyHandler);
+    // Remove safetyHandler and safetyMessage as the corresponding APIs are not accessible inside an iframe
+    // this.safetyHandler = this.safetyHandler.bind(this);
+    // this.safetyMessage = this.browserAPI.runtime.onMessage.addListener(this.safetyHandler);
     this.serializedPortListener = withDeserializer(deserializer)((...args) => this.port.onMessage.addListener(...args));
     this.serializedMessageSender = withSerializer(serializer)((...args) => this.browserAPI.runtime.sendMessage(...args), 1);
     this.listeners = [];
@@ -168,19 +169,19 @@ class Store {
     });
   }
 
-  safetyHandler(message){
-    if (message.action === 'storeReady'){
+  // safetyHandler(message){
+  //   if (message.action === 'storeReady'){
 
-      // Remove Saftey Listener
-      this.browserAPI.runtime.onMessage.removeListener(this.safetyHandler);
+  //     // Remove Saftey Listener
+  //     this.browserAPI.runtime.onMessage.removeListener(this.safetyHandler);
 
-      // Resolve if readyPromise has not been resolved.
-      if(!this.readyResolved) {
-        this.readyResolved = true;
-        this.readyResolve();
-      }
-    }
-  }
+  //     // Resolve if readyPromise has not been resolved.
+  //     if(!this.readyResolved) {
+  //       this.readyResolved = true;
+  //       this.readyResolve();
+  //     }
+  //   }
+  // }
 }
 
 export default Store;
