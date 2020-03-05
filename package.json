@@ -1,14 +1,15 @@
 {
   "name": "webext-redux",
-  "version": "2.1.2",
+  "version": "2.1.6",
   "description": "A set of utilities for building Redux applications in Web Extensions.",
   "main": "lib/index.js",
   "typings": "./index.d.ts",
   "scripts": {
+    "umd-build": "rollup -c",
     "lint-src": "./node_modules/.bin/eslint src/**/*.js",
     "lint-test": "./node_modules/.bin/eslint test/**/*.js",
     "lint": "npm run lint-src && npm run lint-test",
-    "prepublishOnly": "./node_modules/.bin/babel src --out-dir lib",
+    "prepublishOnly": "./node_modules/.bin/babel src --out-dir lib && npm run umd-build",
     "pretest": "./node_modules/.bin/babel src --out-dir lib",
     "test-run": "./node_modules/.bin/mocha --require @babel/register --recursive",
     "test": "npm run lint && npm run test-run"
@@ -25,8 +26,7 @@
   "homepage": "https://github.com/tshaddix/webext-redux#readme",
   "dependencies": {
     "lodash.assignin": "^4.2.0",
-    "lodash.clonedeep": "^4.5.0",
-    "redux": "^3.7.2"
+    "lodash.clonedeep": "^4.5.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
@@ -36,9 +36,18 @@
     "@babel/preset-env": "^7.3.1",
     "@babel/register": "^7.0.0",
     "babel-eslint": "^7.2.0",
-    "eslint": "^3.17.1",
+    "eslint": "^4.18.2",
     "mocha": "^5.2.0",
+    "redux": "^4.0.4",
+    "rollup": "^1.22.0",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-terser": "^5.1.2",
     "should": "^13.2.1",
     "sinon": "^6.0.0"
+  },
+  "peerDependencies": {
+    "redux": ">= 3 <= 4"
   }
 }
