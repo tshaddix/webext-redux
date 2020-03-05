@@ -50,7 +50,9 @@ class Store {
     this.extensionId = extensionId; // keep the extensionId as an instance variable
     this.port = this.browserAPI.runtime.connect(this.extensionId, {name: portName});
     this.safetyHandler = this.safetyHandler.bind(this);
-    this.safetyMessage = this.browserAPI.runtime.onMessage.addListener(this.safetyHandler);
+    if (this.browserAPI.runtime.onMessage) {
+      this.safetyMessage = this.browserAPI.runtime.onMessage.addListener(this.safetyHandler);
+    }
     this.serializedPortListener = withDeserializer(deserializer)((...args) => this.port.onMessage.addListener(...args));
     this.serializedMessageSender = withSerializer(serializer)((...args) => this.browserAPI.runtime.sendMessage(...args), 1);
     this.listeners = [];
