@@ -1,6 +1,7 @@
 import assignIn from 'lodash.assignin';
 
 import {
+  ACTION_TYPE,
   DISPATCH_TYPE,
   STATE_TYPE,
   PATCH_STATE_TYPE,
@@ -62,6 +63,10 @@ class Store {
     // Don't use shouldDeserialize here, since no one else should be using this port
     this.serializedPortListener(message => {
       switch (message.type) {
+        case ACTION_TYPE:
+          this.dispatch({ ...message.payload, fromBackground: true });
+          break;
+
         case STATE_TYPE:
           this.replaceState(message.payload);
 
@@ -148,7 +153,11 @@ class Store {
    * @param  {object} data The action data to dispatch
    * @return {Promise}     Promise that will resolve/reject based on the action response from the background
    */
-  dispatch(data) {
+  dispatch({ fromBackground, ...data } = {}) {
+    if (Boolean(fromBackground)) {
+      // don't need to message this dispatch back to the background because it originated there
+      return Promise.resolve(true)
+    }
     return new Promise((resolve, reject) => {
       this.serializedMessageSender(
         this.extensionId,
