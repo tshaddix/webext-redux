@@ -6,12 +6,13 @@
  * @return {*[]} the patched array
  */
 export function applyPatch(a, patch) {
-  let segments = [];
+  const segments = [];
 
   let sameStart = 0;
 
   for (let i = 0; i < patch.length; ++i) {
-    let patchItem = patch[i];
+    const patchItem = patch[i];
+
     sameStart !== patchItem.oldPos && segments.push(a.slice(sameStart, patchItem.oldPos));
     if (patchItem.type === "add") {
       segments.push(patchItem.items);
@@ -24,5 +25,6 @@ export function applyPatch(a, patch) {
   }
   sameStart !== a.length && segments.push(a.slice(sameStart));
 
+  // eslint-disable-next-line prefer-reflect
   return [].concat.apply([], segments);
 }

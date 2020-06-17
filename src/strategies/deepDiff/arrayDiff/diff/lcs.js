@@ -12,17 +12,19 @@ function lcs(a, b, compareFunc) {
   const M = a.length, N = b.length;
   const MAX = M + N;
 
-  let v = { 1: 0 };
+  const v = { 1: 0 };
 
   for (let d = 0; d <= MAX; ++d) {
     for (let k = -d; k <= d; k += 2) {
       let x;
+
       if (k === -d || k !== d && v[k - 1] + 1 < v[k + 1]) {
         x = v[k + 1];
       } else {
         x = v[k - 1] + 1;
       }
       let y = x - k;
+
       while (x < M && y < N && compareFunc(a[x] , b[y])) {
         x++;
         y++;
@@ -42,6 +44,7 @@ const Direct = {
   vertical: 1 << 1,
   diagonal: 1 << 2
 };
+
 Direct.all = Direct.horizontal | Direct.vertical | Direct.diagonal;
 
 /**
@@ -70,8 +73,9 @@ function getSolution(
     elementsChanged("same", a, aStart, aEnd, b, bStart, bEnd);
     return;
   } else if (d === (aEnd - aStart) + (bEnd - bStart)) {
-    let removeFirst = ((startDirect & Direct.horizontal) ? 1 : 0 ) + ((endDirect & Direct.vertical) ? 1 : 0 );
-    let addFirst = ((startDirect & Direct.vertical) ? 1 : 0 ) + ((endDirect & Direct.horizontal) ? 1 : 0 );
+    const removeFirst = ((startDirect & Direct.horizontal) ? 1 : 0 ) + ((endDirect & Direct.vertical) ? 1 : 0 );
+    const addFirst = ((startDirect & Direct.vertical) ? 1 : 0 ) + ((endDirect & Direct.horizontal) ? 1 : 0 );
+
     if (removeFirst >= addFirst) {
       aStart !== aEnd && elementsChanged("remove", a, aStart, aEnd, b, bStart, bStart);
       bStart !== bEnd && elementsChanged("add", a, aEnd, aEnd, b, bStart, bEnd);
@@ -82,9 +86,11 @@ function getSolution(
     return;
   }
 
-  let M = aEnd - aStart, N = bEnd - bStart, HALF = Math.floor(N / 2);
+  const M = aEnd - aStart, N = bEnd - bStart;
+  let HALF = Math.floor(N / 2);
 
   let now = {};
+
   for (let k = -d - 1; k <= d + 1; ++k) {
     now[k] = {d: Infinity, segments: 0, direct: Direct.none};
   }
@@ -96,7 +102,7 @@ function getSolution(
   for (let y = 0; y <= HALF; ++y) {
     [now, preview] = [preview, now];
     for (let k = -d; k <= d; ++k) {
-      let x = y + k;
+      const x = y + k;
 
       if (y === 0 && x === 0) {
         now[k] = {
@@ -107,7 +113,7 @@ function getSolution(
         continue;
       }
 
-      let currentPoints = [{
+      const currentPoints = [{
         direct: Direct.horizontal,
         d: now[k - 1].d + 1,
         segments: now[k - 1].segments + (now[k - 1].direct & Direct.horizontal ? 0 : 1),
@@ -125,7 +131,7 @@ function getSolution(
         });
       }
 
-      let bestValue = currentPoints.reduce((best, info) => {
+      const bestValue = currentPoints.reduce((best, info) => {
         if (best.d > info.d) {
           return info;
         } else if (best.d === info.d && best.segments > info.segments) {
@@ -144,6 +150,7 @@ function getSolution(
   }
 
   let now2 = {};
+
   for (let k = -d - 1; k <= d + 1; ++k) {
     now2[k] = {d: Infinity, segments: 0, direct: Direct.none};
   }
@@ -155,7 +162,7 @@ function getSolution(
   for (let y = N; y >= HALF; --y) {
     [now2, preview2] = [preview2, now2];
     for (let k = d; k >= -d; --k) {
-      let x = y + k;
+      const x = y + k;
 
       if (y === N && x === M) {
         now2[k] = {
@@ -166,7 +173,7 @@ function getSolution(
         continue;
       }
 
-      let currentPoints = [{
+      const currentPoints = [{
         direct: Direct.horizontal,
         d: now2[k + 1].d + 1,
         segments: now2[k + 1].segments + (now2[k + 1].direct & Direct.horizontal ? 0 : 1),
@@ -184,7 +191,7 @@ function getSolution(
         });
       }
 
-      let bestValue = currentPoints.reduce((best, info) => {
+      const bestValue = currentPoints.reduce((best, info) => {
         if (best.d > info.d) {
           return info;
         } else if (best.d === info.d && best.segments > info.segments) {
@@ -201,7 +208,7 @@ function getSolution(
       now2[k] = bestValue;
     }
   }
-  let best = {
+  const best = {
     k: -1,
     d: Infinity,
     segments: 0,
@@ -209,14 +216,16 @@ function getSolution(
   };
 
   for (let k = -d; k <= d; ++ k) {
-    let dSum = now[k].d + now2[k].d;
+    const dSum = now[k].d + now2[k].d;
+
     if (dSum < best.d) {
       best.k = k;
       best.d = dSum;
       best.segments = now[k].segments + now2[k].segments + (now[k].segments & now2[k].segments ? 0 : 1);
       best.direct = now2[k].direct;
     } else if (dSum === best.d) {
-      let segments = now[k].segments + now2[k].segments + (now[k].segments & now2[k].segments ? 0 : 1);
+      const segments = now[k].segments + now2[k].segments + (now[k].segments & now2[k].segments ? 0 : 1);
+
       if (segments < best.segments) {
         best.k = k;
         best.d = dSum;
@@ -238,9 +247,9 @@ function getSolution(
   }
 
   getSolution(a, aStart, aStart + HALF + best.k, b, bStart, bStart + HALF,
-              now[best.k].d, startDirect, now2[best.k].direct, compareFunc, elementsChanged);
+    now[best.k].d, startDirect, now2[best.k].direct, compareFunc, elementsChanged);
   getSolution(a, aStart + HALF + best.k, aEnd, b, bStart + HALF, bEnd,
-              now2[best.k].d, now[best.k].direct, endDirect, compareFunc, elementsChanged);
+    now2[best.k].d, now[best.k].direct, endDirect, compareFunc, elementsChanged);
 }
 
 /**
@@ -254,6 +263,7 @@ export default function bestSubSequence(
   a, b, compareFunc,
   elementsChanged
 ) {
-  let d = lcs(a, b, compareFunc);
+  const d = lcs(a, b, compareFunc);
+
   getSolution(a, 0, a.length, b, 0, b.length, d, Direct.diagonal, Direct.all, compareFunc, elementsChanged);
 }
