@@ -11,7 +11,7 @@ describe('applyMiddleware', function () {
 
   beforeEach(function () {
     // Mock chrome.runtime API
-    global.chrome = {
+    self.chrome = {
       runtime: {
         connect() {
           return {
@@ -60,7 +60,7 @@ describe('applyMiddleware', function () {
   });
 
   it('passes recursive dispatches through the middleware chain', () => {
-    global.chrome.runtime.sendMessage = (extensionId, data, options, cb) => {
+    self.chrome.runtime.sendMessage = (extensionId, data, options, cb) => {
       cb(data.payload);
     };
     function test(spyOnMethods) {
