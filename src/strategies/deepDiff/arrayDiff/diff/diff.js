@@ -12,21 +12,22 @@ export function diff(
   a, b,
   compareFunc = (ia, ib) => ia === ib
 ) {
-  let ret = {
+  const ret = {
     removed: [],
     added: [],
   };
+
   bestSubSequence(
     a, b, compareFunc,
     (type, oldArr, oldStart, oldEnd, newArr, newStart, newEnd) => {
       if (type === "add") {
-      for (let i = newStart; i < newEnd; ++i) {
-        ret.added.push(newArr[i]);
-      }
+        for (let i = newStart; i < newEnd; ++i) {
+          ret.added.push(newArr[i]);
+        }
       } else if (type === "remove") {
-      for (let i = oldStart; i < oldEnd; ++i) {
-        ret.removed.push(oldArr[i]);
-      }
+        for (let i = oldStart; i < oldEnd; ++i) {
+          ret.removed.push(oldArr[i]);
+        }
       }
     }
   );

@@ -11,7 +11,8 @@ export default function (
   a, b,
   compareFunc = (ia, ib) => ia === ib
 ) {
-  let ret = [];
+  const ret = [];
+
   bestSubSequence(
     a, b, compareFunc,
     (type, oldArr, oldStart, oldEnd) => {
@@ -23,4 +24,4 @@ export default function (
     }
   );
   return ret;
-};
+}

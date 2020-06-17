@@ -14,6 +14,7 @@ function isObject(o) {
 
 function shouldTreatAsValue(oldObj, newObj) {
   const bothAreArrays = Array.isArray(oldObj) && Array.isArray(newObj);
+
   return (!isObject(newObj) && !bothAreArrays) || typeof newObj !== typeof oldObj;
 }
 

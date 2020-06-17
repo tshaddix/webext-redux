@@ -11,7 +11,7 @@ import bestSubSequence from "./lcs";
 export function getPatch(
   a, b,
   compareFunc = (ia, ib) => ia === ib) {
-  let patch = [];
+  const patch = [];
   let lastAdd = null;
   let lastRemove = null;
 

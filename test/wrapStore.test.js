@@ -11,8 +11,10 @@ describe('wrapStore', function () {
   const portName = 'test';
 
   beforeEach(function () {
+    global.self = {};
+
     // Mock chrome.runtime API
-    global.chrome = {
+    self.chrome = {
       runtime: {
         onMessage: {
           addListener: () => {},
@@ -41,7 +43,7 @@ describe('wrapStore', function () {
       onConnectExternal: [],
     };
 
-    global.chrome = {
+    self.chrome = {
       runtime: {
         onMessage: {
           addListener: fn => listeners.onMessage.push(fn),
@@ -280,7 +282,7 @@ describe('wrapStore', function () {
         dispatch: sinon.spy(),
       };
 
-      global.chrome = {
+      self.chrome = {
         runtime: {
           onMessage: {
             addListener: () => {},

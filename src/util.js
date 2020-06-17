@@ -5,9 +5,12 @@
  */
 export function getBrowserAPI() {
   let api;
+
   try {
-    api = global.chrome || global.browser || browser;
+    // eslint-disable-next-line no-undef
+    api = self.chrome || self.browser || browser;
   } catch (error) {
+    // eslint-disable-next-line no-undef
     api = browser;
   }
 
