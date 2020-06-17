@@ -10,6 +10,8 @@ describe('applyMiddleware', function () {
     typeof action === 'function' ? action(dispatch, getState) : next(action);
 
   beforeEach(function () {
+    global.self = {};
+
     // Mock chrome.runtime API
     self.chrome = {
       runtime: {

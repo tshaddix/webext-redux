@@ -17,6 +17,8 @@ describe('Store', function () {
   const portName = 'test';
 
   beforeEach(function () {
+    global.self = {};
+
     // Mock chrome.runtime API
     self.chrome = {
       runtime: {
