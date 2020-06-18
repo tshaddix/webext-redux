@@ -171,7 +171,7 @@ class Store {
   }
 
   safetyHandler(message){
-    if (message.action === 'storeReady'){
+    if (message.action === 'storeReady' && message.portName === this.portName){
 
       // Remove Saftey Listener
       this.browserAPI.runtime.onMessage.removeListener(this.safetyHandler);

@@ -183,11 +183,73 @@ describe('Store', function () {
       store.readyResolve = sinon.spy();
 
       // send message
-      l({action: 'storeReady'});
+      l({action: 'storeReady', portName});
 
       safetyListeners.length.should.equal(0);
       store.readyResolved.should.eql(true);
       store.readyResolve.calledOnce.should.equal(true);
+    });
+
+    it('should setup a safety listener per portName', function () {
+      // mock onMessage listeners array
+      const safetyListeners = [];
+
+      // override mock chrome API for this test
+      self.chrome.runtime = {
+        connect: () => {
+          return {
+            onMessage: {
+              addListener: () => {}
+            }
+          };
+        },
+        onMessage: {
+          addListener: (listener) => {
+            safetyListeners.push(listener);
+          },
+          removeListener: (listener) => {
+            const index = safetyListeners.indexOf(listener);
+
+            if (index > -1) {
+              safetyListeners.splice(index, 1);
+            }
+          }
+        },
+      };
+
+      const store = new Store({portName});
+      const portName2 = 'test2'
+      const store2 = new Store({portName: portName2});
+
+
+      // verify one listener was added on port connect
+      safetyListeners.length.should.equal(2);
+
+      const [ l1, l2 ] = safetyListeners;
+
+      // make readyResolve() a spy function
+      store.readyResolve = sinon.spy();
+      store2.readyResolve = sinon.spy();
+
+      // send message for port 1
+      l1({action: 'storeReady', portName});
+      l2({action: 'storeReady', portName});
+
+      safetyListeners.length.should.equal(1);
+      store.readyResolved.should.eql(true);
+      store.readyResolve.calledOnce.should.equal(true);
+      store2.readyResolved.should.eql(false);
+      store2.readyResolve.calledOnce.should.equal(false);
+
+
+      // send message for port 2
+      l1({action: 'storeReady', portName: portName2});
+      l2({action: 'storeReady', portName: portName2});
+      safetyListeners.length.should.equal(0);
+      store.readyResolved.should.eql(true);
+      store.readyResolve.calledOnce.should.equal(true);
+      store2.readyResolved.should.eql(true);
+      store2.readyResolve.calledOnce.should.equal(true);
     });
   });
 

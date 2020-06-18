@@ -165,7 +165,7 @@ export default (store, {
    */
   browserAPI.tabs.query({}, tabs => {
     for(const tab of tabs){
-      browserAPI.tabs.sendMessage(tab.id, {action: 'storeReady'}, () => {
+      browserAPI.tabs.sendMessage(tab.id, {action: 'storeReady', portName}, () => {
         if (chrome.runtime.lastError) {
           // do nothing - errors can be present
           // if no content script exists on reciever
