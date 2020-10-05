@@ -24,7 +24,7 @@ const defaultOpts = {
 };
 
 // it's an error, probably
-const isError = (e) => e && e.stack && e.message
+const isError = (e) => e && e.stack && e.message;
 
 class Store {
   /**
@@ -164,10 +164,10 @@ class Store {
 
           if (error) {
             if(isError(error)) {
-              reject(error)
+              reject(error);
             } else {
               const bgErr = new Error(`${backgroundErrPrefix}${error}`);
-              
+
               reject(assignIn(bgErr, error));
             }
           } else {
