@@ -23,6 +23,9 @@ const defaultOpts = {
   patchStrategy: shallowDiff
 };
 
+// it's an error, probably
+const isError = (e) => e && e.stack && e.message
+
 class Store {
   /**
    * Creates a new Proxy store
@@ -160,9 +163,13 @@ class Store {
           const {error, value} = resp;
 
           if (error) {
-            const bgErr = new Error(`${backgroundErrPrefix}${error}`);
-
-            reject(assignIn(bgErr, error));
+            if(isError(error)) {
+              reject(error)
+            } else {
+              const bgErr = new Error(`${backgroundErrPrefix}${error}`);
+              
+              reject(assignIn(bgErr, error));
+            }
           } else {
             resolve(value && value.payload);
           }
