@@ -25,7 +25,6 @@
   },
   "homepage": "https://github.com/tshaddix/webext-redux#readme",
   "dependencies": {
-    "lodash.assignin": "^4.2.0",
     "lodash.clonedeep": "^4.5.0"
   },
   "devDependencies": {

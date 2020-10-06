@@ -1,5 +1,3 @@
-import assignIn from 'lodash.assignin';
-
 import {
   DISPATCH_TYPE,
   STATE_TYPE,
@@ -156,7 +154,7 @@ class Store {
           const {error, value} = resp;
 
           if (error) {
-            reject(new Error(error))
+            reject(new Error(error));
           } else {
             resolve(value && value.payload);
           }
