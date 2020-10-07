@@ -18,6 +18,7 @@ const defaultOpts = {
   portName: DEFAULT_PORT_NAME,
   state: {},
   extensionId: null,
+  browserAPI: null,
   serializer: noop,
   deserializer: noop,
   patchStrategy: shallowDiff
@@ -28,7 +29,15 @@ class Store {
    * Creates a new Proxy store
    * @param  {object} options An object of form {portName, state, extensionId, serializer, deserializer, diffStrategy}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by browserAPI when extension is loaded (default `''`), `serializer` is a function to serialize outgoing message payloads (default is passthrough), `deserializer` is a function to deserialize incoming message payloads (default is passthrough), and patchStrategy is one of the included patching strategies (default is shallow diff) or a custom patching function.
    */
-  constructor({portName = defaultOpts.portName, state = defaultOpts.state, extensionId = defaultOpts.extensionId, serializer = defaultOpts.serializer, deserializer = defaultOpts.deserializer, patchStrategy = defaultOpts.patchStrategy} = defaultOpts) {
+  constructor({
+    portName = defaultOpts.portName,
+    state = defaultOpts.state,
+    extensionId = defaultOpts.extensionId,
+    browserAPI = defaultOpts.browserAPI,
+    serializer = defaultOpts.serializer,
+    deserializer = defaultOpts.deserializer,
+    patchStrategy = defaultOpts.patchStrategy
+  } = defaultOpts) {
     if (!portName) {
       throw new Error('portName is required in options');
     }
@@ -46,7 +55,7 @@ class Store {
     this.readyResolved = false;
     this.readyPromise = new Promise(resolve => this.readyResolve = resolve);
 
-    this.browserAPI = getBrowserAPI();
+    this.browserAPI = browserAPI || getBrowserAPI();
     this.extensionId = extensionId; // keep the extensionId as an instance variable
     this.port = this.browserAPI.runtime.connect(this.extensionId, {name: portName});
     this.safetyHandler = this.safetyHandler.bind(this);
