@@ -27,7 +27,14 @@ const defaultOpts = {
 class Store {
   /**
    * Creates a new Proxy store
-   * @param  {object} options An object of form {portName, state, extensionId, serializer, deserializer, diffStrategy}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by browserAPI when extension is loaded (default `''`), `serializer` is a function to serialize outgoing message payloads (default is passthrough), `deserializer` is a function to deserialize incoming message payloads (default is passthrough), and patchStrategy is one of the included patching strategies (default is shallow diff) or a custom patching function.
+   * @param {object} options An object of form {portName, state, extensionId, browserAPI, serializer, deserializer, diffStrategy}
+   * @param {string} options.portName A required string and defines the name of the port for state transition changes
+   * @param {object} options.state The initial state of this store (default `{}`)
+   * @param {string} options.extensionId The extension id as defined by browserAPI when extension is loaded (default `''`)
+   * @param {object} options.browserAPI A browser api (default is global browser api)
+   * @param {function} options.serializer A function to serialize outgoing message payloads (default is passthrough)
+   * @param {function} options.deserializer A function to deserialize incoming message payloads (default is passthrough)
+   * @param {function} options.patchStrategy One of the included patching strategies or a custom patching function (default is shallow diff)
    */
   constructor({
     portName = defaultOpts.portName,
