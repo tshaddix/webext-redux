@@ -157,7 +157,7 @@ class Store {
 
           if (error) {
             const err = new Error(error.message)
-            reject(assignIn(err, error));
+            reject(assignIn(error, err));
           } else {
             resolve(value && value.payload);
           }
