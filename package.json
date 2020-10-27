@@ -1,6 +1,6 @@
 {
   "name": "webext-redux-w-errors",
-  "version": "2.1.11",
+  "version": "2.1.12",
   "description": "A set of utilities for building Redux applications in Web Extensions.",
   "main": "lib/index.js",
   "typings": "./index.d.ts",
