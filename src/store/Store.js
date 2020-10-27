@@ -156,8 +156,9 @@ class Store {
           const {error, value} = resp;
 
           if (error) {
-            const err = new Error(error.message)
-            reject(assignIn(err, error));
+            const err = assignIn(new Error(error.message), error)
+            console.log(error.message, 'dispatch error', err)
+            reject(err);
           } else {
             resolve(value && value.payload);
           }
