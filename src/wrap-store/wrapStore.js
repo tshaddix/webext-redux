@@ -26,7 +26,7 @@ const promiseResponder = (dispatchResult, send) => {
     .catch((err) => {
       console.error('error dispatching result:', err);
       send({
-        error: err.message,
+        error: err,
         value: null
       });
     });
@@ -81,7 +81,7 @@ export default (store, {
       try {
         dispatchResult = store.dispatch(action);
       } catch (e) {
-        dispatchResult = Promise.reject(e.message);
+        dispatchResult = Promise.reject(e);
         console.error(e);
       }
 
