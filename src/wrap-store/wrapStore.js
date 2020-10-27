@@ -7,6 +7,7 @@ import {
 import { withSerializer, withDeserializer, noop } from "../serialization";
 import {getBrowserAPI} from '../util';
 import shallowDiff from '../strategies/shallowDiff/diff';
+import { serializeError } from 'serialize-error';
 
 /**
  * Responder for promisified results
@@ -26,7 +27,7 @@ const promiseResponder = (dispatchResult, send) => {
     .catch((err) => {
       console.error('error dispatching result:', err);
       send({
-        error: err,
+        error: serializeError(err),
         value: null
       });
     });
