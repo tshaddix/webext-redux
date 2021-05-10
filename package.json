@@ -1,6 +1,6 @@
 {
-  "name": "webext-redux",
-  "version": "2.1.7",
+  "name": "webext-redux-w-errors",
+  "version": "2.1.12",
   "description": "A set of utilities for building Redux applications in Web Extensions.",
   "main": "lib/index.js",
   "typings": "./index.d.ts",
@@ -26,7 +26,8 @@
   "homepage": "https://github.com/tshaddix/webext-redux#readme",
   "dependencies": {
     "lodash.assignin": "^4.2.0",
-    "lodash.clonedeep": "^4.5.0"
+    "lodash.clonedeep": "^4.5.0",
+    "serialize-error": "^7.0.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",

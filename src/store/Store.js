@@ -10,10 +10,6 @@ import { withSerializer, withDeserializer, noop } from "../serialization";
 import shallowDiff from '../strategies/shallowDiff/patch';
 import {getBrowserAPI} from '../util';
 
-const backgroundErrPrefix = '\nLooks like there is an error in the background page. ' +
-  'You might want to inspect your background page for more details.\n';
-
-
 const defaultOpts = {
   portName: DEFAULT_PORT_NAME,
   state: {},
@@ -160,9 +156,9 @@ class Store {
           const {error, value} = resp;
 
           if (error) {
-            const bgErr = new Error(`${backgroundErrPrefix}${error}`);
+            const err = assignIn(new Error(error.message), error);
 
-            reject(assignIn(bgErr, error));
+            reject(err);
           } else {
             resolve(value && value.payload);
           }
