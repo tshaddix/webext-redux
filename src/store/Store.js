@@ -157,6 +157,14 @@ class Store {
           portName: this.portName,
           payload: data
         }, null, (resp) => {
+          if (!resp) {
+            const error = chrome.runtime.lastError;
+            const bgErr = new Error(`${backgroundErrPrefix}${error}`);
+
+            reject(assignIn(bgErr, error));
+            return;
+          }
+
           const {error, value} = resp;
 
           if (error) {
