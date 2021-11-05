@@ -449,8 +449,6 @@ Aside from being able to fine-tune `webext-redux`'s performance, custom diffing 
 
 [<img src="https://user-images.githubusercontent.com/1683635/56149225-12f1dc00-5f7a-11e9-884c-8ee2805f10a0.png" height="75">][mabl-url]
 
-[![GoGuardian][goguardian-image]][goguardian-url]
-
 [![Storyful][storyful-image]][storyful-url]
 
 Using `webext-redux` in your project? We'd love to hear about it! Just [open an issue](https://github.com/tshaddix/webext-redux/issues) and let us know.
