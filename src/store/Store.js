@@ -158,7 +158,7 @@ class Store {
           payload: data
         }, null, (resp) => {
           if (!resp) {
-            const error = chrome.runtime.lastError;
+            const error = this.browserAPI.runtime.lastError;
             const bgErr = new Error(`${backgroundErrPrefix}${error}`);
 
             reject(assignIn(bgErr, error));
