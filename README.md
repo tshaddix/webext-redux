@@ -1,7 +1,6 @@
 # WebExt Redux
 A set of utilities for building Redux applications in web extensions. This package was originally named `react-chrome-redux`.
 
-[![Build Status](https://travis-ci.org/tshaddix/webext-redux.svg?branch=master)](https://travis-ci.org/tshaddix/webext-redux)
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
 
