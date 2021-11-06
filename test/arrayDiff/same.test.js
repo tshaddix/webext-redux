@@ -5,9 +5,9 @@ import * as assert from "assert";
  * Test for same function
  */
 describe("Same", () => {
-
   it("Array not modified by function", () => {
-    const a = [1, 2, 3], b = [2, 3, 4];
+    const a = [1, 2, 3],
+          b = [2, 3, 4];
 
     same(a, b);
     assert.deepStrictEqual(a, [1, 2, 3], "input array changed!");
@@ -21,7 +21,6 @@ describe("Same", () => {
   });
 
   it.skip("Random Check", function () {
-
     this.timeout(100 * 1000);
 
     function lcs(a, b) {
@@ -52,7 +51,8 @@ describe("Same", () => {
           }
         }
       }
-      let n = a.length, m = b.length;
+      let n = a.length,
+          m = b.length;
       const ret = [];
 
       while (s[n][m].len !== 0) {
@@ -70,25 +70,34 @@ describe("Same", () => {
     function getRandom() {
       const length = Math.floor(Math.random() * 20 + 2);
 
-      return Array(length).fill(0).map(() => Math.floor(Math.random() * 10));
+      return Array(length)
+        .fill(0)
+        .map(() => Math.floor(Math.random() * 10));
     }
 
     function isSubSeq(main, sub) {
       let i = 0;
 
-      main.forEach(n => i += n === sub[i] ? 1 : 0);
+      main.forEach((n) => (i += n === sub[i] ? 1 : 0));
       return i === sub.length;
     }
 
     for (let i = 0; i < 5000; ++i) {
-      const arr1 = getRandom(), arr2 = getRandom();
-      const lcsResult = lcs(arr1, arr2), sameResult = same(arr1, arr2);
+      const arr1 = getRandom(),
+            arr2 = getRandom();
+      const lcsResult = lcs(arr1, arr2),
+            sameResult = same(arr1, arr2);
 
-      assert.strictEqual(lcsResult.length, sameResult.length,
-        `[${arr1}] <=> [${arr2}], correct: [${lcsResult}], incorrect: [${sameResult}]`);
-      assert.strictEqual(isSubSeq(arr1, sameResult) && isSubSeq(arr2, sameResult), true);
+      assert.strictEqual(
+        lcsResult.length,
+        sameResult.length,
+        `[${arr1}] <=> [${arr2}], correct: [${lcsResult}], incorrect: [${sameResult}]`
+      );
+      assert.strictEqual(
+        isSubSeq(arr1, sameResult) && isSubSeq(arr2, sameResult),
+        true
+      );
     }
-
   });
 
   it("Functional Check", () => {
@@ -113,21 +122,38 @@ describe("Same", () => {
     assert.deepStrictEqual(same_str("aa", "aaaa"), "aa");
     assert.deepStrictEqual(same_str("aaaa", "aa"), "aa");
     assert.deepStrictEqual(same_str("TGGT", "GG"), "GG");
-    assert.deepStrictEqual(same_str("GTCGTTCGGAATGCCGTTGCTCTGTAAA", "ACCGGTCGAGTGCGCGGAAGCCGGCCGAA"),
-      "GTCGTCGGAAGCCGGCCGAA");
-    assert.deepStrictEqual(same_str("ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-      "ABCDEFGHIJKL12345678901234567890MNOPQRSTUVWXYZ"), "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    assert.deepStrictEqual(
+      same_str("GTCGTTCGGAATGCCGTTGCTCTGTAAA", "ACCGGTCGAGTGCGCGGAAGCCGGCCGAA"),
+      "GTCGTCGGAAGCCGGCCGAA"
+    );
+    assert.deepStrictEqual(
+      same_str(
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "ABCDEFGHIJKL12345678901234567890MNOPQRSTUVWXYZ"
+      ),
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    );
   });
 
   it("Customize compare function", () => {
     function compare(a, b) {
       return a.name === b.name && a.age === b.age;
     }
-    const a = [{name: "Mike", age: 10}, {name: "Apple", age: 13}, {name: "Jack", age: 15}],
-          b = [{name: "Apple", age: 13}, {name: "Mimi", age: 0}, {name: "Jack", age: 15}],
-          result = [{name: "Apple", age: 13}, {name: "Jack", age: 15}];
+    const a = [
+            { name: "Mike", age: 10 },
+            { name: "Apple", age: 13 },
+            { name: "Jack", age: 15 },
+          ],
+          b = [
+            { name: "Apple", age: 13 },
+            { name: "Mimi", age: 0 },
+            { name: "Jack", age: 15 },
+          ],
+          result = [
+            { name: "Apple", age: 13 },
+            { name: "Jack", age: 15 },
+          ];
 
     assert.deepStrictEqual(same(a, b, compare), result);
   });
-
 });
