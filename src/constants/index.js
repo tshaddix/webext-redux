@@ -1,3 +1,7 @@
+// Message type for store action events from
+// background to Proxy Stores
+export const ACTION_TYPE = 'chromex.action';
+
 // Message type used for dispatch events
 // from the Proxy Stores to background
 export const DISPATCH_TYPE = 'chromex.dispatch';
