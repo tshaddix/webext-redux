@@ -1,5 +1,5 @@
 {
-  "name": "webext-redux",
+  "name": "ws-webext-redux",
   "version": "2.1.9",
   "description": "A set of utilities for building Redux applications in Web Extensions.",
   "main": "lib/index.js",
