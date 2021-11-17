@@ -163,7 +163,7 @@ export default (store, {
   /**
    * Safety message to tabs for content scripts
    */
-  browserAPI.tabs.query({}, tabs => {
+  browserAPI.tabs.query({}).then(tabs => {
     for(const tab of tabs){
       browserAPI.tabs.sendMessage(tab.id, {action: 'storeReady', portName}, () => {
         if (chrome.runtime.lastError) {
