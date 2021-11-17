@@ -170,7 +170,7 @@ export default (store, {
           // do nothing - errors can be present
           // if no content script exists on reciever
         }
-      });
+      }).catch(_ => {});
     }
   });
 
