@@ -145,13 +145,16 @@ describe("Store", function () {
       // mock onMessage listeners array
       const safetyListeners = [];
 
+      const disconnectSpy = sinon.spy();
       // override mock chrome API for this test
+
       self.chrome.runtime = {
         connect: () => {
           return {
             onMessage: {
               addListener: () => {},
             },
+            disconnect: disconnectSpy
           };
         },
         onMessage: {
@@ -177,26 +180,32 @@ describe("Store", function () {
 
       // make readyResolve() a spy function
       store.readyResolve = sinon.spy();
+      store.setupPort = sinon.spy();
 
       // send message
       l({ action: "storeReady", portName });
 
       safetyListeners.length.should.equal(0);
-      store.readyResolved.should.eql(true);
-      store.readyResolve.calledOnce.should.equal(true);
+      store.readyResolved.should.eql(false);
+      store.readyResolve.callCount.should.equal(0);
+      store.setupPort.callCount.should.equal(1);
+      disconnectSpy.callCount.should.equal(1);
     });
 
     it("should setup a safety listener per portName", function () {
       // mock onMessage listeners array
       const safetyListeners = [];
 
+      const disconnectSpy = sinon.spy();
       // override mock chrome API for this test
+
       self.chrome.runtime = {
         connect: () => {
           return {
             onMessage: {
               addListener: () => {},
             },
+            disconnect: disconnectSpy
           };
         },
         onMessage: {
@@ -224,26 +233,34 @@ describe("Store", function () {
 
       // make readyResolve() a spy function
       store.readyResolve = sinon.spy();
+      store.setupPort = sinon.spy();
       store2.readyResolve = sinon.spy();
+      store2.setupPort = sinon.spy();
 
       // send message for port 1
       l1({ action: "storeReady", portName });
       l2({ action: "storeReady", portName });
 
       safetyListeners.length.should.equal(1);
-      store.readyResolved.should.eql(true);
-      store.readyResolve.calledOnce.should.equal(true);
+      store.readyResolved.should.eql(false);
+      store.readyResolve.calledOnce.should.equal(false);
+      store.setupPort.calledOnce.should.equal(true);
       store2.readyResolved.should.eql(false);
       store2.readyResolve.calledOnce.should.equal(false);
+      store2.setupPort.calledOnce.should.equal(false);
+      disconnectSpy.callCount.should.equal(1);
 
       // send message for port 2
       l1({ action: "storeReady", portName: portName2 });
       l2({ action: "storeReady", portName: portName2 });
       safetyListeners.length.should.equal(0);
-      store.readyResolved.should.eql(true);
-      store.readyResolve.calledOnce.should.equal(true);
-      store2.readyResolved.should.eql(true);
-      store2.readyResolve.calledOnce.should.equal(true);
+      store.readyResolved.should.eql(false);
+      store.readyResolve.calledOnce.should.equal(false);
+      store.setupPort.calledOnce.should.equal(true);
+      store2.readyResolved.should.eql(false);
+      store2.readyResolve.calledOnce.should.equal(false);
+      store2.setupPort.calledOnce.should.equal(true);
+      disconnectSpy.callCount.should.equal(2);
     });
   });
 

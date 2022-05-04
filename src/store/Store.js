@@ -43,22 +43,31 @@ class Store {
     }
 
     this.portName = portName;
+    this.deserializer = deserializer;
     this.readyResolved = false;
     this.readyPromise = new Promise(resolve => this.readyResolve = resolve);
 
     this.browserAPI = getBrowserAPI();
     this.extensionId = extensionId; // keep the extensionId as an instance variable
-    this.port = this.browserAPI.runtime.connect(this.extensionId, {name: portName});
     this.safetyHandler = this.safetyHandler.bind(this);
     if (this.browserAPI.runtime.onMessage) {
       this.safetyMessage = this.browserAPI.runtime.onMessage.addListener(this.safetyHandler);
     }
-    this.serializedPortListener = withDeserializer(deserializer)((...args) => this.port.onMessage.addListener(...args));
     this.serializedMessageSender = withSerializer(serializer)((...args) => this.browserAPI.runtime.sendMessage(...args), 1);
     this.listeners = [];
     this.state = state;
     this.patchStrategy = patchStrategy;
+    this.dispatch = this.dispatch.bind(this); // add this context to dispatch
+    this.setupPort();
+  }
 
+  /**
+   * Connects to the port and sets up the serialized port listener
+   */
+  setupPort() {
+    this.port = this.browserAPI.runtime.connect(this.extensionId, {name: this.portName});
+
+    this.serializedPortListener = withDeserializer(this.deserializer)((...args) => this.port.onMessage.addListener(...args));
     // Don't use shouldDeserialize here, since no one else should be using this port
     this.serializedPortListener(message => {
       switch (message.type) {
@@ -80,7 +89,6 @@ class Store {
       }
     });
 
-    this.dispatch = this.dispatch.bind(this); // add this context to dispatch
   }
 
   /**
@@ -184,10 +192,10 @@ class Store {
       // Remove Saftey Listener
       this.browserAPI.runtime.onMessage.removeListener(this.safetyHandler);
 
-      // Resolve if readyPromise has not been resolved.
+      // This indicates that we connected before the background was ready, re-setup the connection to receive initial state
       if(!this.readyResolved) {
-        this.readyResolved = true;
-        this.readyResolve();
+        this.port.disconnect();
+        this.setupPort();
       }
     }
   }
