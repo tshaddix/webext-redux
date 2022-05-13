@@ -1,5 +1,6 @@
 import {
   DISPATCH_TYPE,
+  FETCH_STATE_TYPE,
   STATE_TYPE,
   PATCH_STATE_TYPE,
   DEFAULT_PORT_NAME
@@ -91,46 +92,64 @@ export default (store, {
   };
 
   /**
-  * Setup for state updates
-  */
-  const connectState = (port) => {
-    if (port.name !== portName) {
-      return;
-    }
-
-    const serializedMessagePoster = withSerializer(serializer)((...args) => port.postMessage(...args));
-
-    let prevState = store.getState();
-
-    const patchState = () => {
-      const state = store.getState();
-      const diff = diffStrategy(prevState, state);
-
-      if (diff.length) {
-        prevState = state;
-
-        serializedMessagePoster({
-          type: PATCH_STATE_TYPE,
-          payload: diff,
+   * Setup for state updates
+   */
+  const serializedMessagePoster = withSerializer(serializer)((...args) => {
+    // We will broadcast state changes to all tabs to sync state across content scripts
+    return browserAPI.tabs.query({}, (tabs) => {
+      for (const tab of tabs) {
+        browserAPI.tabs.sendMessage(tab.id, ...args, () => {
+          if (chrome.runtime.lastError) {
+            // do nothing - errors can be present
+            // if no content script exists on receiver
+          }
         });
       }
-    };
-
-    // Send patched state down connected port on every redux store state change
-    const unsubscribe = store.subscribe(patchState);
-
-    // when the port disconnects, unsubscribe the sendState listener
-    port.onDisconnect.addListener(unsubscribe);
-
-    // Send store's initial state through port
-    serializedMessagePoster({
-      type: STATE_TYPE,
-      payload: prevState,
     });
+  });
+
+
+  let currentState = store.getState();
+
+  const patchState = () => {
+    const newState = store.getState();
+    const diff = diffStrategy(currentState, newState);
+
+    if (diff.length) {
+      currentState = newState;
+
+      serializedMessagePoster({
+        type: PATCH_STATE_TYPE,
+        payload: diff,
+      });
+    }
   };
+
+  // Send patched state down connected port on every redux store state change
+  store.subscribe(patchState);
+
+  // Send store's initial state through port
+  serializedMessagePoster({
+    type: STATE_TYPE,
+    payload: currentState,
+  });
 
   const withPayloadDeserializer = withDeserializer(deserializer);
   const shouldDeserialize = (request) => request.type === DISPATCH_TYPE && request.portName === portName;
+
+  /**
+   * State provider for content-script initialization
+   */
+  browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    const state = store.getState();
+
+    if (request.type === FETCH_STATE_TYPE && request.portName === portName) {
+      sendResponse({
+        type: FETCH_STATE_TYPE,
+        payload: state,
+      });
+    }
+  });
 
   /**
    * Setup action handler
@@ -145,37 +164,4 @@ export default (store, {
   } else {
     console.warn('runtime.onMessageExternal is not supported');
   }
-
-  /**
-   * Setup extended connection
-   */
-  browserAPI.runtime.onConnect.addListener(connectState);
-
-  /**
-   * Setup extended external connection
-   */
-  if (browserAPI.runtime.onConnectExternal) {
-    browserAPI.runtime.onConnectExternal.addListener(connectState);
-  } else {
-    console.warn('runtime.onConnectExternal is not supported');
-  }
-
-  /**
-   * Safety message to tabs for content scripts
-   */
-  browserAPI.tabs.query({}, tabs => {
-    for(const tab of tabs){
-      browserAPI.tabs.sendMessage(tab.id, {action: 'storeReady', portName}, () => {
-        if (chrome.runtime.lastError) {
-          // do nothing - errors can be present
-          // if no content script exists on reciever
-        }
-      });
-    }
-  });
-
-  // For non-tab based
-  // TODO: Find use case for this. Ommiting until then.
-  // browserAPI.runtime.sendMessage(null, {action: 'storeReady'});
-
 };
