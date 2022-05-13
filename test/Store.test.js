@@ -4,7 +4,7 @@ import should from "should";
 import sinon from "sinon";
 
 import { Store } from "../src";
-import { DISPATCH_TYPE, STATE_TYPE } from "../src/constants";
+import { DISPATCH_TYPE, FETCH_STATE_TYPE, STATE_TYPE } from "../src/constants";
 import {
   DIFF_STATUS_UPDATED,
   DIFF_STATUS_REMOVED,
@@ -45,26 +45,27 @@ describe("Store", function () {
 
       // override mock chrome API for this test
       self.chrome.runtime = {
-        connect: () => {
-          return {
-            onMessage: {
-              addListener: (listener) => {
-                listeners.push(listener);
-              },
-            },
-          };
-        },
+        sendMessage: () => {},
         onMessage: {
-          addListener: () => {},
+          addListener: (listener) => {
+            listeners.push(listener);
+          },
         },
       };
     });
 
     it("should setup a listener on the chrome port defined by the portName option", function () {
+      const spy = (self.chrome.runtime.sendMessage = sinon.spy());
+
       new Store({ portName });
 
-      // verify one listener was added on port connect
-      listeners.length.should.equal(1);
+      spy.calledOnce.should.eql(true);
+      spy
+        .alwaysCalledWith({
+          type: FETCH_STATE_TYPE,
+          portName,
+        })
+        .should.eql(true);
     });
 
     it("should call replaceState on new state messages", function () {
@@ -83,6 +84,7 @@ describe("Store", function () {
       l({
         type: STATE_TYPE,
         payload,
+        portName,
       });
 
       // send one non-state type message
@@ -115,6 +117,7 @@ describe("Store", function () {
       l({
         type: STATE_TYPE,
         payload: JSON.stringify(payload),
+        portName,
       });
 
       // send one non-state type message
@@ -141,47 +144,32 @@ describe("Store", function () {
       store.getState().should.eql({ a: "a" });
     });
 
-    it("should setup a safety listener ", function () {
+    it("should setup a initializeStore listener", function () {
       // mock onMessage listeners array
-      const safetyListeners = [];
+      const initializeStoreListener = [];
 
       // override mock chrome API for this test
-      self.chrome.runtime = {
-        connect: () => {
-          return {
-            onMessage: {
-              addListener: () => {},
-            },
-          };
-        },
-        onMessage: {
-          addListener: (listener) => {
-            safetyListeners.push(listener);
-          },
-          removeListener: (listener) => {
-            const index = safetyListeners.indexOf(listener);
-
-            if (index > -1) {
-              safetyListeners.splice(index, 1);
-            }
-          },
-        },
+      self.chrome.runtime.sendMessage = (message, listener) => {
+        initializeStoreListener.push(listener);
       };
 
       const store = new Store({ portName });
 
       // verify one listener was added on port connect
-      safetyListeners.length.should.equal(1);
+      initializeStoreListener.length.should.equal(1);
 
-      const [l] = safetyListeners;
+      const [l] = initializeStoreListener;
 
       // make readyResolve() a spy function
       store.readyResolve = sinon.spy();
 
-      // send message
-      l({ action: "storeReady", portName });
+      const payload = {
+        a: 1,
+      };
 
-      safetyListeners.length.should.equal(0);
+      // Receive message response
+      l({ type: FETCH_STATE_TYPE, payload });
+
       store.readyResolved.should.eql(true);
       store.readyResolve.calledOnce.should.equal(true);
     });
