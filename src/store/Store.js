@@ -2,6 +2,7 @@ import assignIn from 'lodash.assignin';
 
 import {
   DISPATCH_TYPE,
+  FETCH_STATE_TYPE,
   STATE_TYPE,
   PATCH_STATE_TYPE,
   DEFAULT_PORT_NAME
@@ -48,12 +49,16 @@ class Store {
 
     this.browserAPI = getBrowserAPI();
     this.extensionId = extensionId; // keep the extensionId as an instance variable
-    this.port = this.browserAPI.runtime.connect(this.extensionId, {name: portName});
-    this.safetyHandler = this.safetyHandler.bind(this);
-    if (this.browserAPI.runtime.onMessage) {
-      this.safetyMessage = this.browserAPI.runtime.onMessage.addListener(this.safetyHandler);
-    }
-    this.serializedPortListener = withDeserializer(deserializer)((...args) => this.port.onMessage.addListener(...args));
+    this.initializeStore = this.initializeStore.bind(this);
+
+    // We request the latest available state data to initialise our store
+    this.browserAPI.runtime.sendMessage(
+      { type: FETCH_STATE_TYPE, portName },
+      this.initializeStore
+    );
+
+    this.deserializer = deserializer;
+    this.serializedPortListener = withDeserializer(deserializer)((...args) => this.browserAPI.runtime.onMessage.addListener(...args));
     this.serializedMessageSender = withSerializer(serializer)((...args) => this.browserAPI.runtime.sendMessage(...args), 1);
     this.listeners = [];
     this.state = state;
@@ -178,14 +183,12 @@ class Store {
     });
   }
 
-  safetyHandler(message){
-    if (message.action === 'storeReady' && message.portName === this.portName){
-
-      // Remove Saftey Listener
-      this.browserAPI.runtime.onMessage.removeListener(this.safetyHandler);
+  initializeStore(message) {
+    if (message.type === FETCH_STATE_TYPE) {
+      this.replaceState(message.payload);
 
       // Resolve if readyPromise has not been resolved.
-      if(!this.readyResolved) {
+      if (!this.readyResolved) {
         this.readyResolved = true;
         this.readyResolve();
       }
