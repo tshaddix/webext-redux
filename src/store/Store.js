@@ -66,22 +66,24 @@ class Store {
 
     // Don't use shouldDeserialize here, since no one else should be using this port
     this.serializedPortListener(message => {
-      switch (message.type) {
-        case STATE_TYPE:
-          this.replaceState(message.payload);
+      if(message.portName === this.portName){
+        switch (message.type) {
+          case STATE_TYPE:
+            this.replaceState(message.payload);
 
-          if (!this.readyResolved) {
-            this.readyResolved = true;
-            this.readyResolve();
-          }
-          break;
+            if (!this.readyResolved) {
+              this.readyResolved = true;
+              this.readyResolve();
+            }
+            break;
 
-        case PATCH_STATE_TYPE:
-          this.patchState(message.payload);
-          break;
+          case PATCH_STATE_TYPE:
+            this.patchState(message.payload);
+            break;
 
-        default:
-          // do nothing
+          default:
+            // do nothing
+        }
       }
     });
 

@@ -121,6 +121,7 @@ export default (store, {
       serializedMessagePoster({
         type: PATCH_STATE_TYPE,
         payload: diff,
+        portName, // Notifying what extension is broadcasting the state changes
       });
     }
   };
@@ -132,6 +133,7 @@ export default (store, {
   serializedMessagePoster({
     type: STATE_TYPE,
     payload: currentState,
+    portName, // Notifying what extension is broadcasting the state changes
   });
 
   const withPayloadDeserializer = withDeserializer(deserializer);
