@@ -22,7 +22,10 @@ describe("Store", function () {
         connect() {
           return {
             onMessage: {
-              addListener() {},
+              addListener() { },
+            },
+            onDisconnect: {
+              addListener() { },
             },
           };
         },
@@ -30,7 +33,7 @@ describe("Store", function () {
           cb();
         },
         onMessage: {
-          addListener: () => {},
+          addListener: () => { },
         },
       },
     };
@@ -52,10 +55,13 @@ describe("Store", function () {
                 listeners.push(listener);
               },
             },
+            onDisconnect: {
+              addListener() { },
+            },
           };
         },
         onMessage: {
-          addListener: () => {},
+          addListener: () => { },
         },
       };
     });
@@ -150,7 +156,10 @@ describe("Store", function () {
         connect: () => {
           return {
             onMessage: {
-              addListener: () => {},
+              addListener: () => { },
+            },
+            onDisconnect: {
+              addListener() { },
             },
           };
         },
@@ -195,7 +204,10 @@ describe("Store", function () {
         connect: () => {
           return {
             onMessage: {
-              addListener: () => {},
+              addListener: () => { },
+            },
+            onDisconnect: {
+              addListener() { },
             },
           };
         },
@@ -260,15 +272,18 @@ describe("Store", function () {
               listeners.push(listener);
             },
           },
+          onDisconnect: {
+            addListener() { },
+          },
         };
       };
 
       const store = new Store({ portName }),
-            readyCb = sinon.spy(),
-            readyPromise = store.ready().then(() => {
-              readyCb();
-              return Promise.resolve();
-            });
+        readyCb = sinon.spy(),
+        readyPromise = store.ready().then(() => {
+          readyCb();
+          return Promise.resolve();
+        });
 
       // verify one listener was added on port connect
       listeners.length.should.equal(1);
@@ -377,7 +392,7 @@ describe("Store", function () {
   describe("#subscribe()", function () {
     it("should register a listener for state changes", function () {
       const store = new Store({ portName }),
-            newState = { b: "b" };
+        newState = { b: "b" };
 
       let callCount = 0;
 
@@ -393,8 +408,8 @@ describe("Store", function () {
 
     it("should return a function which will unsubscribe the listener", function () {
       const store = new Store({ portName }),
-            listener = sinon.spy(),
-            unsub = store.subscribe(listener);
+        listener = sinon.spy(),
+        unsub = store.subscribe(listener);
 
       store.replaceState({ b: "b" });
 
@@ -411,7 +426,7 @@ describe("Store", function () {
   describe("#dispatch()", function () {
     it("should send a message with the correct dispatch type and payload given an extensionId", function () {
       const spy = (self.chrome.runtime.sendMessage = sinon.spy()),
-            store = new Store({ portName, extensionId: "xxxxxxxxxxxx" });
+        store = new Store({ portName, extensionId: "xxxxxxxxxxxx" });
 
       store.dispatch({ a: "a" });
 
@@ -427,7 +442,7 @@ describe("Store", function () {
 
     it("should send a message with the correct dispatch type and payload not given an extensionId", function () {
       const spy = (self.chrome.runtime.sendMessage = sinon.spy()),
-            store = new Store({ portName });
+        store = new Store({ portName });
 
       store.dispatch({ a: "a" });
 
@@ -443,8 +458,8 @@ describe("Store", function () {
 
     it("should serialize payloads before sending", function () {
       const spy = (self.chrome.runtime.sendMessage = sinon.spy()),
-            serializer = sinon.spy(JSON.stringify),
-            store = new Store({ portName, serializer });
+        serializer = sinon.spy(JSON.stringify),
+        store = new Store({ portName, serializer });
 
       store.dispatch({ a: "a" });
 
@@ -464,7 +479,7 @@ describe("Store", function () {
       };
 
       const store = new Store({ portName }),
-            p = store.dispatch({ a: "a" });
+        p = store.dispatch({ a: "a" });
 
       return p.should.be.fulfilledWith("hello");
     });
@@ -475,7 +490,7 @@ describe("Store", function () {
       };
 
       const store = new Store({ portName }),
-            p = store.dispatch({ a: "a" });
+        p = store.dispatch({ a: "a" });
 
       return p.should.be.rejectedWith(Error, { extraMsg: "test" });
     });
@@ -486,7 +501,7 @@ describe("Store", function () {
       };
 
       const store = new Store({ portName }),
-            p = store.dispatch({ a: "a" });
+        p = store.dispatch({ a: "a" });
 
       return p.should.be.fulfilledWith(undefined);
     });

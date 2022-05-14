@@ -20,11 +20,16 @@ describe('applyMiddleware', function () {
             onMessage: {
               addListener() {
               }
-            }
+            },
+            onDisconnect: {
+              addListener() {
+              }
+            },
+
           };
         },
         onMessage: {
-          addListener: () => {}
+          addListener: () => { }
         }
       }
     };
@@ -32,13 +37,13 @@ describe('applyMiddleware', function () {
 
   it('warns when dispatching during middleware setup', () => {
     function dispatchingMiddleware(store) {
-      store.dispatch({type:'anything'});
+      store.dispatch({ type: 'anything' });
       return next => action => next(action);
     }
     const middleware = [dispatchingMiddleware];
 
     should.throws(() => {
-      applyMiddleware(new Store({portName, state: {a: 'a'}}), ...middleware);
+      applyMiddleware(new Store({ portName, state: { a: 'a' } }), ...middleware);
     }, Error);
   });
 
@@ -51,9 +56,9 @@ describe('applyMiddleware', function () {
     }
 
     const spy = sinon.spy();
-    const store = applyMiddleware(new Store({portName}), test(spy), thunk);
+    const store = applyMiddleware(new Store({ portName }), test(spy), thunk);
 
-    store.dispatch(() => ({a: 'a'}));
+    store.dispatch(() => ({ a: 'a' }));
 
     spy.calledOnce.should.eql(true);
 
@@ -82,9 +87,9 @@ describe('applyMiddleware', function () {
     }
 
     const spy = sinon.spy();
-    const store = applyMiddleware(new Store({portName}), test(spy), thunk);
+    const store = applyMiddleware(new Store({ portName }), test(spy), thunk);
 
-    return store.dispatch(asyncActionCreator({a: 'a'}))
+    return store.dispatch(asyncActionCreator({ a: 'a' }))
       .then(() => {
         spy.args.length.should.eql(2);
       });
@@ -109,7 +114,7 @@ describe('applyMiddleware', function () {
       };
     }
 
-    const store = applyMiddleware(new Store({portName}), multiArgMiddleware, dummyMiddleware);
+    const store = applyMiddleware(new Store({ portName }), multiArgMiddleware, dummyMiddleware);
 
     store.dispatch(spy);
     spy.args[0].should.eql(testCallArgs);
@@ -117,11 +122,11 @@ describe('applyMiddleware', function () {
 
   it('should be able to access getState from thunk', function () {
     const middleware = [thunk];
-    const store = applyMiddleware(new Store({portName, state: {a: 'a'}}), ...middleware);
+    const store = applyMiddleware(new Store({ portName, state: { a: 'a' } }), ...middleware);
 
-    store.getState().should.eql({a: 'a'});
+    store.getState().should.eql({ a: 'a' });
     store.dispatch((dispatch, getState) => {
-      getState().should.eql({a: 'a'});
+      getState().should.eql({ a: 'a' });
     });
   });
 });

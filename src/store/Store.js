@@ -43,17 +43,17 @@ class Store {
       throw new Error('patchStrategy must be one of the included patching strategies or a custom patching function');
     }
 
-    this.maxReconnects = maxReconnects
+    this.maxReconnects = maxReconnects;
     this.portName = portName;
     this.readyResolved = false;
     this.readyPromise = new Promise(resolve => {
-      this.readyResolve = resolve
+      this.readyResolve = resolve;
     });
 
     this.browserAPI = getBrowserAPI();
     this.extensionId = extensionId; // keep the extensionId as an instance variable
     this.serializedMessageSender = withSerializer(serializer)((...args) => {
-      this.browserAPI.runtime.sendMessage(...args)
+      this.browserAPI.runtime.sendMessage(...args);
     }, 1);
     this.listeners = [];
     this.state = state;
@@ -66,7 +66,7 @@ class Store {
     this.dispatch = this.dispatch.bind(this); // add this context to dispatch
 
     // finally connect
-    this.connect(deserializer)
+    this.connect(deserializer);
   }
 
   /**
@@ -75,16 +75,16 @@ class Store {
    */
   connect(deserializer, attempts = 0) {
     if (attempts > this.maxReconnects) {
-      throw new Error("Too many connection attempts")
+      throw new Error("Too many connection attempts");
     }
     this.port = this.browserAPI.runtime.connect(this.extensionId, { name: this.portName });
 
-    this.port.onDisconnect.addListener((port) => {
-      setTimeout(() => this.connect(deserializer, attempts++), 0)
-    })
+    this.port.onDisconnect.addListener(() => {
+      setTimeout(() => this.connect(deserializer, attempts++), 0);
+    });
 
     this.serializedPortListener = withDeserializer(deserializer)((...args) => {
-      this.port.onMessage.addListener(...args)
+      this.port.onMessage.addListener(...args);
     });
 
     // Don't use shouldDeserialize here, since no one else should be using this port
