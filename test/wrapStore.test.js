@@ -12,6 +12,7 @@ describe('wrapStore', function () {
 
   beforeEach(function () {
     global.self = {};
+    const tabs = [1];
 
     // Mock chrome.runtime API
     self.chrome = {
@@ -22,24 +23,24 @@ describe('wrapStore', function () {
         onMessageExternal: {
           addListener: () => {},
         },
-        onConnect: {
-          addListener: () => {},
-        },
         onConnectExternal: {
           addListener: () => {},
         },
       },
       tabs: {
-        query: () => {}
+        query: (tabObject, cb) => {
+          cb(tabs);
+        },
+        sendMessage: () => {}
       }
     };
   });
 
   function setupListeners() {
+    const tabs = [1];
     const listeners = {
       onMessage: [],
       onMessageExternal: [],
-      onConnect: [],
       onConnectExternal: [],
     };
 
@@ -51,15 +52,15 @@ describe('wrapStore', function () {
         onMessageExternal: {
           addListener: fn => listeners.onMessageExternal.push(fn),
         },
-        onConnect: {
-          addListener: fn => listeners.onConnect.push(fn),
-        },
         onConnectExternal: {
           addListener: fn => listeners.onConnectExternal.push(fn),
         },
       },
       tabs: {
-        query: () => {}
+        query: (tabObject, cb) => {
+          cb(tabs);
+        },
+        sendMessage: () => {}
       }
     };
 
@@ -73,6 +74,10 @@ describe('wrapStore', function () {
       listeners = setupListeners();
       store = {
         dispatch: sinon.spy(),
+        subscribe: () => {
+          return () => ({});
+        },
+        getState: () => ({})
       };
 
       payload = {
@@ -141,6 +146,8 @@ describe('wrapStore', function () {
   it('should serialize initial state and subsequent patches correctly', function () {
     const listeners = setupListeners();
 
+    const sendMessage = (self.chrome.tabs.sendMessage = sinon.spy());
+
     // Mock store subscription
     const subscribers = [];
     const store = {
@@ -158,42 +165,42 @@ describe('wrapStore', function () {
 
     sinon.stub(store, 'getState')
       .onFirstCall().returns(firstState)
-      .onSecondCall().returns(secondState);
+      .onSecondCall().returns(secondState)
+      .onThirdCall().returns(secondState);
 
-    // Mock the port object for onConnect and spy on postMessage
-    const port = {
+    // Mock the tab object for tabs and spy on sendMessage
+    const tabs = {
       name: portName,
-      postMessage: sinon.spy(),
-      onDisconnect: {
-        addListener: () => ({})
-      }
     };
 
     const serializer = (payload) => JSON.stringify(payload);
 
     wrapStore(store, {portName, serializer});
 
-    // Simulate a port connection with the mocked port
-    listeners.onConnect.forEach(l => l(port));
+    // Listen for state changes
+    listeners.onMessage.forEach(l => l(tabs));
     // Simulate a state update by calling subscribers
     subscribers.forEach(subscriber => subscriber());
 
     const expectedSetupMessage = {
       type: STATE_TYPE,
+      portName,
       payload: serializer(firstState)
     };
     const expectedPatchMessage = {
       type: PATCH_STATE_TYPE,
+      portName,
       payload: serializer(shallowDiff(firstState, secondState))
     };
 
-    port.postMessage.calledTwice.should.eql(true);
-    port.postMessage.firstCall.args[0].should.eql(expectedSetupMessage);
-    port.postMessage.secondCall.args[0].should.eql(expectedPatchMessage);
+    sendMessage.calledTwice.should.eql(true);
+    sendMessage.firstCall.args[1].should.eql(expectedSetupMessage);
+    sendMessage.secondCall.args[1].should.eql(expectedPatchMessage);
   });
 
   it('should use the provided diff strategy', function () {
     const listeners = setupListeners();
+    const sendMessage = (self.chrome.tabs.sendMessage = sinon.spy());
 
     // Mock store subscription
     const subscribers = [];
@@ -212,16 +219,8 @@ describe('wrapStore', function () {
 
     sinon.stub(store, 'getState')
       .onFirstCall().returns(firstState)
-      .onSecondCall().returns(secondState);
-
-    // Mock the port object for onConnect and spy on postMessage
-    const port = {
-      name: portName,
-      postMessage: sinon.spy(),
-      onDisconnect: {
-        addListener: () => ({})
-      }
-    };
+      .onSecondCall().returns(secondState)
+      .onThirdCall().returns(secondState);
 
     // Create a fake diff strategy
     const diffStrategy = (oldObj, newObj) => ([{
@@ -231,23 +230,29 @@ describe('wrapStore', function () {
 
     wrapStore(store, {portName, diffStrategy});
 
-    // Simulate a port connection with the mocked port
-    listeners.onConnect.forEach(l => l(port));
+    // Listen for state changes
+    listeners.onMessage.forEach(l => l({ portName }));
+
     // Simulate a state update by calling subscribers
     subscribers.forEach(subscriber => subscriber());
 
     const expectedPatchMessage = {
       type: PATCH_STATE_TYPE,
+      portName,
       payload: diffStrategy(firstState, secondState)
     };
 
-    port.postMessage.calledTwice.should.eql(true);
-    port.postMessage.secondCall.args[0].should.eql(expectedPatchMessage);
+    sendMessage.calledTwice.should.eql(true);
+    sendMessage.secondCall.args[1].should.eql(expectedPatchMessage);
   });
 
   describe("when validating options", function () {
     const store = {
       dispatch: sinon.spy(),
+      subscribe: () => {
+        return () => ({});
+      },
+      getState: () => ({})
     };
 
     it('should use defaults if no options present', function () {
@@ -280,6 +285,10 @@ describe('wrapStore', function () {
       const tabResponders = [];
       const store = {
         dispatch: sinon.spy(),
+        subscribe: () => {
+          return () => ({});
+        },
+        getState: () => ({})
       };
 
       self.chrome = {
@@ -288,9 +297,6 @@ describe('wrapStore', function () {
             addListener: () => {},
           },
           onMessageExternal: {
-            addListener: () => {},
-          },
-          onConnect: {
             addListener: () => {},
           },
           onConnectExternal: {
