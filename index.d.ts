@@ -14,7 +14,8 @@ export class Store<S = any, A extends redux.Action = redux.AnyAction> {
     extensionId?: string,
     serializer?: Function,
     deserializer?: Function,
-    patchStrategy?: PatchStrategy
+    patchStrategy?: PatchStrategy,
+    maxReconnects?: number
   });
 
   /**

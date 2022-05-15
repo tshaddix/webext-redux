@@ -77,10 +77,11 @@ class Store {
     if (attempts > this.maxReconnects) {
       throw new Error("Too many connection attempts");
     }
+    // wake up service worker and then connect
     this.port = this.browserAPI.runtime.connect(this.extensionId, { name: this.portName });
 
     this.port.onDisconnect.addListener(() => {
-      setTimeout(() => this.connect(deserializer, attempts++), 0);
+      setTimeout(() => this.connect(deserializer, ++attempts), 0);
     });
 
     this.serializedPortListener = withDeserializer(deserializer)((...args) => {
