@@ -53,8 +53,7 @@ class Store {
 
     // We request the latest available state data to initialise our store
     this.browserAPI.runtime.sendMessage(
-      { type: FETCH_STATE_TYPE, portName },
-      this.initializeStore
+      this.extensionId, { type: FETCH_STATE_TYPE, portName }, undefined, this.initializeStore
     );
 
     this.deserializer = deserializer;
@@ -186,7 +185,7 @@ class Store {
   }
 
   initializeStore(message) {
-    if (message.type === FETCH_STATE_TYPE) {
+    if (message && message.type === FETCH_STATE_TYPE) {
       this.replaceState(message.payload);
 
       // Resolve if readyPromise has not been resolved.

@@ -26,7 +26,7 @@ describe("Store", function () {
             },
           };
         },
-        sendMessage(data, cb) {
+        sendMessage(extensionId, data, options, cb) {
           cb();
         },
         onMessage: {
@@ -61,7 +61,7 @@ describe("Store", function () {
 
       spy.calledOnce.should.eql(true);
       spy
-        .alwaysCalledWith({
+        .alwaysCalledWith(null, {
           type: FETCH_STATE_TYPE,
           portName,
         })
@@ -149,7 +149,7 @@ describe("Store", function () {
       const initializeStoreListener = [];
 
       // override mock chrome API for this test
-      self.chrome.runtime.sendMessage = (message, listener) => {
+      self.chrome.runtime.sendMessage = (extensionId, message, options, listener) => {
         initializeStoreListener.push(listener);
       };
 
@@ -174,31 +174,18 @@ describe("Store", function () {
       store.readyResolve.calledOnce.should.equal(true);
     });
 
-    it("should setup a safety listener per portName", function () {
+    it("should listen only to portName state changes", function () {
       // mock onMessage listeners array
-      const safetyListeners = [];
+      const stateChangesListener = [];
 
       // override mock chrome API for this test
       self.chrome.runtime = {
-        connect: () => {
-          return {
-            onMessage: {
-              addListener: () => {},
-            },
-          };
-        },
         onMessage: {
           addListener: (listener) => {
-            safetyListeners.push(listener);
-          },
-          removeListener: (listener) => {
-            const index = safetyListeners.indexOf(listener);
-
-            if (index > -1) {
-              safetyListeners.splice(index, 1);
-            }
+            stateChangesListener.push(listener);
           },
         },
+        sendMessage: () => {}
       };
 
       const store = new Store({ portName });
@@ -206,94 +193,33 @@ describe("Store", function () {
       const store2 = new Store({ portName: portName2 });
 
       // verify one listener was added on port connect
-      safetyListeners.length.should.equal(2);
+      stateChangesListener.length.should.equal(2);
 
-      const [l1, l2] = safetyListeners;
+      const [l1, l2] = stateChangesListener;
 
       // make readyResolve() a spy function
       store.readyResolve = sinon.spy();
       store2.readyResolve = sinon.spy();
 
       // send message for port 1
-      l1({ action: "storeReady", portName });
-      l2({ action: "storeReady", portName });
+      l1({ type: STATE_TYPE, portName, payload: [{ change: "updated", key: "a", value: "1" }] });
+      l2({ type: STATE_TYPE, portName, payload: [{ change: "updated", key: "b", value: "2" }] });
 
-      safetyListeners.length.should.equal(1);
+      stateChangesListener.length.should.equal(2);
+
       store.readyResolved.should.eql(true);
       store.readyResolve.calledOnce.should.equal(true);
       store2.readyResolved.should.eql(false);
       store2.readyResolve.calledOnce.should.equal(false);
 
       // send message for port 2
-      l1({ action: "storeReady", portName: portName2 });
-      l2({ action: "storeReady", portName: portName2 });
-      safetyListeners.length.should.equal(0);
+      l1({ type: STATE_TYPE, portName: portName2, payload: [{ change: "updated", key: "a", value: "1" }] });
+      l2({ type: STATE_TYPE, portName: portName2, payload: [{ change: "updated", key: "b", value: "2" }] });
+      stateChangesListener.length.should.equal(2);
       store.readyResolved.should.eql(true);
       store.readyResolve.calledOnce.should.equal(true);
       store2.readyResolved.should.eql(true);
       store2.readyResolve.calledOnce.should.equal(true);
-    });
-  });
-
-  describe("#ready()", function () {
-    it("should call Store.ready once on STATE_TYPE port message", async function () {
-      // mock connect.onMessage listeners array
-      const listeners = [];
-
-      // override mock chrome API for this test
-      self.chrome.runtime.connect = () => {
-        return {
-          onMessage: {
-            addListener(listener) {
-              listeners.push(listener);
-            },
-          },
-        };
-      };
-
-      const store = new Store({ portName }),
-            readyCb = sinon.spy(),
-            readyPromise = store.ready().then(() => {
-              readyCb();
-              return Promise.resolve();
-            });
-
-      // verify one listener was added on port connect
-      listeners.length.should.equal(1);
-
-      // verify Store.ready has not been called yet
-      readyCb.callCount.should.equal(0);
-
-      const [l] = listeners;
-
-      // send one state type message, this should trigger the ready callback
-      l({
-        type: STATE_TYPE,
-        payload: {},
-      });
-
-      // the Store.ready method is backed by a promise (inherent async
-      // behavior), so we must wait
-      await readyPromise;
-
-      const badMessage = {
-        type: `NOT_${STATE_TYPE}`,
-        payload: {},
-      };
-
-      // send one non-state type message, this should not trigger the ready
-      // callback
-      l(badMessage);
-
-      // send one state type message, this should not trigger the callback
-      // since the store should have already been marked ready
-      l({
-        type: STATE_TYPE,
-        payload: {},
-      });
-
-      // make sure replace state was only called once
-      readyCb.calledOnce.should.equal(true);
     });
   });
 
@@ -398,19 +324,16 @@ describe("Store", function () {
 
   describe("#dispatch()", function () {
     it("should send a message with the correct dispatch type and payload given an extensionId", function () {
-      const spy = (self.chrome.runtime.sendMessage = sinon.spy()),
-            store = new Store({ portName, extensionId: "xxxxxxxxxxxx" });
+      const spy = (self.chrome.runtime.sendMessage = sinon.spy());
+      const store = new Store({ portName, extensionId: "xxxxxxxxxxxx" });
 
       store.dispatch({ a: "a" });
 
-      spy.calledOnce.should.eql(true);
-      spy
-        .alwaysCalledWith("xxxxxxxxxxxx", {
-          type: DISPATCH_TYPE,
-          portName,
-          payload: { a: "a" },
-        })
-        .should.eql(true);
+      spy.callCount.should.eql(2);
+      spy.args[0][0].should.eql("xxxxxxxxxxxx");
+      spy.args[0][1].should.eql({ type: FETCH_STATE_TYPE, portName: "test" });
+      spy.args[1][0].should.eql("xxxxxxxxxxxx");
+      spy.args[1][1].should.eql({ type: DISPATCH_TYPE, portName: "test", payload: { a: "a" } });
     });
 
     it("should send a message with the correct dispatch type and payload not given an extensionId", function () {
@@ -419,14 +342,12 @@ describe("Store", function () {
 
       store.dispatch({ a: "a" });
 
-      spy.calledOnce.should.eql(true);
-      spy
-        .alwaysCalledWith(null, {
-          type: DISPATCH_TYPE,
-          portName,
-          payload: { a: "a" },
-        })
-        .should.eql(true);
+      spy.callCount.should.eql(2);
+
+      should(spy.args[0][0]).eql(null);
+      spy.args[0][1].should.eql({ type: FETCH_STATE_TYPE, portName: "test" });
+      should(spy.args[1][0]).eql(null);
+      spy.args[1][1].should.eql({ type: DISPATCH_TYPE, portName: "test", payload: { a: "a" } });
     });
 
     it("should serialize payloads before sending", function () {
@@ -436,14 +357,13 @@ describe("Store", function () {
 
       store.dispatch({ a: "a" });
 
-      spy.calledOnce.should.eql(true);
-      spy
-        .alwaysCalledWith(null, {
-          type: DISPATCH_TYPE,
-          portName,
-          payload: JSON.stringify({ a: "a" }),
-        })
-        .should.eql(true);
+
+      spy.callCount.should.eql(2);
+
+      should(spy.args[0][0]).eql(null);
+      spy.args[0][1].should.eql({ type: FETCH_STATE_TYPE, portName: "test" });
+      should(spy.args[1][0]).eql(null);
+      spy.args[1][1].should.eql({ type: DISPATCH_TYPE, portName: "test", payload: JSON.stringify({ a: "a" }) });
     });
 
     it("should return a promise that resolves with successful action", function () {
