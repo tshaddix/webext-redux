@@ -1,18 +1,18 @@
-import assignIn from 'lodash.assignin';
+import assignIn from "lodash.assignin";
 
 import {
   DISPATCH_TYPE,
   STATE_TYPE,
   PATCH_STATE_TYPE,
-  DEFAULT_PORT_NAME
-} from '../constants';
+  DEFAULT_PORT_NAME,
+} from "../constants";
 import { withSerializer, withDeserializer, noop } from "../serialization";
-import shallowDiff from '../strategies/shallowDiff/patch';
-import {getBrowserAPI} from '../util';
+import shallowDiff from "../strategies/shallowDiff/patch";
+import { getBrowserAPI } from "../util";
 
-const backgroundErrPrefix = '\nLooks like there is an error in the background page. ' +
-  'You might want to inspect your background page for more details.\n';
-
+const backgroundErrPrefix =
+  "\nLooks like there is an error in the background page. " +
+  "You might want to inspect your background page for more details.\n";
 
 const defaultOpts = {
   portName: DEFAULT_PORT_NAME,
@@ -20,7 +20,7 @@ const defaultOpts = {
   extensionId: null,
   serializer: noop,
   deserializer: noop,
-  patchStrategy: shallowDiff
+  patchStrategy: shallowDiff,
 };
 
 class Store {
@@ -28,42 +28,63 @@ class Store {
    * Creates a new Proxy store
    * @param  {object} options An object of form {portName, state, extensionId, serializer, deserializer, diffStrategy}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by browserAPI when extension is loaded (default `''`), `serializer` is a function to serialize outgoing message payloads (default is passthrough), `deserializer` is a function to deserialize incoming message payloads (default is passthrough), and patchStrategy is one of the included patching strategies (default is shallow diff) or a custom patching function.
    */
-  constructor({portName = defaultOpts.portName, state = defaultOpts.state, extensionId = defaultOpts.extensionId, serializer = defaultOpts.serializer, deserializer = defaultOpts.deserializer, patchStrategy = defaultOpts.patchStrategy} = defaultOpts) {
+  constructor({
+    portName = defaultOpts.portName,
+    state = defaultOpts.state,
+    extensionId = defaultOpts.extensionId,
+    serializer = defaultOpts.serializer,
+    deserializer = defaultOpts.deserializer,
+    patchStrategy = defaultOpts.patchStrategy,
+  } = defaultOpts) {
     if (!portName) {
-      throw new Error('portName is required in options');
+      throw new Error("portName is required in options");
     }
-    if (typeof serializer !== 'function') {
-      throw new Error('serializer must be a function');
+    if (typeof serializer !== "function") {
+      throw new Error("serializer must be a function");
     }
-    if (typeof deserializer !== 'function') {
-      throw new Error('deserializer must be a function');
+    if (typeof deserializer !== "function") {
+      throw new Error("deserializer must be a function");
     }
-    if (typeof patchStrategy !== 'function') {
-      throw new Error('patchStrategy must be one of the included patching strategies or a custom patching function');
+    if (typeof patchStrategy !== "function") {
+      throw new Error(
+        "patchStrategy must be one of the included patching strategies or a custom patching function"
+      );
     }
 
     this.portName = portName;
     this.readyResolved = false;
-    this.readyPromise = new Promise(resolve => this.readyResolve = resolve);
+    this.readyPromise = new Promise((resolve) => (this.readyResolve = resolve));
 
     this.browserAPI = getBrowserAPI();
     this.extensionId = extensionId; // keep the extensionId as an instance variable
-    this.port = this.browserAPI.runtime.connect(this.extensionId, {name: portName});
+    console.log("debug store connect", Date.now());
+    this.port = this.browserAPI.runtime.connect(this.extensionId, {
+      name: portName,
+    });
     this.safetyHandler = this.safetyHandler.bind(this);
     if (this.browserAPI.runtime.onMessage) {
-      this.safetyMessage = this.browserAPI.runtime.onMessage.addListener(this.safetyHandler);
+      this.safetyMessage = this.browserAPI.runtime.onMessage.addListener(
+        this.safetyHandler
+      );
     }
-    this.serializedPortListener = withDeserializer(deserializer)((...args) => this.port.onMessage.addListener(...args));
-    this.serializedMessageSender = withSerializer(serializer)((...args) => this.browserAPI.runtime.sendMessage(...args), 1);
+    this.serializedPortListener = withDeserializer(deserializer)((...args) =>
+      this.port.onMessage.addListener(...args)
+    );
+    this.serializedMessageSender = withSerializer(serializer)(
+      (...args) => this.browserAPI.runtime.sendMessage(...args),
+      1
+    );
     this.listeners = [];
     this.state = state;
     this.patchStrategy = patchStrategy;
 
     // Don't use shouldDeserialize here, since no one else should be using this port
-    this.serializedPortListener(message => {
+    this.serializedPortListener((message) => {
       switch (message.type) {
         case STATE_TYPE:
+          console.log("---- start state replace");
           this.replaceState(message.payload);
+          console.log("---- after state replace");
 
           if (!this.readyResolved) {
             this.readyResolved = true;
@@ -76,7 +97,7 @@ class Store {
           break;
 
         default:
-          // do nothing
+        // do nothing
       }
     });
 
@@ -84,10 +105,10 @@ class Store {
   }
 
   /**
-  * Returns a promise that resolves when the store is ready. Optionally a callback may be passed in instead.
-  * @param [function] callback An optional callback that may be passed in and will fire when the store is ready.
-  * @return {object} promise A promise that resolves when the store has established a connection with the background page.
-  */
+   * Returns a promise that resolves when the store is ready. Optionally a callback may be passed in instead.
+   * @param [function] callback An optional callback that may be passed in and will fire when the store is ready.
+   * @return {object} promise A promise that resolves when the store has established a connection with the background page.
+   */
   ready(cb = null) {
     if (cb !== null) {
       return this.readyPromise.then(cb);
@@ -155,8 +176,10 @@ class Store {
         {
           type: DISPATCH_TYPE,
           portName: this.portName,
-          payload: data
-        }, null, (resp) => {
+          payload: data,
+        },
+        null,
+        (resp) => {
           if (!resp) {
             const error = this.browserAPI.runtime.lastError;
             const bgErr = new Error(`${backgroundErrPrefix}${error}`);
@@ -165,7 +188,7 @@ class Store {
             return;
           }
 
-          const {error, value} = resp;
+          const { error, value } = resp;
 
           if (error) {
             const bgErr = new Error(`${backgroundErrPrefix}${error}`);
@@ -174,18 +197,18 @@ class Store {
           } else {
             resolve(value && value.payload);
           }
-        });
+        }
+      );
     });
   }
 
-  safetyHandler(message){
-    if (message.action === 'storeReady' && message.portName === this.portName){
-
+  safetyHandler(message) {
+    if (message.action === "storeReady" && message.portName === this.portName) {
       // Remove Saftey Listener
       this.browserAPI.runtime.onMessage.removeListener(this.safetyHandler);
 
       // Resolve if readyPromise has not been resolved.
-      if(!this.readyResolved) {
+      if (!this.readyResolved) {
         this.readyResolved = true;
         this.readyResolve();
       }
