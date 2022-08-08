@@ -2,6 +2,10 @@
 // from the Proxy Stores to background
 export const DISPATCH_TYPE = 'chromex.dispatch';
 
+// Message type for fetching current state from
+// background to Proxy Stores
+export const FETCH_STATE_TYPE = 'chromex.fetch_state';
+
 // Message type for state update events from
 // background to Proxy Stores
 export const STATE_TYPE = 'chromex.state';

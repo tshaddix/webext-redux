@@ -15,14 +15,7 @@ describe('applyMiddleware', function () {
     // Mock chrome.runtime API
     self.chrome = {
       runtime: {
-        connect() {
-          return {
-            onMessage: {
-              addListener() {
-              }
-            }
-          };
-        },
+        sendMessage: () => {},
         onMessage: {
           addListener: () => {}
         }
