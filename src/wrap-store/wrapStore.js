@@ -6,7 +6,7 @@ import {
   DEFAULT_PORT_NAME
 } from '../constants';
 import { withSerializer, withDeserializer, noop } from "../serialization";
-import {getBrowserAPI} from '../util';
+import { getBrowserAPI } from '../util';
 import shallowDiff from '../strategies/shallowDiff/diff';
 
 /**
@@ -95,19 +95,21 @@ export default (store, {
    * Setup for state updates
    */
   const serializedMessagePoster = withSerializer(serializer)((...args) => {
+    const onErrorCallback = () => {
+      if (browserAPI.runtime.lastError) {
+        // do nothing - errors can be present
+        // if no content script exists on receiver
+      }
+    };
+
+    browserAPI.runtime.sendMessage(...args, onErrorCallback);
     // We will broadcast state changes to all tabs to sync state across content scripts
     return browserAPI.tabs.query({}, (tabs) => {
       for (const tab of tabs) {
-        browserAPI.tabs.sendMessage(tab.id, ...args, () => {
-          if (chrome.runtime.lastError) {
-            // do nothing - errors can be present
-            // if no content script exists on receiver
-          }
-        });
+        browserAPI.tabs.sendMessage(tab.id, ...args, onErrorCallback);
       }
     });
   });
-
 
   let currentState = store.getState();
 
