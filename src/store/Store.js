@@ -81,6 +81,8 @@ class Store {
     });
 
     this.dispatch = this.dispatch.bind(this); // add this context to dispatch
+    this.getState = this.getState.bind(this); // add this context to getState
+    this.subscribe = this.subscribe.bind(this); // add this context to subscribe
   }
 
   /**
