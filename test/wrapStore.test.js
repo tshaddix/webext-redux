@@ -3,7 +3,7 @@ import '@babel/polyfill';
 import sinon from 'sinon';
 import should from 'should';
 
-import { wrapStore } from '../src';
+import { createWrapStore } from '../src';
 import shallowDiff from '../src/strategies/shallowDiff/diff';
 import { DISPATCH_TYPE, STATE_TYPE, PATCH_STATE_TYPE } from '../src/constants';
 
@@ -94,9 +94,13 @@ describe('wrapStore', function() {
       callback = () => { }; // noop.  Maybe should validate it is invoked?
     });
 
-    it('should dispatch actions received on onMessage to store', function() {
+    it('should dispatch actions received on onMessage to store', async function() {
+      const wrapStore = createWrapStore();
+
       wrapStore(store, { portName });
       listeners.onMessage.forEach(l => l(message, sender, callback));
+
+      await Promise.resolve();
 
       store.dispatch.calledOnce.should.eql(true);
       store.dispatch
@@ -109,6 +113,8 @@ describe('wrapStore', function() {
     });
 
     it('should not dispatch actions received on onMessage for other ports', function() {
+      const wrapStore = createWrapStore();
+
       wrapStore(store, { portName });
       message.portName = portName + '2';
       listeners.onMessage.forEach(l => l(message, sender, callback));
@@ -116,12 +122,15 @@ describe('wrapStore', function() {
       store.dispatch.notCalled.should.eql(true);
     });
 
-    it('should deserialize incoming messages correctly', function() {
+    it('should deserialize incoming messages correctly', async function() {
       const deserializer = sinon.spy(JSON.parse);
+      const wrapStore = createWrapStore();
 
       wrapStore(store, { portName, deserializer });
       message.payload = JSON.stringify(payload);
       listeners.onMessage.forEach(l => l(message, sender, callback));
+
+      await Promise.resolve();
 
       deserializer.calledOnce.should.eql(true);
       store.dispatch
@@ -135,6 +144,7 @@ describe('wrapStore', function() {
 
     it('should not deserialize incoming messages for other ports', function() {
       const deserializer = sinon.spy(JSON.parse);
+      const wrapStore = createWrapStore();
 
       wrapStore(store, { portName, deserializer });
       message.portName = portName + '2';
@@ -176,6 +186,7 @@ describe('wrapStore', function() {
     };
 
     const serializer = (payload) => JSON.stringify(payload);
+    const wrapStore = createWrapStore();
 
     wrapStore(store, { portName, serializer });
 
@@ -229,6 +240,7 @@ describe('wrapStore', function() {
       type: 'FAKE_DIFF',
       oldObj, newObj
     }]);
+    const wrapStore = createWrapStore();
 
     wrapStore(store, { portName, diffStrategy });
 
@@ -258,23 +270,33 @@ describe('wrapStore', function() {
     };
 
     it('should use defaults if no options present', function() {
-      should.doesNotThrow(() => wrapStore(store));
+      should.doesNotThrow(() => {
+        const wrapStore = createWrapStore();
+
+        wrapStore(store);
+      });
     });
 
     it('should throw an error if serializer is not a function', function() {
       should.throws(() => {
+        const wrapStore = createWrapStore();
+
         wrapStore(store, { portName, serializer: "abc" });
       }, Error);
     });
 
     it('should throw an error if deserializer is not a function', function() {
       should.throws(() => {
+        const wrapStore = createWrapStore();
+
         wrapStore(store, { portName, deserializer: "abc" });
       }, Error);
     });
 
     it('should throw an error if diffStrategy is not a function', function() {
       should.throws(() => {
+        const wrapStore = createWrapStore();
+
         wrapStore(store, { portName, diffStrategy: "abc" });
       }, Error);
     });
@@ -315,6 +337,7 @@ describe('wrapStore', function() {
           }
         }
       };
+      const wrapStore = createWrapStore();
 
       wrapStore(store, { portName });
 
