@@ -156,8 +156,6 @@ describe('wrapStore', function() {
   });
 
   it('should serialize initial state and subsequent patches correctly', function() {
-    const listeners = setupListeners();
-
     const sendMessage = (self.chrome.tabs.sendMessage = sinon.spy());
 
     // Mock store subscription
@@ -180,18 +178,11 @@ describe('wrapStore', function() {
       .onSecondCall().returns(secondState)
       .onThirdCall().returns(secondState);
 
-    // Mock the tab object for tabs and spy on sendMessage
-    const tabs = {
-      name: portName,
-    };
-
     const serializer = (payload) => JSON.stringify(payload);
     const wrapStore = createWrapStore();
 
     wrapStore(store, { portName, serializer });
 
-    // Listen for state changes
-    listeners.onMessage.forEach(l => l(tabs));
     // Simulate a state update by calling subscribers
     subscribers.forEach(subscriber => subscriber());
 
@@ -212,7 +203,6 @@ describe('wrapStore', function() {
   });
 
   it('should use the provided diff strategy', function() {
-    const listeners = setupListeners();
     const sendMessage = (self.chrome.tabs.sendMessage = sinon.spy());
 
     // Mock store subscription
@@ -243,9 +233,6 @@ describe('wrapStore', function() {
     const wrapStore = createWrapStore();
 
     wrapStore(store, { portName, diffStrategy });
-
-    // Listen for state changes
-    listeners.onMessage.forEach(l => l({ portName }));
 
     // Simulate a state update by calling subscribers
     subscribers.forEach(subscriber => subscriber());
