@@ -18,7 +18,6 @@ const backgroundErrPrefix = '\nLooks like there is an error in the background pa
 const defaultOpts = {
   portName: DEFAULT_PORT_NAME,
   state: {},
-  extensionId: null,
   serializer: noop,
   deserializer: noop,
   patchStrategy: shallowDiff
@@ -27,9 +26,9 @@ const defaultOpts = {
 class Store {
   /**
    * Creates a new Proxy store
-   * @param  {object} options An object of form {portName, state, extensionId, serializer, deserializer, diffStrategy}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by browserAPI when extension is loaded (default `''`), `serializer` is a function to serialize outgoing message payloads (default is passthrough), `deserializer` is a function to deserialize incoming message payloads (default is passthrough), and patchStrategy is one of the included patching strategies (default is shallow diff) or a custom patching function.
+   * @param  {object} options An object of form {portName, state, serializer, deserializer, diffStrategy}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `serializer` is a function to serialize outgoing message payloads (default is passthrough), `deserializer` is a function to deserialize incoming message payloads (default is passthrough), and patchStrategy is one of the included patching strategies (default is shallow diff) or a custom patching function.
    */
-  constructor({portName = defaultOpts.portName, state = defaultOpts.state, extensionId = defaultOpts.extensionId, serializer = defaultOpts.serializer, deserializer = defaultOpts.deserializer, patchStrategy = defaultOpts.patchStrategy} = defaultOpts) {
+  constructor({portName = defaultOpts.portName, state = defaultOpts.state, serializer = defaultOpts.serializer, deserializer = defaultOpts.deserializer, patchStrategy = defaultOpts.patchStrategy} = defaultOpts) {
     if (!portName) {
       throw new Error('portName is required in options');
     }
@@ -48,17 +47,16 @@ class Store {
     this.readyPromise = new Promise(resolve => this.readyResolve = resolve);
 
     this.browserAPI = getBrowserAPI();
-    this.extensionId = extensionId; // keep the extensionId as an instance variable
     this.initializeStore = this.initializeStore.bind(this);
 
     // We request the latest available state data to initialise our store
     this.browserAPI.runtime.sendMessage(
-      this.extensionId, { type: FETCH_STATE_TYPE, portName }, undefined, this.initializeStore
+      { type: FETCH_STATE_TYPE, portName }, undefined, this.initializeStore
     );
 
     this.deserializer = deserializer;
     this.serializedPortListener = withDeserializer(deserializer)((...args) => this.browserAPI.runtime.onMessage.addListener(...args));
-    this.serializedMessageSender = withSerializer(serializer)((...args) => this.browserAPI.runtime.sendMessage(...args), 1);
+    this.serializedMessageSender = withSerializer(serializer)((...args) => this.browserAPI.runtime.sendMessage(...args), 0);
     this.listeners = [];
     this.state = state;
     this.patchStrategy = patchStrategy;
@@ -157,7 +155,6 @@ class Store {
   dispatch(data) {
     return new Promise((resolve, reject) => {
       this.serializedMessageSender(
-        this.extensionId,
         {
           type: DISPATCH_TYPE,
           portName: this.portName,

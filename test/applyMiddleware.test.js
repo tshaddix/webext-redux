@@ -55,7 +55,7 @@ describe('applyMiddleware', function () {
   });
 
   it('passes recursive dispatches through the middleware chain', () => {
-    self.chrome.runtime.sendMessage = (extensionId, data, options, cb) => {
+    self.chrome.runtime.sendMessage = (data, options, cb) => {
       cb(data.payload);
     };
     function test(spyOnMethods) {

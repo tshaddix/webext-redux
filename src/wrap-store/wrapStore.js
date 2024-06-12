@@ -76,12 +76,6 @@ export default () => {
   browserAPI.runtime.onMessage.addListener(stateProviderListener.listener);
   browserAPI.runtime.onMessage.addListener(actionListener.listener);
 
-  if (browserAPI.runtime.onMessageExternal) {
-    browserAPI.runtime.onMessageExternal.addListener(actionListener.listener);
-  } else {
-    console.warn("runtime.onMessageExternal is not supported");
-  }
-
   return (
     store,
     {

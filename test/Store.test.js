@@ -26,7 +26,7 @@ describe("Store", function () {
             },
           };
         },
-        sendMessage(extensionId, data, options, cb) {
+        sendMessage(data, options, cb) {
           cb();
         },
         onMessage: {
@@ -61,7 +61,7 @@ describe("Store", function () {
 
       spy.calledOnce.should.eql(true);
       spy
-        .alwaysCalledWith(null, {
+        .alwaysCalledWith({
           type: FETCH_STATE_TYPE,
           portName,
         })
@@ -149,7 +149,7 @@ describe("Store", function () {
       const initializeStoreListener = [];
 
       // override mock chrome API for this test
-      self.chrome.runtime.sendMessage = (extensionId, message, options, listener) => {
+      self.chrome.runtime.sendMessage = (message, options, listener) => {
         initializeStoreListener.push(listener);
       };
 
@@ -323,20 +323,7 @@ describe("Store", function () {
   });
 
   describe("#dispatch()", function () {
-    it("should send a message with the correct dispatch type and payload given an extensionId", function () {
-      const spy = (self.chrome.runtime.sendMessage = sinon.spy());
-      const store = new Store({ portName, extensionId: "xxxxxxxxxxxx" });
-
-      store.dispatch({ a: "a" });
-
-      spy.callCount.should.eql(2);
-      spy.args[0][0].should.eql("xxxxxxxxxxxx");
-      spy.args[0][1].should.eql({ type: FETCH_STATE_TYPE, portName: "test" });
-      spy.args[1][0].should.eql("xxxxxxxxxxxx");
-      spy.args[1][1].should.eql({ type: DISPATCH_TYPE, portName: "test", payload: { a: "a" } });
-    });
-
-    it("should send a message with the correct dispatch type and payload not given an extensionId", function () {
+    it("should send a message with the correct dispatch type and payload", function () {
       const spy = (self.chrome.runtime.sendMessage = sinon.spy()),
             store = new Store({ portName });
 
@@ -344,10 +331,8 @@ describe("Store", function () {
 
       spy.callCount.should.eql(2);
 
-      should(spy.args[0][0]).eql(null);
-      spy.args[0][1].should.eql({ type: FETCH_STATE_TYPE, portName: "test" });
-      should(spy.args[1][0]).eql(null);
-      spy.args[1][1].should.eql({ type: DISPATCH_TYPE, portName: "test", payload: { a: "a" } });
+      spy.args[0][0].should.eql({ type: FETCH_STATE_TYPE, portName: "test" });
+      spy.args[1][0].should.eql({ type: DISPATCH_TYPE, portName: "test", payload: { a: "a" } });
     });
 
     it("should serialize payloads before sending", function () {
@@ -360,14 +345,12 @@ describe("Store", function () {
 
       spy.callCount.should.eql(2);
 
-      should(spy.args[0][0]).eql(null);
-      spy.args[0][1].should.eql({ type: FETCH_STATE_TYPE, portName: "test" });
-      should(spy.args[1][0]).eql(null);
-      spy.args[1][1].should.eql({ type: DISPATCH_TYPE, portName: "test", payload: JSON.stringify({ a: "a" }) });
+      spy.args[0][0].should.eql({ type: FETCH_STATE_TYPE, portName: "test" });
+      spy.args[1][0].should.eql({ type: DISPATCH_TYPE, portName: "test", payload: JSON.stringify({ a: "a" }) });
     });
 
     it("should return a promise that resolves with successful action", function () {
-      self.chrome.runtime.sendMessage = (extensionId, data, options, cb) => {
+      self.chrome.runtime.sendMessage = (data, options, cb) => {
         cb({ value: { payload: "hello" } });
       };
 
@@ -378,7 +361,7 @@ describe("Store", function () {
     });
 
     it("should return a promise that rejects with an action error", function () {
-      self.chrome.runtime.sendMessage = (extensionId, data, options, cb) => {
+      self.chrome.runtime.sendMessage = (data, options, cb) => {
         cb({ value: { payload: "hello" }, error: { extraMsg: "test" } });
       };
 
@@ -389,7 +372,7 @@ describe("Store", function () {
     });
 
     it("should return a promise that resolves with undefined for an undefined return value", function () {
-      self.chrome.runtime.sendMessage = (extensionId, data, options, cb) => {
+      self.chrome.runtime.sendMessage = (data, options, cb) => {
         cb({ value: undefined });
       };
 
