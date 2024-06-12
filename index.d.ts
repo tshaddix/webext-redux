@@ -6,12 +6,11 @@ export type PatchStrategy = (oldObj: any, patch: any) => any;
 export class Store<S = any, A extends redux.Action = redux.AnyAction> {
   /**
    * Creates a new Proxy store
-   * @param options An object of form {portName, state, extensionId}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by chrome when extension is loaded (default `''`)
+   * @param options An object of form {portName, state}, where `portName` is a required string and defines the name of the port for state transition changes and `state` is the initial state of this store (default `{}`)
    */
   constructor(options?: {
     portName?: string;
     state?: any;
-    extensionId?: string;
     serializer?: Function;
     deserializer?: Function;
     patchStrategy?: PatchStrategy;
