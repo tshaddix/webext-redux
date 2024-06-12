@@ -7,8 +7,8 @@
   "scripts": {
     "umd-build": "rollup -c",
     "build": "./node_modules/.bin/babel src --out-dir lib && npm run umd-build",
-    "lint-src": "./node_modules/.bin/eslint src/**/*.js",
-    "lint-test": "./node_modules/.bin/eslint test/**/*.js",
+    "lint-src": "./node_modules/.bin/eslint src/{**/,}*.js",
+    "lint-test": "./node_modules/.bin/eslint test/{**/,}*.js",
     "lint": "npm run lint-src && npm run lint-test",
     "prepublishOnly": "npm run build",
     "pretest": "./node_modules/.bin/babel src --out-dir lib",
