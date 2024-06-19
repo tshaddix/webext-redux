@@ -163,14 +163,14 @@ export default (store, {
   /**
    * Safety message to tabs for content scripts
    */
-  browserAPI.tabs.query({}, tabs => {
+  browserAPI.tabs.query({}).then(tabs => {
     for(const tab of tabs){
-      browserAPI.tabs.sendMessage(tab.id, {action: 'storeReady', portName}, () => {
+      browserAPI.tabs.sendMessage(tab.id, {action: 'storeReady', portName}).then(() => {
         if (chrome.runtime.lastError) {
           // do nothing - errors can be present
           // if no content script exists on reciever
         }
-      });
+      }).catch(_ => {});
     }
   });
 
