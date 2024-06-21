@@ -1,4 +1,6 @@
+import applyMiddleware from "../store/applyMiddleware";
 import {
+  ACTION_TYPE,
   DISPATCH_TYPE,
   STATE_TYPE,
   PATCH_STATE_TYPE,
@@ -90,6 +92,21 @@ export default (store, {
     }
   };
 
+  let actionListeners = [];
+  const subscribeToActions = (fn) => {
+    actionListeners.push(fn);
+    // return unsubscribe function
+    return () => {
+      actionListeners = actionListeners.filter((f) => f !== fn);
+    };
+  };
+  const postActionToListeners = ({ _sender, ...action }) => {
+    // actions with _sender came down from remote proxy stores so don't need to send them back
+    if (!Boolean(_sender)) {
+      actionListeners.forEach((fn) => fn(action));
+    }
+  };
+
   /**
   * Setup for state updates
   */
@@ -116,11 +133,23 @@ export default (store, {
       }
     };
 
+    // Send event message down connected port on every redux action
+    const unsubscribeActionsSubscription = subscribeToActions((action) => {
+      serializedMessagePoster({
+        type: ACTION_TYPE,
+        payload: action,
+      });
+    });
     // Send patched state down connected port on every redux store state change
-    const unsubscribe = store.subscribe(patchState);
+    const unsubscribeStoreSubscription = store.subscribe(patchState);
+
+    const unsubscribeAll = () => {
+      unsubscribeActionsSubscription();
+      unsubscribeStoreSubscription();
+    };
 
     // when the port disconnects, unsubscribe the sendState listener
-    port.onDisconnect.addListener(unsubscribe);
+    port.onDisconnect.addListener(unsubscribeAll);
 
     // Send store's initial state through port
     serializedMessagePoster({
@@ -178,4 +207,10 @@ export default (store, {
   // TODO: Find use case for this. Ommiting until then.
   // browserAPI.runtime.sendMessage(null, {action: 'storeReady'});
 
+  const postActionMiddleware = (_) => (next) => (action) => {
+    postActionToListeners(action);
+    return next(action);
+  };
+
+  applyMiddleware(store, postActionMiddleware);
 };
