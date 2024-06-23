@@ -56,7 +56,7 @@ class Store {
 
     this.deserializer = deserializer;
     this.serializedPortListener = withDeserializer(deserializer)((...args) => this.browserAPI.runtime.onMessage.addListener(...args));
-    this.serializedMessageSender = withSerializer(serializer)((...args) => this.browserAPI.runtime.sendMessage(...args), 0);
+    this.serializedMessageSender = withSerializer(serializer)((...args) => this.browserAPI.runtime.sendMessage(...args));
     this.listeners = [];
     this.state = state;
     this.patchStrategy = patchStrategy;
