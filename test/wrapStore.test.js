@@ -7,10 +7,10 @@ import { createWrapStore } from '../src';
 import shallowDiff from '../src/strategies/shallowDiff/diff';
 import { DISPATCH_TYPE, STATE_TYPE, PATCH_STATE_TYPE } from '../src/constants';
 
-describe('wrapStore', function() {
+describe('wrapStore', function () {
   const portName = 'test';
 
-  beforeEach(function() {
+  beforeEach(function () {
     global.self = {};
     const tabs = [1];
 
@@ -69,10 +69,10 @@ describe('wrapStore', function() {
     return listeners;
   }
 
-  describe("on receiving messages", function() {
+  describe("on receiving messages", function () {
     let listeners, store, payload, message, sender, callback;
 
-    beforeEach(function() {
+    beforeEach(function () {
       listeners = setupListeners();
       store = {
         dispatch: sinon.spy(),
@@ -94,7 +94,7 @@ describe('wrapStore', function() {
       callback = () => { }; // noop.  Maybe should validate it is invoked?
     });
 
-    it('should dispatch actions received on onMessage to store', async function() {
+    it('should dispatch actions received on onMessage to store', async function () {
       const wrapStore = createWrapStore();
 
       wrapStore(store, { portName });
@@ -112,7 +112,7 @@ describe('wrapStore', function() {
         .should.eql(true);
     });
 
-    it('should not dispatch actions received on onMessage for other ports', function() {
+    it('should not dispatch actions received on onMessage for other ports', function () {
       const wrapStore = createWrapStore();
 
       wrapStore(store, { portName });
@@ -122,7 +122,7 @@ describe('wrapStore', function() {
       store.dispatch.notCalled.should.eql(true);
     });
 
-    it('should deserialize incoming messages correctly', async function() {
+    it('should deserialize incoming messages correctly', async function () {
       const deserializer = sinon.spy(JSON.parse);
       const wrapStore = createWrapStore();
 
@@ -142,7 +142,7 @@ describe('wrapStore', function() {
         .should.eql(true);
     });
 
-    it('should not deserialize incoming messages for other ports', function() {
+    it('should not deserialize incoming messages for other ports', function () {
       const deserializer = sinon.spy(JSON.parse);
       const wrapStore = createWrapStore();
 
@@ -155,7 +155,7 @@ describe('wrapStore', function() {
     });
   });
 
-  it('should serialize initial state and subsequent patches correctly', function() {
+  it('should serialize initial state and subsequent patches correctly', function () {
     const sendMessage = (self.chrome.tabs.sendMessage = sinon.spy());
 
     // Mock store subscription
@@ -202,7 +202,7 @@ describe('wrapStore', function() {
     sendMessage.secondCall.args[1].should.eql(expectedPatchMessage);
   });
 
-  it('should use the provided diff strategy', function() {
+  it('should use the provided diff strategy', function () {
     const sendMessage = (self.chrome.tabs.sendMessage = sinon.spy());
 
     // Mock store subscription
@@ -247,7 +247,7 @@ describe('wrapStore', function() {
     sendMessage.secondCall.args[1].should.eql(expectedPatchMessage);
   });
 
-  describe("when validating options", function() {
+  describe("when validating options", function () {
     const store = {
       dispatch: sinon.spy(),
       subscribe: () => {
@@ -256,7 +256,7 @@ describe('wrapStore', function() {
       getState: () => ({})
     };
 
-    it('should use defaults if no options present', function() {
+    it('should use defaults if no options present', function () {
       should.doesNotThrow(() => {
         const wrapStore = createWrapStore();
 
@@ -264,7 +264,7 @@ describe('wrapStore', function() {
       });
     });
 
-    it('should throw an error if serializer is not a function', function() {
+    it('should throw an error if serializer is not a function', function () {
       should.throws(() => {
         const wrapStore = createWrapStore();
 
@@ -272,7 +272,7 @@ describe('wrapStore', function() {
       }, Error);
     });
 
-    it('should throw an error if deserializer is not a function', function() {
+    it('should throw an error if deserializer is not a function', function () {
       should.throws(() => {
         const wrapStore = createWrapStore();
 
@@ -280,7 +280,7 @@ describe('wrapStore', function() {
       }, Error);
     });
 
-    it('should throw an error if diffStrategy is not a function', function() {
+    it('should throw an error if diffStrategy is not a function', function () {
       should.throws(() => {
         const wrapStore = createWrapStore();
 
@@ -291,7 +291,7 @@ describe('wrapStore', function() {
 
   it(
     'should send a safety message to all tabs once initialized',
-    function() {
+    function () {
       const tabs = [123, 456, 789, 1011, 1213];
       const tabResponders = [];
       const store = {
