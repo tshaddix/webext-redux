@@ -5,7 +5,7 @@ import {
   FETCH_STATE_TYPE,
   STATE_TYPE,
   PATCH_STATE_TYPE,
-  DEFAULT_PORT_NAME
+  DEFAULT_CHANNEL_NAME
 } from '../constants';
 import { withSerializer, withDeserializer, noop } from "../serialization";
 import shallowDiff from '../strategies/shallowDiff/patch';
@@ -16,7 +16,7 @@ const backgroundErrPrefix = '\nLooks like there is an error in the background pa
 
 
 const defaultOpts = {
-  portName: DEFAULT_PORT_NAME,
+  channelName: DEFAULT_CHANNEL_NAME,
   state: {},
   serializer: noop,
   deserializer: noop,
@@ -26,11 +26,21 @@ const defaultOpts = {
 class Store {
   /**
    * Creates a new Proxy store
-   * @param  {object} options An object of form {portName, state, serializer, deserializer, diffStrategy}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `serializer` is a function to serialize outgoing message payloads (default is passthrough), `deserializer` is a function to deserialize incoming message payloads (default is passthrough), and patchStrategy is one of the included patching strategies (default is shallow diff) or a custom patching function.
+   * @param  {object} options
+   * @param {string} options.channelName The name of the channel for this store.
+   * @param {object} options.state The initial state of the store (default
+   * `{}`).
+   * @param {function} options.serializer A function to serialize outgoing
+   * messages (default is passthrough).
+   * @param {function} options.deserializer A function to deserialize incoming
+   * messages (default is passthrough).
+   * @param {function} options.patchStrategy A function to patch the state with
+   * incoming messages. Use one of the included patching strategies or a custom
+   * patching function. (default is shallow diff).
    */
-  constructor({portName = defaultOpts.portName, state = defaultOpts.state, serializer = defaultOpts.serializer, deserializer = defaultOpts.deserializer, patchStrategy = defaultOpts.patchStrategy} = defaultOpts) {
-    if (!portName) {
-      throw new Error('portName is required in options');
+  constructor({channelName = defaultOpts.channelName, state = defaultOpts.state, serializer = defaultOpts.serializer, deserializer = defaultOpts.deserializer, patchStrategy = defaultOpts.patchStrategy} = defaultOpts) {
+    if (!channelName) {
+      throw new Error('channelName is required in options');
     }
     if (typeof serializer !== 'function') {
       throw new Error('serializer must be a function');
@@ -42,7 +52,7 @@ class Store {
       throw new Error('patchStrategy must be one of the included patching strategies or a custom patching function');
     }
 
-    this.portName = portName;
+    this.channelName = channelName;
     this.readyResolved = false;
     this.readyPromise = new Promise(resolve => this.readyResolve = resolve);
 
@@ -51,7 +61,7 @@ class Store {
 
     // We request the latest available state data to initialise our store
     this.browserAPI.runtime.sendMessage(
-      { type: FETCH_STATE_TYPE, portName }, undefined, this.initializeStore
+      { type: FETCH_STATE_TYPE, channelName }, undefined, this.initializeStore
     );
 
     this.deserializer = deserializer;
@@ -63,7 +73,7 @@ class Store {
 
     // Don't use shouldDeserialize here, since no one else should be using this port
     this.serializedPortListener(message => {
-      if(message.portName === this.portName){
+      if(message.channelName === this.channelName){
         switch (message.type) {
           case STATE_TYPE:
             this.replaceState(message.payload);
@@ -157,7 +167,7 @@ class Store {
       this.serializedMessageSender(
         {
           type: DISPATCH_TYPE,
-          portName: this.portName,
+          channelName: this.channelName,
           payload: data
         }, null, (resp) => {
           if (!resp) {

@@ -14,6 +14,5 @@ export const STATE_TYPE = "webext.state";
 // background to Proxy Stores
 export const PATCH_STATE_TYPE = "webext.patch_state";
 
-// The default name for the port communication via
-// react-chrome-redux
-export const DEFAULT_PORT_NAME = "webext.port_name";
+// The default name for the store channel
+export const DEFAULT_CHANNEL_NAME = "webext.channel";

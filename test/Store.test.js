@@ -11,7 +11,7 @@ import {
 } from "../src/strategies/constants";
 
 describe("Store", function () {
-  const portName = "test";
+  const channelName = "test";
 
   beforeEach(function () {
     global.self = {};
@@ -54,22 +54,22 @@ describe("Store", function () {
       };
     });
 
-    it("should setup a listener on the chrome port defined by the portName option", function () {
+    it("should setup a listener on the channel defined by the channelName option", function () {
       const spy = (self.chrome.runtime.sendMessage = sinon.spy());
 
-      new Store({ portName });
+      new Store({ channelName });
 
       spy.calledOnce.should.eql(true);
       spy
         .alwaysCalledWith({
           type: FETCH_STATE_TYPE,
-          portName,
+          channelName,
         })
         .should.eql(true);
     });
 
     it("should call replaceState on new state messages", function () {
-      const store = new Store({ portName });
+      const store = new Store({ channelName });
 
       // make replaceState() a spy function
       store.replaceState = sinon.spy();
@@ -84,7 +84,7 @@ describe("Store", function () {
       l({
         type: STATE_TYPE,
         payload,
-        portName,
+        channelName,
       });
 
       // send one non-state type message
@@ -102,7 +102,7 @@ describe("Store", function () {
 
     it("should deserialize incoming messages", function () {
       const deserializer = sinon.spy(JSON.parse);
-      const store = new Store({ portName, deserializer });
+      const store = new Store({ channelName, deserializer });
 
       // make replaceState() a spy function
       store.replaceState = sinon.spy();
@@ -117,7 +117,7 @@ describe("Store", function () {
       l({
         type: STATE_TYPE,
         payload: JSON.stringify(payload),
-        portName,
+        channelName,
       });
 
       // send one non-state type message
@@ -133,13 +133,13 @@ describe("Store", function () {
     });
 
     it("should set the initial state to empty object by default", function () {
-      const store = new Store({ portName });
+      const store = new Store({ channelName });
 
       store.getState().should.eql({});
     });
 
     it("should set the initial state to opts.state if available", function () {
-      const store = new Store({ portName, state: { a: "a" } });
+      const store = new Store({ channelName, state: { a: "a" } });
 
       store.getState().should.eql({ a: "a" });
     });
@@ -153,9 +153,8 @@ describe("Store", function () {
         initializeStoreListener.push(listener);
       };
 
-      const store = new Store({ portName });
+      const store = new Store({ channelName });
 
-      // verify one listener was added on port connect
       initializeStoreListener.length.should.equal(1);
 
       const [l] = initializeStoreListener;
@@ -174,7 +173,7 @@ describe("Store", function () {
       store.readyResolve.calledOnce.should.equal(true);
     });
 
-    it("should listen only to portName state changes", function () {
+    it("should listen only to channelName state changes", function () {
       // mock onMessage listeners array
       const stateChangesListener = [];
 
@@ -188,11 +187,10 @@ describe("Store", function () {
         sendMessage: () => {}
       };
 
-      const store = new Store({ portName });
-      const portName2 = "test2";
-      const store2 = new Store({ portName: portName2 });
+      const store = new Store({ channelName });
+      const channelName2 = "test2";
+      const store2 = new Store({ channelName: channelName2 });
 
-      // verify one listener was added on port connect
       stateChangesListener.length.should.equal(2);
 
       const [l1, l2] = stateChangesListener;
@@ -201,9 +199,9 @@ describe("Store", function () {
       store.readyResolve = sinon.spy();
       store2.readyResolve = sinon.spy();
 
-      // send message for port 1
-      l1({ type: STATE_TYPE, portName, payload: [{ change: "updated", key: "a", value: "1" }] });
-      l2({ type: STATE_TYPE, portName, payload: [{ change: "updated", key: "b", value: "2" }] });
+      // send message for channel 1
+      l1({ type: STATE_TYPE, channelName, payload: [{ change: "updated", key: "a", value: "1" }] });
+      l2({ type: STATE_TYPE, channelName, payload: [{ change: "updated", key: "b", value: "2" }] });
 
       stateChangesListener.length.should.equal(2);
 
@@ -212,9 +210,9 @@ describe("Store", function () {
       store2.readyResolved.should.eql(false);
       store2.readyResolve.calledOnce.should.equal(false);
 
-      // send message for port 2
-      l1({ type: STATE_TYPE, portName: portName2, payload: [{ change: "updated", key: "a", value: "1" }] });
-      l2({ type: STATE_TYPE, portName: portName2, payload: [{ change: "updated", key: "b", value: "2" }] });
+      // send message for channel 2
+      l1({ type: STATE_TYPE, channelName: channelName2, payload: [{ change: "updated", key: "a", value: "1" }] });
+      l2({ type: STATE_TYPE, channelName: channelName2, payload: [{ change: "updated", key: "b", value: "2" }] });
       stateChangesListener.length.should.equal(2);
       store.readyResolved.should.eql(true);
       store.readyResolve.calledOnce.should.equal(true);
@@ -225,7 +223,7 @@ describe("Store", function () {
 
   describe("#patchState()", function () {
     it("should patch the state of the store", function () {
-      const store = new Store({ portName, state: { b: 1 } });
+      const store = new Store({ channelName, state: { b: 1 } });
 
       store.getState().should.eql({ b: 1 });
 
@@ -245,7 +243,7 @@ describe("Store", function () {
       }));
       // Initialize the store
       const store = new Store({
-        portName,
+        channelName,
         state: { a: 1, b: 5 },
         patchStrategy,
       });
@@ -266,7 +264,7 @@ describe("Store", function () {
 
   describe("#replaceState()", function () {
     it("should replace the state of the store", function () {
-      const store = new Store({ portName });
+      const store = new Store({ channelName });
 
       store.getState().should.eql({});
 
@@ -278,7 +276,7 @@ describe("Store", function () {
 
   describe("#getState()", function () {
     it("should get the current state of the Store", function () {
-      const store = new Store({ portName, state: { a: "a" } });
+      const store = new Store({ channelName, state: { a: "a" } });
 
       store.getState().should.eql({ a: "a" });
 
@@ -290,7 +288,7 @@ describe("Store", function () {
 
   describe("#subscribe()", function () {
     it("should register a listener for state changes", function () {
-      const store = new Store({ portName }),
+      const store = new Store({ channelName }),
             newState = { b: "b" };
 
       let callCount = 0;
@@ -306,7 +304,7 @@ describe("Store", function () {
     });
 
     it("should return a function which will unsubscribe the listener", function () {
-      const store = new Store({ portName }),
+      const store = new Store({ channelName }),
             listener = sinon.spy(),
             unsub = store.subscribe(listener);
 
@@ -325,28 +323,28 @@ describe("Store", function () {
   describe("#dispatch()", function () {
     it("should send a message with the correct dispatch type and payload", function () {
       const spy = (self.chrome.runtime.sendMessage = sinon.spy()),
-            store = new Store({ portName });
+            store = new Store({ channelName });
 
       store.dispatch({ a: "a" });
 
       spy.callCount.should.eql(2);
 
-      spy.args[0][0].should.eql({ type: FETCH_STATE_TYPE, portName: "test" });
-      spy.args[1][0].should.eql({ type: DISPATCH_TYPE, portName: "test", payload: { a: "a" } });
+      spy.args[0][0].should.eql({ type: FETCH_STATE_TYPE, channelName: "test" });
+      spy.args[1][0].should.eql({ type: DISPATCH_TYPE, channelName: "test", payload: { a: "a" } });
     });
 
     it("should serialize payloads before sending", function () {
       const spy = (self.chrome.runtime.sendMessage = sinon.spy()),
             serializer = sinon.spy(JSON.stringify),
-            store = new Store({ portName, serializer });
+            store = new Store({ channelName, serializer });
 
       store.dispatch({ a: "a" });
 
 
       spy.callCount.should.eql(2);
 
-      spy.args[0][0].should.eql({ type: FETCH_STATE_TYPE, portName: "test" });
-      spy.args[1][0].should.eql({ type: DISPATCH_TYPE, portName: "test", payload: JSON.stringify({ a: "a" }) });
+      spy.args[0][0].should.eql({ type: FETCH_STATE_TYPE, channelName: "test" });
+      spy.args[1][0].should.eql({ type: DISPATCH_TYPE, channelName: "test", payload: JSON.stringify({ a: "a" }) });
     });
 
     it("should return a promise that resolves with successful action", function () {
@@ -354,7 +352,7 @@ describe("Store", function () {
         cb({ value: { payload: "hello" } });
       };
 
-      const store = new Store({ portName }),
+      const store = new Store({ channelName }),
             p = store.dispatch({ a: "a" });
 
       return p.should.be.fulfilledWith("hello");
@@ -365,7 +363,7 @@ describe("Store", function () {
         cb({ value: { payload: "hello" }, error: { extraMsg: "test" } });
       };
 
-      const store = new Store({ portName }),
+      const store = new Store({ channelName }),
             p = store.dispatch({ a: "a" });
 
       return p.should.be.rejectedWith(Error, { extraMsg: "test" });
@@ -376,7 +374,7 @@ describe("Store", function () {
         cb({ value: undefined });
       };
 
-      const store = new Store({ portName }),
+      const store = new Store({ channelName }),
             p = store.dispatch({ a: "a" });
 
       return p.should.be.fulfilledWith(undefined);
@@ -390,19 +388,19 @@ describe("Store", function () {
 
     it("should throw an error if serializer is not a function", function () {
       should.throws(() => {
-        new Store({ portName, serializer: "abc" });
+        new Store({ channelName, serializer: "abc" });
       }, Error);
     });
 
     it("should throw an error if deserializer is not a function", function () {
       should.throws(() => {
-        new Store({ portName, deserializer: "abc" });
+        new Store({ channelName, deserializer: "abc" });
       }, Error);
     });
 
     it("should throw an error if patchStrategy is not a function", function () {
       should.throws(() => {
-        new Store({ portName, patchStrategy: "abc" });
+        new Store({ channelName, patchStrategy: "abc" });
       }, Error);
     });
   });

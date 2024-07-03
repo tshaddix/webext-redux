@@ -4,7 +4,7 @@ import { Store, applyMiddleware } from '../src';
 
 // Adapt tests from applyMiddleware spec from Redux
 describe('applyMiddleware', function () {
-  const portName = 'test';
+  const channelName = 'test';
   // simulates redux-thunk middleware
   const thunk = ({ dispatch, getState }) => next => action =>
     typeof action === 'function' ? action(dispatch, getState) : next(action);
@@ -31,7 +31,7 @@ describe('applyMiddleware', function () {
     const middleware = [dispatchingMiddleware];
 
     should.throws(() => {
-      applyMiddleware(new Store({portName, state: {a: 'a'}}), ...middleware);
+      applyMiddleware(new Store({channelName, state: {a: 'a'}}), ...middleware);
     }, Error);
   });
 
@@ -44,7 +44,7 @@ describe('applyMiddleware', function () {
     }
 
     const spy = sinon.spy();
-    const store = applyMiddleware(new Store({portName}), test(spy), thunk);
+    const store = applyMiddleware(new Store({channelName}), test(spy), thunk);
 
     store.dispatch(() => ({a: 'a'}));
 
@@ -75,7 +75,7 @@ describe('applyMiddleware', function () {
     }
 
     const spy = sinon.spy();
-    const store = applyMiddleware(new Store({portName}), test(spy), thunk);
+    const store = applyMiddleware(new Store({channelName}), test(spy), thunk);
 
     return store.dispatch(asyncActionCreator({a: 'a'}))
       .then(() => {
@@ -102,7 +102,7 @@ describe('applyMiddleware', function () {
       };
     }
 
-    const store = applyMiddleware(new Store({portName}), multiArgMiddleware, dummyMiddleware);
+    const store = applyMiddleware(new Store({channelName}), multiArgMiddleware, dummyMiddleware);
 
     store.dispatch(spy);
     spy.args[0].should.eql(testCallArgs);
@@ -110,7 +110,7 @@ describe('applyMiddleware', function () {
 
   it('should be able to access getState from thunk', function () {
     const middleware = [thunk];
-    const store = applyMiddleware(new Store({portName, state: {a: 'a'}}), ...middleware);
+    const store = applyMiddleware(new Store({channelName, state: {a: 'a'}}), ...middleware);
 
     store.getState().should.eql({a: 'a'});
     store.dispatch((dispatch, getState) => {

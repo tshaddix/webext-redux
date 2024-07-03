@@ -3,7 +3,7 @@ import {
   FETCH_STATE_TYPE,
   STATE_TYPE,
   PATCH_STATE_TYPE,
-  DEFAULT_PORT_NAME,
+  DEFAULT_CHANNEL_NAME,
 } from "../constants";
 import { withSerializer, withDeserializer, noop } from "../serialization";
 import { getBrowserAPI } from "../util";
@@ -34,7 +34,7 @@ const promiseResponder = (dispatchResult, send) => {
 };
 
 const defaultOpts = {
-  portName: DEFAULT_PORT_NAME,
+  channelName: DEFAULT_CHANNEL_NAME,
   dispatchResponder: promiseResponder,
   serializer: noop,
   deserializer: noop,
@@ -45,8 +45,7 @@ const defaultOpts = {
  * @typedef {function} WrapStore
  * @param {Object} store A Redux store
  * @param {Object} options
- * @param {string} options.portName The name of the port for state transition
- * changes.
+ * @param {string} options.channelName The name of the channel for this store.
  * @param {function} options.dispatchResponder A function that takes the result
  * of a store dispatch and optionally implements custom logic for responding to
  * the original dispatch message.
@@ -79,15 +78,15 @@ export default () => {
   return (
     store,
     {
-      portName = defaultOpts.portName,
+      channelName = defaultOpts.channelName,
       dispatchResponder = defaultOpts.dispatchResponder,
       serializer = defaultOpts.serializer,
       deserializer = defaultOpts.deserializer,
       diffStrategy = defaultOpts.diffStrategy,
     } = defaultOpts
   ) => {
-    if (!portName) {
-      throw new Error("portName is required in options");
+    if (!channelName) {
+      throw new Error("channelName is required in options");
     }
     if (typeof serializer !== "function") {
       throw new Error("serializer must be a function");
@@ -105,7 +104,10 @@ export default () => {
      * Respond to dispatches from UI components
      */
     const dispatchResponse = (request, sender, sendResponse) => {
-      if (request.type === DISPATCH_TYPE && request.portName === portName) {
+      if (
+        request.type === DISPATCH_TYPE &&
+        request.channelName === channelName
+      ) {
         const action = Object.assign({}, request.payload, {
           _sender: sender,
         });
@@ -156,24 +158,24 @@ export default () => {
         serializedMessagePoster({
           type: PATCH_STATE_TYPE,
           payload: diff,
-          portName, // Notifying what extension is broadcasting the state changes
+          channelName, // Notifying what store is broadcasting the state changes
         });
       }
     };
 
-    // Send patched state down connected port on every redux store state change
+    // Send patched state to listeners on every redux store state change
     store.subscribe(patchState);
 
-    // Send store's initial state through port
+    // Send store's initial state
     serializedMessagePoster({
       type: STATE_TYPE,
       payload: currentState,
-      portName, // Notifying what extension is broadcasting the state changes
+      channelName, // Notifying what store is broadcasting the state changes
     });
 
     const withPayloadDeserializer = withDeserializer(deserializer);
     const shouldDeserialize = (request) =>
-      request.type === DISPATCH_TYPE && request.portName === portName;
+      request.type === DISPATCH_TYPE && request.channelName === channelName;
 
     /**
      * State provider for content-script initialization
@@ -181,7 +183,10 @@ export default () => {
     stateProviderListener.setListener((request, sender, sendResponse) => {
       const state = store.getState();
 
-      if (request.type === FETCH_STATE_TYPE && request.portName === portName) {
+      if (
+        request.type === FETCH_STATE_TYPE &&
+        request.channelName === channelName
+      ) {
         sendResponse({
           type: FETCH_STATE_TYPE,
           payload: state,
