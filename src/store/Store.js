@@ -71,28 +71,44 @@ class Store {
     this.state = state;
     this.patchStrategy = patchStrategy;
 
-    // Don't use shouldDeserialize here, since no one else should be using this port
+    /**
+     * Determine if the message should be run through the deserializer. We want
+     * to skip processing messages that probably didn't come from this library.
+     * Note that the listener below is still called for each message so it needs
+     * its own guard, the shouldDeserialize predicate only skips _deserializing_
+     * the message.
+     */
+    const shouldDeserialize = (message) => {
+      return (
+        Boolean(message) &&
+        typeof message.type === "string" &&
+        message.channelName === this.channelName
+      );
+    };
+
     this.serializedPortListener(message => {
-      if(message.channelName === this.channelName){
-        switch (message.type) {
-          case STATE_TYPE:
-            this.replaceState(message.payload);
-
-            if (!this.readyResolved) {
-              this.readyResolved = true;
-              this.readyResolve();
-            }
-            break;
-
-          case PATCH_STATE_TYPE:
-            this.patchState(message.payload);
-            break;
-
-          default:
-            // do nothing
-        }
+      if (!message || message.channelName !== this.channelName) {
+        return;
       }
-    });
+
+      switch (message.type) {
+        case STATE_TYPE:
+          this.replaceState(message.payload);
+
+          if (!this.readyResolved) {
+            this.readyResolved = true;
+            this.readyResolve();
+          }
+          break;
+
+        case PATCH_STATE_TYPE:
+          this.patchState(message.payload);
+          break;
+
+        default:
+          // do nothing
+      }
+    }, shouldDeserialize);
 
     this.dispatch = this.dispatch.bind(this); // add this context to dispatch
   }
