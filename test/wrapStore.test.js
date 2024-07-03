@@ -20,9 +20,6 @@ describe('wrapStore', function() {
         onMessage: {
           addListener: () => { },
         },
-        onMessageExternal: {
-          addListener: () => { },
-        },
         onConnectExternal: {
           addListener: () => { },
         },
@@ -41,7 +38,6 @@ describe('wrapStore', function() {
     const tabs = [1];
     const listeners = {
       onMessage: [],
-      onMessageExternal: [],
       onConnectExternal: [],
     };
 
@@ -49,9 +45,6 @@ describe('wrapStore', function() {
       runtime: {
         onMessage: {
           addListener: fn => listeners.onMessage.push(fn),
-        },
-        onMessageExternal: {
-          addListener: fn => listeners.onMessageExternal.push(fn),
         },
         onConnectExternal: {
           addListener: fn => listeners.onConnectExternal.push(fn),
@@ -305,9 +298,6 @@ describe('wrapStore', function() {
       self.chrome = {
         runtime: {
           onMessage: {
-            addListener: () => { },
-          },
-          onMessageExternal: {
             addListener: () => { },
           },
           onConnectExternal: {

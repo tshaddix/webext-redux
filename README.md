@@ -260,10 +260,6 @@ On the other hand, this piece of code is safe:
 
 If you spot any more surprises that are worth watching out for, make sure to let us know!
 
-## Security
-
-`webext-redux` supports `onMessageExternal` which is fired when a message is sent from another extension, app, or website. By default, if `externally_connectable` is not declared in your extension's manifest, all extensions or apps will be able to send messages to your extension, but no websites will be able to. You can follow [this](https://developer.chrome.com/extensions/manifest/externally_connectable) to address your needs appropriately.
-
 ## Custom Serialization
 
 You may wish to implement custom serialization and deserialization logic for communication between the background store and your proxy store(s). Web Extension's message passing (which is used to implement this library) automatically serializes messages when they are sent and deserializes them when they are received. In the case that you have non-JSON-ifiable information in your Redux state, like a circular reference or a `Date` object, you will lose information between the background store and the proxy store(s). To manage this, both `wrapStore` and `Store` accept `serializer` and `deserializer` options. These should be functions that take a single parameter, the payload of a message, and return a serialized and deserialized form, respectively. The `serializer` function will be called every time a message is sent, and the `deserializer` function will be called every time a message is received. Note that, in addition to state updates, action creators being passed from your content script(s) to your background page will be serialized and deserialized as well.
