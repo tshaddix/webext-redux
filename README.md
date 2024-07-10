@@ -60,16 +60,18 @@ store.ready().then(() => {
 ```js
 // background.js
 
-import {wrapStore} from 'webext-redux';
+import {createWrapStore} from 'webext-redux';
 
 const store; // a normal Redux store
 
+const wrapStore = createWrapStore()
 wrapStore(store);
 ```
 
 That's it! The dispatches called from UI component will find their way to the background page no problem. The new state from your background page will make sure to find its way back to the UI components.
 
-
+> [!NOTE]
+> `createWrapStore()` sets up listeners for browser messaging. In MV3, it must be registered synchronously when the service worker starts. This ensures `dispatch()` calls that wake the service worker are received. Messages are queued internally until `wrapStore()` is called, and the events can be dispatched to the store.
 
 
 ### 3. Optional: Apply any redux middleware to your *Proxy Store* with `applyMiddleware()`
@@ -110,7 +112,7 @@ Sometimes you'll want to make sure the logic of your action creators happen in t
 // background.js
 
 import { applyMiddleware, createStore } from 'redux';
-import { alias, wrapStore } from 'webext-redux';
+import { alias } from 'webext-redux';
 
 const aliases = {
   // this key is the name of the action to proxy, the value is the action
@@ -258,10 +260,6 @@ On the other hand, this piece of code is safe:
 
 If you spot any more surprises that are worth watching out for, make sure to let us know!
 
-## Security
-
-`webext-redux` supports `onMessageExternal` which is fired when a message is sent from another extension, app, or website. By default, if `externally_connectable` is not declared in your extension's manifest, all extensions or apps will be able to send messages to your extension, but no websites will be able to. You can follow [this](https://developer.chrome.com/extensions/manifest/externally_connectable) to address your needs appropriately.
-
 ## Custom Serialization
 
 You may wish to implement custom serialization and deserialization logic for communication between the background store and your proxy store(s). Web Extension's message passing (which is used to implement this library) automatically serializes messages when they are sent and deserializes them when they are received. In the case that you have non-JSON-ifiable information in your Redux state, like a circular reference or a `Date` object, you will lose information between the background store and the proxy store(s). To manage this, both `wrapStore` and `Store` accept `serializer` and `deserializer` options. These should be functions that take a single parameter, the payload of a message, and return a serialized and deserialized form, respectively. The `serializer` function will be called every time a message is sent, and the `deserializer` function will be called every time a message is received. Note that, in addition to state updates, action creators being passed from your content script(s) to your background page will be serialized and deserialized as well.
@@ -296,8 +294,9 @@ As you can see, Web Extension's message passing has caused your date to disappea
 ```js
 // background.js
 
-import {wrapStore} from 'webext-redux';
+import {createWrapStore} from 'webext-redux';
 
+const wrapStore = createWrapStore();
 const store; // a normal Redux store
 
 wrapStore(store, {
@@ -365,9 +364,10 @@ If any of the individual keys under `state.items` is updated, `state.items` will
 ```js
 // background.js
 
-import {wrapStore} from 'webext-redux';
+import {createWrapStore} from 'webext-redux';
 import deepDiff from 'webext-redux/lib/strategies/deepDiff/diff';
 
+const wrapStore = createWrapStore();
 const store; // a normal Redux store
 
 wrapStore(store, {
@@ -395,9 +395,10 @@ Note that the deep diffing strategy currently diffs arrays shallowly, and patche
 ```js
 // background.js
 
-import {wrapStore} from 'webext-redux';
+import {createWrapStore} from 'webext-redux';
 import makeDiff from 'webext-redux/lib/strategies/deepDiff/makeDiff';
 
+const wrapStore = createWrapStore();
 const store; // a normal Redux store
 
 const shouldContinue = (oldState, newState, context) => {
@@ -423,7 +424,7 @@ A `shouldContinue` function of the form `(oldObj, newObj, context) => context.le
 
 ### Custom `diffStrategy` and `patchStrategy` functions
 
-You can also provide your own diffing and patching strategies, using the `diffStrategy` parameter in `wrapStore` and the `patchStrategy` parameter in `Store`, repsectively. A diffing strategy should be a function that takes two arguments - the old state and the new state - and returns a patch, which can be of any form. A patch strategy is a function that takes two arguments - the old state and a patch - and returns the new state.
+You can also provide your own diffing and patching strategies, using the `diffStrategy` parameter in `wrapStore` and the `patchStrategy` parameter in `Store`, respectively. A diffing strategy should be a function that takes two arguments - the old state and the new state - and returns a patch, which can be of any form. A patch strategy is a function that takes two arguments - the old state and a patch - and returns the new state.
 When using a custom diffing and patching strategy, you are responsible for making sure that they function as expected; that is, that `patchStrategy(oldState, diffStrategy(oldState, newState))` is equal to `newState`.
 
 Aside from being able to fine-tune `webext-redux`'s performance, custom diffing and patching strategies allow you to use `webext-redux` with Redux stores whose states are not vanilla Javascript objects. For example, you could implement diffing and patching strategies - along with corresponding custom serialization and deserialization functions - that allow you to handle [Immutable.js](https://github.com/facebook/immutable-js) collections.
@@ -435,7 +436,7 @@ Aside from being able to fine-tune `webext-redux`'s performance, custom diffing 
 * [Advanced Usage](https://github.com/tshaddix/webext-redux/wiki/Advanced-Usage)
 * [API](https://github.com/tshaddix/webext-redux/wiki/API)
   * [Store](https://github.com/tshaddix/webext-redux/wiki/Store)
-  * [wrapStore](https://github.com/tshaddix/webext-redux/wiki/wrapStore)
+  * [createWrapStore](https://github.com/tshaddix/webext-redux/wiki/createWrapStore)
   * [alias](https://github.com/tshaddix/webext-redux/wiki/alias)
 
 ## Who's using this?

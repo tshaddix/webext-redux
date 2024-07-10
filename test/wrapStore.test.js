@@ -8,7 +8,7 @@ import shallowDiff from '../src/strategies/shallowDiff/diff';
 import { DISPATCH_TYPE, STATE_TYPE, PATCH_STATE_TYPE } from '../src/constants';
 
 describe('wrapStore', function () {
-  const portName = 'test';
+  const channelName = 'test';
 
   beforeEach(function () {
     global.self = {};
@@ -18,9 +18,6 @@ describe('wrapStore', function () {
     self.chrome = {
       runtime: {
         onMessage: {
-          addListener: () => { },
-        },
-        onMessageExternal: {
           addListener: () => { },
         },
         onConnectExternal: {
@@ -41,7 +38,6 @@ describe('wrapStore', function () {
     const tabs = [1];
     const listeners = {
       onMessage: [],
-      onMessageExternal: [],
       onConnectExternal: [],
     };
 
@@ -49,9 +45,6 @@ describe('wrapStore', function () {
       runtime: {
         onMessage: {
           addListener: fn => listeners.onMessage.push(fn),
-        },
-        onMessageExternal: {
-          addListener: fn => listeners.onMessageExternal.push(fn),
         },
         onConnectExternal: {
           addListener: fn => listeners.onConnectExternal.push(fn),
@@ -87,7 +80,7 @@ describe('wrapStore', function () {
       };
       message = {
         type: DISPATCH_TYPE,
-        portName,
+        channelName,
         payload
       };
       sender = {};
@@ -97,7 +90,7 @@ describe('wrapStore', function () {
     it('should dispatch actions received on onMessage to store', async function () {
       const wrapStore = createWrapStore();
 
-      wrapStore(store, { portName });
+      wrapStore(store, { channelName });
       listeners.onMessage.forEach(l => l(message, sender, callback));
 
       await Promise.resolve();
@@ -115,8 +108,8 @@ describe('wrapStore', function () {
     it('should not dispatch actions received on onMessage for other ports', function () {
       const wrapStore = createWrapStore();
 
-      wrapStore(store, { portName });
-      message.portName = portName + '2';
+      wrapStore(store, { channelName });
+      message.channelName = channelName + '2';
       listeners.onMessage.forEach(l => l(message, sender, callback));
 
       store.dispatch.notCalled.should.eql(true);
@@ -126,7 +119,7 @@ describe('wrapStore', function () {
       const deserializer = sinon.spy(JSON.parse);
       const wrapStore = createWrapStore();
 
-      wrapStore(store, { portName, deserializer });
+      wrapStore(store, { channelName, deserializer });
       message.payload = JSON.stringify(payload);
       listeners.onMessage.forEach(l => l(message, sender, callback));
 
@@ -146,8 +139,8 @@ describe('wrapStore', function () {
       const deserializer = sinon.spy(JSON.parse);
       const wrapStore = createWrapStore();
 
-      wrapStore(store, { portName, deserializer });
-      message.portName = portName + '2';
+      wrapStore(store, { channelName, deserializer });
+      message.channelName = channelName + '2';
       message.payload = JSON.stringify(payload);
       listeners.onMessage.forEach(l => l(message, sender, callback));
 
@@ -181,19 +174,19 @@ describe('wrapStore', function () {
     const serializer = (payload) => JSON.stringify(payload);
     const wrapStore = createWrapStore();
 
-    wrapStore(store, { portName, serializer });
+    wrapStore(store, { channelName, serializer });
 
     // Simulate a state update by calling subscribers
     subscribers.forEach(subscriber => subscriber());
 
     const expectedSetupMessage = {
       type: STATE_TYPE,
-      portName,
+      channelName,
       payload: serializer(firstState)
     };
     const expectedPatchMessage = {
       type: PATCH_STATE_TYPE,
-      portName,
+      channelName,
       payload: serializer(shallowDiff(firstState, secondState))
     };
 
@@ -232,14 +225,14 @@ describe('wrapStore', function () {
     }]);
     const wrapStore = createWrapStore();
 
-    wrapStore(store, { portName, diffStrategy });
+    wrapStore(store, { channelName, diffStrategy });
 
     // Simulate a state update by calling subscribers
     subscribers.forEach(subscriber => subscriber());
 
     const expectedPatchMessage = {
       type: PATCH_STATE_TYPE,
-      portName,
+      channelName,
       payload: diffStrategy(firstState, secondState)
     };
 
@@ -268,7 +261,7 @@ describe('wrapStore', function () {
       should.throws(() => {
         const wrapStore = createWrapStore();
 
-        wrapStore(store, { portName, serializer: "abc" });
+        wrapStore(store, { channelName, serializer: "abc" });
       }, Error);
     });
 
@@ -276,7 +269,7 @@ describe('wrapStore', function () {
       should.throws(() => {
         const wrapStore = createWrapStore();
 
-        wrapStore(store, { portName, deserializer: "abc" });
+        wrapStore(store, { channelName, deserializer: "abc" });
       }, Error);
     });
 
@@ -284,7 +277,7 @@ describe('wrapStore', function () {
       should.throws(() => {
         const wrapStore = createWrapStore();
 
-        wrapStore(store, { portName, diffStrategy: "abc" });
+        wrapStore(store, { channelName, diffStrategy: "abc" });
       }, Error);
     });
   });
@@ -307,9 +300,6 @@ describe('wrapStore', function () {
           onMessage: {
             addListener: () => { },
           },
-          onMessageExternal: {
-            addListener: () => { },
-          },
           onConnectExternal: {
             addListener: () => { },
           },
@@ -326,7 +316,7 @@ describe('wrapStore', function () {
       };
       const wrapStore = createWrapStore();
 
-      wrapStore(store, { portName });
+      wrapStore(store, { channelName });
 
       tabResponders.length.should.equal(5);
     },

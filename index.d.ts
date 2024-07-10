@@ -4,14 +4,23 @@ export type DiffStrategy = (oldObj: any, newObj: any) => any;
 export type PatchStrategy = (oldObj: any, patch: any) => any;
 
 export class Store<S = any, A extends redux.Action = redux.AnyAction> {
-  /**
+    /**
    * Creates a new Proxy store
-   * @param options An object of form {portName, state, extensionId}, where `portName` is a required string and defines the name of the port for state transition changes, `state` is the initial state of this store (default `{}`) `extensionId` is the extension id as defined by chrome when extension is loaded (default `''`)
+   * @param  {object} options
+   * @param {string} options.channelName The name of the channel for this store.
+   * @param {object} options.state The initial state of the store (default
+   * `{}`).
+   * @param {function} options.serializer A function to serialize outgoing
+   * messages (default is passthrough).
+   * @param {function} options.deserializer A function to deserialize incoming
+   * messages (default is passthrough).
+   * @param {function} options.patchStrategy A function to patch the state with
+   * incoming messages. Use one of the included patching strategies or a custom
+   * patching function. (default is shallow diff).
    */
   constructor(options?: {
-    portName?: string;
+    channelName?: string;
     state?: any;
-    extensionId?: string;
     serializer?: Function;
     deserializer?: Function;
     patchStrategy?: PatchStrategy;
@@ -83,7 +92,7 @@ export class Store<S = any, A extends redux.Action = redux.AnyAction> {
 type WrapStore<S, A extends redux.Action = redux.AnyAction> = (
   store: redux.Store<S, A>,
   configuration?: {
-    portName?: string;
+    channelName?: string;
     dispatchResponder?(
       dispatchResult: any,
       send: (response: any) => void
