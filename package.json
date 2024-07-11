@@ -1,6 +1,6 @@
 {
   "name": "webext-redux",
-  "version": "3.0.0-mv3.0",
+  "version": "3.0.0",
   "description": "A set of utilities for building Redux applications in Web Extensions.",
   "main": "lib/index.js",
   "typings": "./index.d.ts",
