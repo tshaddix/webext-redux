@@ -434,10 +434,6 @@ Aside from being able to fine-tune `webext-redux`'s performance, custom diffing 
 * [Introduction](https://github.com/tshaddix/webext-redux/wiki/Introduction)
 * [Getting Started](https://github.com/tshaddix/webext-redux/wiki/Getting-Started)
 * [Advanced Usage](https://github.com/tshaddix/webext-redux/wiki/Advanced-Usage)
-* [API](https://github.com/tshaddix/webext-redux/wiki/API)
-  * [Store](https://github.com/tshaddix/webext-redux/wiki/Store)
-  * [createWrapStore](https://github.com/tshaddix/webext-redux/wiki/createWrapStore)
-  * [alias](https://github.com/tshaddix/webext-redux/wiki/alias)
 
 ## Who's using this?
 
