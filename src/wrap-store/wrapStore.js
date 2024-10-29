@@ -45,7 +45,6 @@ const defaultOpts = {
  * @typedef {function} WrapStore
  * @param {Object} store A Redux store
  * @param {Object} options
- * @param {string} options.channelName The name of the channel for this store.
  * @param {function} options.dispatchResponder A function that takes the result
  * of a store dispatch and optionally implements custom logic for responding to
  * the original dispatch message.
@@ -61,16 +60,24 @@ const defaultOpts = {
  * Wraps a Redux store so that proxy stores can connect to it. This function
  * must be called synchronously when the extension loads to avoid dropping
  * messages that woke the service worker.
+ * @param {Object} options
+ * @param {string} options.channelName The name of the channel for this store.
  * @return {WrapStore} The wrapStore function that accepts a Redux store and
  * options. See {@link WrapStore}.
  */
-export default () => {
+export default ({ channelName = defaultOpts.channelName } = defaultOpts) => {
   const browserAPI = getBrowserAPI();
+
+  const filterStateMessages = (message) =>
+    message.type === FETCH_STATE_TYPE && message.channelName === channelName;
+
+  const filterActionMessages = (message) =>
+    message.type === DISPATCH_TYPE && message.channelName === channelName;
 
   // Setup message listeners synchronously to avoid dropping messages if the
   // extension is woken by a message.
-  const stateProviderListener = createDeferredListener();
-  const actionListener = createDeferredListener();
+  const stateProviderListener = createDeferredListener(filterStateMessages);
+  const actionListener = createDeferredListener(filterActionMessages);
 
   browserAPI.runtime.onMessage.addListener(stateProviderListener.listener);
   browserAPI.runtime.onMessage.addListener(actionListener.listener);
@@ -78,16 +85,12 @@ export default () => {
   return (
     store,
     {
-      channelName = defaultOpts.channelName,
       dispatchResponder = defaultOpts.dispatchResponder,
       serializer = defaultOpts.serializer,
       deserializer = defaultOpts.deserializer,
       diffStrategy = defaultOpts.diffStrategy,
     } = defaultOpts
   ) => {
-    if (!channelName) {
-      throw new Error("channelName is required in options");
-    }
     if (typeof serializer !== "function") {
       throw new Error("serializer must be a function");
     }
@@ -104,26 +107,21 @@ export default () => {
      * Respond to dispatches from UI components
      */
     const dispatchResponse = (request, sender, sendResponse) => {
-      if (
-        request.type === DISPATCH_TYPE &&
-        request.channelName === channelName
-      ) {
-        const action = Object.assign({}, request.payload, {
-          _sender: sender,
-        });
+      //  Only called with messages that pass the filterActionMessages filter.
+      const action = Object.assign({}, request.payload, {
+        _sender: sender,
+      });
 
-        let dispatchResult = null;
+      let dispatchResult = null;
 
-        try {
-          dispatchResult = store.dispatch(action);
-        } catch (e) {
-          dispatchResult = Promise.reject(e.message);
-          console.error(e);
-        }
-
-        dispatchResponder(dispatchResult, sendResponse);
-        return true;
+      try {
+        dispatchResult = store.dispatch(action);
+      } catch (e) {
+        dispatchResult = Promise.reject(e.message);
+        console.error(e);
       }
+
+      dispatchResponder(dispatchResult, sendResponse);
     };
 
     /**
@@ -173,33 +171,27 @@ export default () => {
       channelName, // Notifying what store is broadcasting the state changes
     });
 
-    const withPayloadDeserializer = withDeserializer(deserializer);
-    const shouldDeserialize = (request) =>
-      request.type === DISPATCH_TYPE && request.channelName === channelName;
-
     /**
      * State provider for content-script initialization
      */
     stateProviderListener.setListener((request, sender, sendResponse) => {
+      // This listener is only called with messages that pass filterStateMessages
       const state = store.getState();
 
-      if (
-        request.type === FETCH_STATE_TYPE &&
-        request.channelName === channelName
-      ) {
-        sendResponse({
-          type: FETCH_STATE_TYPE,
-          payload: state,
-        });
-      }
+      sendResponse({
+        type: FETCH_STATE_TYPE,
+        payload: state,
+      });
     });
 
     /**
      * Setup action handler
      */
+    const withPayloadDeserializer = withDeserializer(deserializer);
+
     withPayloadDeserializer(actionListener.setListener)(
       dispatchResponse,
-      shouldDeserialize
+      filterActionMessages
     );
   };
 };

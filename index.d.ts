@@ -92,7 +92,6 @@ export class Store<S = any, A extends redux.Action = redux.AnyAction> {
 type WrapStore<S, A extends redux.Action = redux.AnyAction> = (
   store: redux.Store<S, A>,
   configuration?: {
-    channelName?: string;
     dispatchResponder?(
       dispatchResult: any,
       send: (response: any) => void
@@ -106,7 +105,9 @@ type WrapStore<S, A extends redux.Action = redux.AnyAction> = (
 export function createWrapStore<
   S,
   A extends redux.Action = redux.AnyAction
->(): WrapStore<S, A>;
+>(configuration?: {
+    channelName?: string;
+}): WrapStore<S, A>;
 
 export function alias(aliases: {
   [key: string]: (action: any) => any;

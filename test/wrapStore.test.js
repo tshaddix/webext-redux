@@ -88,9 +88,9 @@ describe('wrapStore', function () {
     });
 
     it('should dispatch actions received on onMessage to store', async function () {
-      const wrapStore = createWrapStore();
+      const wrapStore = createWrapStore({ channelName });
 
-      wrapStore(store, { channelName });
+      wrapStore(store);
       listeners.onMessage.forEach(l => l(message, sender, callback));
 
       await Promise.resolve();
@@ -106,9 +106,9 @@ describe('wrapStore', function () {
     });
 
     it('should not dispatch actions received on onMessage for other ports', function () {
-      const wrapStore = createWrapStore();
+      const wrapStore = createWrapStore({ channelName });
 
-      wrapStore(store, { channelName });
+      wrapStore(store);
       message.channelName = channelName + '2';
       listeners.onMessage.forEach(l => l(message, sender, callback));
 
@@ -117,9 +117,9 @@ describe('wrapStore', function () {
 
     it('should deserialize incoming messages correctly', async function () {
       const deserializer = sinon.spy(JSON.parse);
-      const wrapStore = createWrapStore();
+      const wrapStore = createWrapStore({ channelName });
 
-      wrapStore(store, { channelName, deserializer });
+      wrapStore(store, { deserializer });
       message.payload = JSON.stringify(payload);
       listeners.onMessage.forEach(l => l(message, sender, callback));
 
@@ -137,9 +137,9 @@ describe('wrapStore', function () {
 
     it('should not deserialize incoming messages for other ports', function () {
       const deserializer = sinon.spy(JSON.parse);
-      const wrapStore = createWrapStore();
+      const wrapStore = createWrapStore({ channelName });
 
-      wrapStore(store, { channelName, deserializer });
+      wrapStore(store, { deserializer });
       message.channelName = channelName + '2';
       message.payload = JSON.stringify(payload);
       listeners.onMessage.forEach(l => l(message, sender, callback));
@@ -172,9 +172,9 @@ describe('wrapStore', function () {
       .onThirdCall().returns(secondState);
 
     const serializer = (payload) => JSON.stringify(payload);
-    const wrapStore = createWrapStore();
+    const wrapStore = createWrapStore({ channelName });
 
-    wrapStore(store, { channelName, serializer });
+    wrapStore(store, { serializer });
 
     // Simulate a state update by calling subscribers
     subscribers.forEach(subscriber => subscriber());
@@ -223,9 +223,9 @@ describe('wrapStore', function () {
       type: 'FAKE_DIFF',
       oldObj, newObj
     }]);
-    const wrapStore = createWrapStore();
+    const wrapStore = createWrapStore({ channelName });
 
-    wrapStore(store, { channelName, diffStrategy });
+    wrapStore(store, { diffStrategy });
 
     // Simulate a state update by calling subscribers
     subscribers.forEach(subscriber => subscriber());
@@ -259,25 +259,25 @@ describe('wrapStore', function () {
 
     it('should throw an error if serializer is not a function', function () {
       should.throws(() => {
-        const wrapStore = createWrapStore();
+        const wrapStore = createWrapStore({ channelName });
 
-        wrapStore(store, { channelName, serializer: "abc" });
+        wrapStore(store, { serializer: "abc" });
       }, Error);
     });
 
     it('should throw an error if deserializer is not a function', function () {
       should.throws(() => {
-        const wrapStore = createWrapStore();
+        const wrapStore = createWrapStore({ channelName });
 
-        wrapStore(store, { channelName, deserializer: "abc" });
+        wrapStore(store, { deserializer: "abc" });
       }, Error);
     });
 
     it('should throw an error if diffStrategy is not a function', function () {
       should.throws(() => {
-        const wrapStore = createWrapStore();
+        const wrapStore = createWrapStore({ channelName });
 
-        wrapStore(store, { channelName, diffStrategy: "abc" });
+        wrapStore(store, { diffStrategy: "abc" });
       }, Error);
     });
   });
@@ -314,9 +314,9 @@ describe('wrapStore', function () {
           }
         }
       };
-      const wrapStore = createWrapStore();
+      const wrapStore = createWrapStore({ channelName });
 
-      wrapStore(store, { channelName });
+      wrapStore(store);
 
       tabResponders.length.should.equal(5);
     },
