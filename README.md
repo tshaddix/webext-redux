@@ -71,7 +71,7 @@ wrapStore(store);
 That's it! The dispatches called from UI component will find their way to the background page no problem. The new state from your background page will make sure to find its way back to the UI components.
 
 > [!NOTE]
-> `createWrapStore()` sets up listeners for browser messaging. In MV3, it must be registered synchronously when the service worker starts. This ensures `dispatch()` calls that wake the service worker are received. Messages are queued internally until `wrapStore()` is called, and the events can be dispatched to the store.
+> `createWrapStore()` ensures webext-redux can handle events when the service worker restarts. It must be called statically in the global scope of the service worker. In other words, it shouldn't be nested in async functions, just like [any other Chrome event listeners](https://developer.chrome.com/docs/extensions/get-started/tutorial/service-worker-events#step-5).
 
 
 ### 3. Optional: Apply any redux middleware to your *Proxy Store* with `applyMiddleware()`
